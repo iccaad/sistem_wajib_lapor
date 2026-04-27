@@ -25,7 +25,8 @@
                value="{{ old('nik', $participant->nik ?? '') }}"
                maxlength="16" inputmode="numeric" pattern="[0-9]*"
                required
-               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono tracking-wider focus:ring-indigo-500 focus:border-indigo-500 @error('nik') border-red-400 @enderror">
+               {{ isset($nikReadonly) && $nikReadonly ? 'readonly' : '' }}
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono tracking-wider focus:ring-indigo-500 focus:border-indigo-500 @error('nik') border-red-400 @enderror {{ isset($nikReadonly) && $nikReadonly ? 'bg-gray-50 cursor-not-allowed' : '' }}">
         @error('nik') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
     </div>
 

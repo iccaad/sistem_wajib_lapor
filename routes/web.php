@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\ParticipantController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Peserta\PesertaAuthController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -52,11 +56,27 @@ Route::middleware(['auth', 'peserta'])->prefix('peserta')->name('peserta.')->gro
 // Admin Protected Routes
 // -------------------------------------------------------
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
 
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Participants CRUD
     Route::resource('participants', ParticipantController::class);
+
+    // Attendance override & photo access
+    Route::post('participants/{participant}/attendance/override', [AdminAttendanceController::class, 'override'])
+        ->name('attendance.override');
+    Route::get('attendance/{log}/photo', [AdminAttendanceController::class, 'showPhoto'])
+        ->name('attendance.photo');
+
+    // Locations CRUD (no show, no destroy — use toggle instead)
+    Route::resource('locations', LocationController::class)->except(['show', 'destroy']);
+    Route::patch('locations/{location}/toggle', [LocationController::class, 'toggle'])
+        ->name('locations.toggle');
+
+    // Reports
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/{participant}', [ReportController::class, 'show'])->name('reports.show');
 });
 
 // -------------------------------------------------------
