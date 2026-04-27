@@ -90,6 +90,27 @@ class AttendancePeriod extends Model
     }
 
     /**
+     * Get remaining calendar days in this period (from today to period_end).
+     * Returns 0 if the period has already ended.
+     */
+    public function getRemainingDays(): int
+    {
+        if (today()->isAfter($this->period_end)) {
+            return 0;
+        }
+
+        return (int) now()->startOfDay()->diffInDays($this->period_end->startOfDay(), false);
+    }
+
+    /**
+     * Check if the period has ended (period_end is in the past).
+     */
+    public function hasEnded(): bool
+    {
+        return today()->isAfter($this->period_end);
+    }
+
+    /**
      * Check if this period is currently active (date-wise).
      */
     public function isCurrent(): bool

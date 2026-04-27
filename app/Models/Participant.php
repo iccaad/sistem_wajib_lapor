@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\PeriodService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -104,6 +105,7 @@ class Participant extends Model
 
     /**
      * Check if the participant's supervision period is currently active.
+     * Both the status column AND the date window must be satisfied.
      */
     public function isActive(): bool
     {
@@ -121,5 +123,25 @@ class Participant extends Model
         }
 
         return (int) now()->startOfDay()->diffInDays($this->supervision_end->startOfDay(), false);
+    }
+
+    /**
+     * Check if the participant has already submitted attendance today.
+     * Checks the attendance_date column in attendance_logs.
+     */
+    public function hasAbsentToday(): bool
+    {
+        return $this->attendanceLogs()
+            ->where('attendance_date', today()->toDateString())
+            ->exists();
+    }
+
+    /**
+     * Get the currently active attendance period for this participant.
+     * Delegates to PeriodService to keep logic centralised.
+     */
+    public function getCurrentPeriod(): ?AttendancePeriod
+    {
+        return (new PeriodService())->getCurrentPeriod($this);
     }
 }

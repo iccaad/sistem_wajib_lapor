@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UpdateParticipantRequest;
 use App\Models\ActivityLog;
 use App\Models\Participant;
 use App\Models\User;
+use App\Services\PeriodService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -56,37 +57,40 @@ class ParticipantController extends Controller
         DB::transaction(function () use ($validated) {
             // Create user account (peserta, no email, no password)
             $user = User::create([
-                'name' => $validated['full_name'],
-                'nik' => $validated['nik'],
-                'role' => 'peserta',
+                'name'      => $validated['full_name'],
+                'nik'       => $validated['nik'],
+                'role'      => 'peserta',
                 'is_active' => $validated['status'] === 'active',
             ]);
 
             // Create participant profile
-            Participant::create([
-                'user_id' => $user->id,
-                'assigned_admin_id' => auth()->id(),
-                'full_name' => $validated['full_name'],
-                'nik' => $validated['nik'],
-                'address' => $validated['address'],
-                'phone' => $validated['phone'],
-                'violation_type' => $validated['violation_type'],
-                'case_notes' => $validated['case_notes'],
-                'supervision_start' => $validated['supervision_start'],
-                'supervision_end' => $validated['supervision_end'],
-                'quota_type' => $validated['quota_type'],
-                'quota_amount' => $validated['quota_amount'],
-                'status' => $validated['status'],
+            $participant = Participant::create([
+                'user_id'          => $user->id,
+                'assigned_admin_id'=> auth()->id(),
+                'full_name'        => $validated['full_name'],
+                'nik'              => $validated['nik'],
+                'address'          => $validated['address'],
+                'phone'            => $validated['phone'],
+                'violation_type'   => $validated['violation_type'],
+                'case_notes'       => $validated['case_notes'],
+                'supervision_start'=> $validated['supervision_start'],
+                'supervision_end'  => $validated['supervision_end'],
+                'quota_type'       => $validated['quota_type'],
+                'quota_amount'     => $validated['quota_amount'],
+                'status'           => $validated['status'],
             ]);
+
+            // Auto-generate first attendance period
+            (new PeriodService())->generateFirstPeriod($participant);
 
             // Log the action
             ActivityLog::create([
-                'user_id' => auth()->id(),
-                'action' => 'created_participant',
+                'user_id'     => auth()->id(),
+                'action'      => 'created_participant',
                 'target_type' => 'participant',
-                'target_id' => $user->id,
+                'target_id'   => $participant->id,
                 'description' => 'Mendaftarkan peserta baru: ' . $validated['full_name'] . ' (NIK: ' . $validated['nik'] . ')',
-                'ip_address' => request()->ip(),
+                'ip_address'  => request()->ip(),
             ]);
         });
 
