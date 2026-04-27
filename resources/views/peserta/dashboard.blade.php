@@ -219,16 +219,19 @@
 @endpush
 
 @push('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-(function () {
-    const locations = @json($activeLocations->map(fn($l) => [
+@php
+    $locationsJson = $activeLocations->map(fn($l) => [
         'name'    => $l->name,
         'lat'     => (float) $l->latitude,
         'lng'     => (float) $l->longitude,
         'radius'  => $l->radius_meters,
         'address' => $l->address,
-    ]));
+    ])->values();
+@endphp
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+    const locations = @json($locationsJson);
 
     if (!locations.length || !document.getElementById('participant-map')) return;
 
