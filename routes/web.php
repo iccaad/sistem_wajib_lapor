@@ -5,6 +5,9 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\ParticipantController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Peserta\AbsenceController;
+use App\Http\Controllers\Peserta\DashboardController as PesertaDashboardController;
+use App\Http\Controllers\Peserta\HistoryController;
 use App\Http\Controllers\Peserta\PesertaAuthController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -45,10 +48,10 @@ Route::post('/login', [PesertaAuthController::class, 'login'])
 // Participant (Peserta) Protected Routes
 // -------------------------------------------------------
 Route::middleware(['auth', 'peserta'])->prefix('peserta')->name('peserta.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('peserta.dashboard');
-    })->name('dashboard');
-
+    Route::get('/dashboard', [PesertaDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/absensi', [AbsenceController::class, 'show'])->name('absence');
+    Route::post('/absensi', [AbsenceController::class, 'store'])->name('absence.store');
+    Route::get('/riwayat', [HistoryController::class, 'index'])->name('history');
     Route::post('/logout', [PesertaAuthController::class, 'logout'])->name('logout');
 });
 
