@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\EnsurePeserta;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -11,7 +13,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Smart guest redirect: peserta routes → /login, admin routes → /admin/login
+        $middleware->redirectGuestsTo(function ($request) {
+            if ($request->is('peserta/*')) {
+                return route('peserta.login');
+            }
+            return route('admin.login');
+        });
+
+        // Register custom middleware aliases
+        $middleware->alias([
+            'admin' => EnsureAdmin::class,
+            'peserta' => EnsurePeserta::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
