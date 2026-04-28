@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsurePeserta;
+use App\Http\Middleware\LogActivityMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -23,8 +24,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Register custom middleware aliases
         $middleware->alias([
-            'admin' => EnsureAdmin::class,
-            'peserta' => EnsurePeserta::class,
+            'admin'        => EnsureAdmin::class,
+            'peserta'      => EnsurePeserta::class,
+            'log.activity' => LogActivityMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

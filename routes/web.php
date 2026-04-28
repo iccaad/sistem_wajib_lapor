@@ -58,7 +58,7 @@ Route::middleware(['auth', 'peserta'])->prefix('peserta')->name('peserta.')->gro
 // -------------------------------------------------------
 // Admin Protected Routes
 // -------------------------------------------------------
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin', 'log.activity'])->prefix('admin')->name('admin.')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
