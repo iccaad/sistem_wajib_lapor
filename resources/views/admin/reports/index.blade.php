@@ -10,9 +10,14 @@
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 no-print">
     <form method="GET" action="{{ route('admin.reports.index') }}"
           class="flex flex-wrap gap-2">
-        <input type="text" name="violation_type" value="{{ request('violation_type') }}"
-               placeholder="Filter pelanggaran..."
-               class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+        <select name="violation_type_id" class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+            <option value="">Semua Pelanggaran</option>
+            @foreach($violationTypes as $vt)
+                <option value="{{ $vt->id }}" {{ request('violation_type_id') == $vt->id ? 'selected' : '' }}>
+                    {{ $vt->name }}
+                </option>
+            @endforeach
+        </select>
         <select name="status" class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
             <option value="">Semua Status</option>
             <option value="active"   {{ request('status') === 'active'   ? 'selected' : '' }}>Aktif</option>
@@ -22,7 +27,7 @@
                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
             Filter
         </button>
-        @if(request('violation_type') || request('status'))
+        @if(request('violation_type_id') || request('status'))
             <a href="{{ route('admin.reports.index') }}"
                class="px-3 py-2 text-sm text-gray-400 hover:text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
                 Reset
@@ -66,7 +71,7 @@
                     <tr class="hover:bg-gray-50">
                         <td class="px-5 py-4 text-sm font-medium text-gray-900">{{ $p->full_name }}</td>
                         <td class="px-5 py-4 text-xs text-gray-500 font-mono hidden sm:table-cell">{{ $p->nik }}</td>
-                        <td class="px-5 py-4 text-sm text-gray-600 hidden md:table-cell">{{ Str::limit($p->violation_type, 20) }}</td>
+                        <td class="px-5 py-4 text-sm text-gray-600 hidden md:table-cell">{{ Str::limit($p->violationType->name ?? '—', 20) }}</td>
                         <td class="px-5 py-4">
                             @if ($p->status === 'active')
                                 <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Aktif</span>

@@ -34,7 +34,7 @@
     <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm mb-6">
         <div><span class="text-gray-500 w-40 inline-block">Nama Peserta</span><span class="font-medium">: {{ $participant->full_name }}</span></div>
         <div><span class="text-gray-500 w-40 inline-block">NIK</span><span class="font-medium">: {{ $participant->nik }}</span></div>
-        <div><span class="text-gray-500 w-40 inline-block">Jenis Pelanggaran</span><span class="font-medium">: {{ $participant->violation_type }}</span></div>
+        <div><span class="text-gray-500 w-40 inline-block">Jenis Pelanggaran</span><span class="font-medium">: {{ $participant->violationType->name ?? '—' }}</span></div>
         <div><span class="text-gray-500 w-40 inline-block">Admin Pengawas</span><span class="font-medium">: {{ $participant->assignedAdmin?->name ?? '—' }}</span></div>
         <div><span class="text-gray-500 w-40 inline-block">Mulai Pengawasan</span><span class="font-medium">: {{ $participant->supervision_start->translatedFormat('d F Y') }}</span></div>
         <div><span class="text-gray-500 w-40 inline-block">Selesai Pengawasan</span><span class="font-medium">: {{ $participant->supervision_end->translatedFormat('d F Y') }}</span></div>

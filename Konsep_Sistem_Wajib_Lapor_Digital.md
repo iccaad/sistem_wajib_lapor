@@ -333,8 +333,9 @@ violation_type      VARCHAR(255) NOT NULL               -- jenis pelanggaran
 case_notes          TEXT NULLABLE                       -- catatan kasus dari petugas
 supervision_start   DATE NOT NULL
 supervision_end     DATE NOT NULL
-quota_type          VARCHAR(10) NOT NULL                -- 'weekly' | 'monthly'
-quota_amount        INTEGER NOT NULL                    -- jumlah wajib lapor per periode
+quota_type          VARCHAR(10) NOT NULL
+quota_amount        INTEGER NOT NULL
+location_id         BIGINT NULLABLE FK → locations(id) ON DELETE SET NULL
 created_at          TIMESTAMP
 updated_at          TIMESTAMP
 ```
@@ -352,20 +353,6 @@ is_active           BOOLEAN NOT NULL DEFAULT true
 created_at          TIMESTAMP
 updated_at          TIMESTAMP
 ```
-
-### Tabel: participant_location (Pivot)
-
-```
-id                  BIGSERIAL PRIMARY KEY
-participant_id      BIGINT NOT NULL FK → participants(id) ON DELETE CASCADE
-location_id         BIGINT NOT NULL FK → locations(id) ON DELETE CASCADE
-created_at          TIMESTAMP
-updated_at          TIMESTAMP
-
-UNIQUE(participant_id, location_id)     -- mencegah duplikasi assignment
-```
-
-> **Aturan bisnis:** Setiap peserta ditetapkan lokasi wajib lapor oleh admin. Jumlah lokasi yang ditetapkan harus sesuai dengan `quota_amount`. Saat absensi, peserta hanya bisa absen di lokasi yang sudah ditetapkan untuknya, bukan di semua lokasi aktif.
 
 ### Tabel: attendance_periods
 

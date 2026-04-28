@@ -96,16 +96,15 @@
             </div>
 
             {{-- Required location for this check-in --}}
-            @if ($nextLocation)
+            @if ($location)
                 <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl">
-                    <p class="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">📍 Lokasi Absensi ke-{{ $nextCheckInOrder }}:</p>
-                    <div class="flex items-center gap-2 text-sm">
-                        <span class="h-2 w-2 rounded-full bg-blue-500 shrink-0"></span>
-                        <span class="font-semibold text-slate-800">{{ $nextLocation->name }}</span>
-                        <span class="text-slate-400 text-xs">(±{{ $nextLocation->radius_meters }}m)</span>
-                    </div>
-                    @if ($nextLocation->address)
-                        <p class="text-xs text-slate-500 mt-1 ml-4">{{ $nextLocation->address }}</p>
+                    <p class="text-xs font-semibold text-blue-800 uppercase tracking-wider mb-1">📍 Lokasi Wajib Lapor</p>
+                    <p class="text-sm font-medium text-slate-800">{{ $location->name }}</p>
+                    <p class="text-xs text-blue-700 mt-2">
+                        Anda harus berada dalam radius <strong>{{ $location->radius_meters }}m</strong> dari lokasi ini.
+                    </p>
+                    @if ($location->address)
+                        <p class="text-xs text-slate-500 mt-1">{{ $location->address }}</p>
                     @endif
                 </div>
             @endif
@@ -287,9 +286,9 @@ function absensiForm() {
         accuracy: null,
         distanceToLocation: null,
         withinRadius: false,
-        locationLat: {{ $nextLocation ? (float) $nextLocation->latitude : 'null' }},
-        locationLng: {{ $nextLocation ? (float) $nextLocation->longitude : 'null' }},
-        locationRadius: {{ $nextLocation ? $nextLocation->radius_meters : 0 }},
+        locationLat: {{ $location ? (float) $location->latitude : 'null' }},
+        locationLng: {{ $location ? (float) $location->longitude : 'null' }},
+        locationRadius: {{ $location ? $location->radius_meters : 0 }},
         // Camera
         cameraStarted: false,
         photoTaken: false,

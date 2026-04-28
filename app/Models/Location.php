@@ -73,11 +73,9 @@ class Location extends Model
     /**
      * Participants assigned to report at this location.
      */
-    public function participants(): BelongsToMany
+    public function participants(): HasMany
     {
-        return $this->belongsToMany(Participant::class, 'participant_location')
-            ->withPivot('check_in_order')
-            ->withTimestamps();
+        return $this->hasMany(Participant::class, 'location_id');
     }
 
     // -------------------------------------------------------

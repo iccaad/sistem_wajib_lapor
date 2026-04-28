@@ -47,7 +47,7 @@
         <h2 class="text-white text-xl font-bold leading-tight">{{ $participant->full_name }}</h2>
         <div class="mt-2 flex items-center gap-2">
             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/20 text-white border border-white/20">
-                {{ $participant->violation_type }}
+                {{ $participant->violationType->name ?? '—' }}
             </span>
             @if ($isActive)
                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-100 border border-emerald-400/30">
@@ -154,14 +154,14 @@
     @endif
 </div>
 
-{{-- ── SECTION 5: Next Required Location ── --}}
-@if ($nextLocation && !$quotaFull && $isActive)
+{{-- ── SECTION 5: Assigned Location ── --}}
+@if ($location && $isActive)
     <div class="bg-white rounded-2xl border-2 border-blue-200 shadow-sm overflow-hidden mb-4">
         <div class="px-5 py-4 bg-blue-50 border-b border-blue-100">
             <div class="flex items-center justify-between">
-                <p class="text-sm font-semibold text-blue-800">📍 Lokasi Absensi ke-{{ $nextCheckInOrder }}</p>
+                <p class="text-sm font-semibold text-blue-800">📍 Lokasi Wajib Lapor</p>
                 <span class="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
-                    Hari ke-{{ $nextCheckInOrder }}
+                    Aktif
                 </span>
             </div>
         </div>
@@ -175,44 +175,11 @@
             </button>
         </div>
         <div class="px-5 py-3">
-            <p class="font-semibold text-slate-800">{{ $nextLocation->name }}</p>
-            @if ($nextLocation->address)
-                <p class="text-xs text-slate-500 mt-0.5">{{ $nextLocation->address }}</p>
+            <p class="font-semibold text-slate-800">{{ $location->name }}</p>
+            @if ($location->address)
+                <p class="text-xs text-slate-500 mt-0.5">{{ $location->address }}</p>
             @endif
-            <p class="text-xs text-slate-400 mt-1">Radius: {{ $nextLocation->radius_meters }}m</p>
-        </div>
-    </div>
-@elseif ($quotaFull)
-    {{-- Quota already full — no next location needed --}}
-@endif
-
-{{-- ── SECTION 5b: Daily Location Schedule (always visible) ── --}}
-@if ($activeLocations->isNotEmpty())
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4">
-        <div class="px-5 py-3 border-b border-slate-100">
-            <p class="text-sm font-semibold text-slate-700">📋 Jadwal Lokasi Harian ({{ $activeLocations->count() }} hari)</p>
-        </div>
-        <div class="divide-y divide-slate-50">
-            @foreach ($activeLocations as $loc)
-                <div class="px-5 py-2.5 flex items-center justify-between {{ $nextLocation && $loc->pivot->check_in_order === $nextLocation->pivot->check_in_order ? 'bg-blue-50' : '' }}">
-                    <div class="flex items-center gap-3">
-                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold {{ $loc->pivot->check_in_order <= ($currentPeriod->attended_count ?? 0) ? 'bg-emerald-100 text-emerald-700' : ($nextLocation && $loc->pivot->check_in_order === $nextLocation->pivot->check_in_order ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-500') }}">
-                            {{ $loc->pivot->check_in_order }}
-                        </span>
-                        <div>
-                            <p class="text-sm font-medium text-slate-700">{{ $loc->name }}</p>
-                            <p class="text-xs text-slate-400">{{ $loc->radius_meters }}m radius</p>
-                        </div>
-                    </div>
-                    @if ($loc->pivot->check_in_order <= ($currentPeriod->attended_count ?? 0))
-                        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">✓ Selesai</span>
-                    @elseif ($nextLocation && $loc->pivot->check_in_order === $nextLocation->pivot->check_in_order)
-                        <span class="text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">→ Selanjutnya</span>
-                    @else
-                        <span class="text-xs text-slate-400">Belum</span>
-                    @endif
-                </div>
-            @endforeach
+            <p class="text-xs text-slate-400 mt-1">Radius: {{ $location->radius_meters }}m</p>
         </div>
     </div>
 @endif
@@ -267,16 +234,16 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 (function () {
-    @if (isset($nextLocation) && $nextLocation && !$quotaFull && $isActive)
+    @if (isset($location) && $location && $isActive)
     const mapEl = document.getElementById('next-location-map');
     if (!mapEl) return;
 
     const loc = {
-        name: @json($nextLocation->name),
-        lat: {{ (float) $nextLocation->latitude }},
-        lng: {{ (float) $nextLocation->longitude }},
-        radius: {{ $nextLocation->radius_meters }},
-        address: @json($nextLocation->address ?? ''),
+        name: @json($location->name),
+        lat: {{ (float) $location->latitude }},
+        lng: {{ (float) $location->longitude }},
+        radius: {{ $location->radius_meters }},
+        address: @json($location->address ?? ''),
     };
 
     const map = L.map('next-location-map', { zoomControl: true }).setView([loc.lat, loc.lng], 16);

@@ -38,7 +38,7 @@ class ActivityLogSeeder extends Seeder
                 'target_id' => $participant->id,
                 'description' => 'Mendaftarkan peserta baru: ' . $participant->full_name . ' (NIK: ' . $participant->nik . ')',
                 'metadata' => json_encode([
-                    'violation_type' => $participant->violation_type,
+                    'violation_type' => $participant->violationType->name ?? '—',
                     'supervision_period' => $participant->supervision_start . ' s/d ' . $participant->supervision_end,
                 ]),
                 'ip_address' => '192.168.1.' . mt_rand(10, 50),

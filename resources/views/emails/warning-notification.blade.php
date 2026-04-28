@@ -199,7 +199,7 @@
             </div>
             <div class="info-row">
                 <span class="info-label">Jenis Pelanggaran</span>
-                <span class="info-value">{{ $participant->violation_type }}</span>
+                <span class="info-value">{{ $participant->violationType->name ?? '—' }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Masa Pengawasan</span>

@@ -20,8 +20,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('admin.participants.store') }}" class="p-6"
-              x-data="locationForm({{ old('quota_amount', 1) }}, {{ json_encode(old('location_ids', [''])) }})">
+        <form method="POST" action="{{ route('admin.participants.store') }}" class="p-6">
             @csrf
             @include('admin.participants._form', ['participant' => null])
 
@@ -40,25 +39,3 @@
 </div>
 
 @endsection
-
-@push('scripts')
-<script>
-function locationForm(initialQuota, initialSlots) {
-    return {
-        quotaAmount: initialQuota,
-        locationSlots: initialSlots.map(v => v ? String(v) : ''),
-        init() {
-            this.$watch('quotaAmount', (val) => {
-                val = Math.max(1, Math.min(30, val || 1));
-                while (this.locationSlots.length < val) this.locationSlots.push('');
-                while (this.locationSlots.length > val) this.locationSlots.pop();
-            });
-            let q = this.quotaAmount || 1;
-            while (this.locationSlots.length < q) this.locationSlots.push('');
-            while (this.locationSlots.length > q) this.locationSlots.pop();
-        }
-    };
-}
-</script>
-@endpush
-

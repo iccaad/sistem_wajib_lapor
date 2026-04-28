@@ -25,12 +25,13 @@ class Participant extends Model
         'nik',
         'address',
         'phone',
-        'violation_type',
+        'violation_type_id',
         'case_notes',
         'supervision_start',
         'supervision_end',
         'quota_type',
         'quota_amount',
+        'location_id',
         'status',
     ];
 
@@ -69,6 +70,14 @@ class Participant extends Model
     }
 
     /**
+     * Get the violation type.
+     */
+    public function violationType(): BelongsTo
+    {
+        return $this->belongsTo(ViolationType::class);
+    }
+
+    /**
      * Attendance periods (quota windows) for this participant.
      */
     public function attendancePeriods(): HasMany
@@ -101,16 +110,11 @@ class Participant extends Model
     }
 
     /**
-     * The assigned reporting locations for this participant.
-     * Each location is tied to a specific check-in order (1st, 2nd, 3rd...).
-     * Number of locations must match quota_amount.
+     * The assigned reporting location for this participant.
      */
-    public function locations(): BelongsToMany
+    public function location(): BelongsTo
     {
-        return $this->belongsToMany(Location::class, 'participant_location')
-            ->withPivot('check_in_order')
-            ->withTimestamps()
-            ->orderByPivot('check_in_order');
+        return $this->belongsTo(Location::class, 'location_id');
     }
 
     // -------------------------------------------------------

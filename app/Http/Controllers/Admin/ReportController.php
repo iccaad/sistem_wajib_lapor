@@ -11,10 +11,10 @@ class ReportController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Participant::with(['attendancePeriods', 'warnings']);
+        $query = Participant::with(['attendancePeriods', 'warnings', 'violationType']);
 
-        if ($filter = $request->input('violation_type')) {
-            $query->where('violation_type', 'ilike', "%{$filter}%");
+        if ($filter = $request->input('violation_type_id')) {
+            $query->where('violation_type_id', $filter);
         }
 
         if ($status = $request->input('status')) {
@@ -41,7 +41,9 @@ class ReportController extends Controller
 
         $participants = $paginated;
 
-        return view('admin.reports.index', compact('participants'));
+        $violationTypes = \App\Models\ViolationType::all();
+
+        return view('admin.reports.index', compact('participants', 'violationTypes'));
     }
 
     public function show(Participant $participant): View

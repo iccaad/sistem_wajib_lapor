@@ -36,7 +36,7 @@ return new class extends Migration
             $table->string('phone', 20)->nullable();
 
             // Violation and case details
-            $table->string('violation_type', 255);
+            $table->foreignId('violation_type_id')->constrained('violation_types')->restrictOnDelete();
             $table->text('case_notes')->nullable();
 
             // Supervision period

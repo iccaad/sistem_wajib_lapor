@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminUserSeeder::class,
             LocationSeeder::class,
+            ViolationTypeSeeder::class,
             ParticipantUserSeeder::class,
             AttendancePeriodSeeder::class,
             AttendanceLogSeeder::class,

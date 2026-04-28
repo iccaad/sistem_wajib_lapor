@@ -112,8 +112,9 @@
                 @forelse ($recentParticipants as $p)
                     @php
                         $currentPeriod = $p->attendancePeriods
-                            ->where('status', 'active')
-                            ->first(fn($per) => today()->between($per->period_start, $per->period_end));
+                            ->first(fn($per) => today()->between($per->period_start, $per->period_end))
+                            ?? $p->attendancePeriods->where('period_start', '<=', today())->sortByDesc('period_start')->first()
+                            ?? $p->attendancePeriods->first();
                     @endphp
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4">
@@ -130,7 +131,7 @@
                             <span class="text-sm text-gray-500 font-mono">{{ $p->nik }}</span>
                         </td>
                         <td class="px-6 py-4 hidden md:table-cell">
-                            <span class="text-sm text-gray-600">{{ Str::limit($p->violation_type, 22) }}</span>
+                            <span class="text-sm text-gray-600">{{ Str::limit($p->violationType->name ?? '—', 22) }}</span>
                         </td>
                         <td class="px-6 py-4 hidden lg:table-cell">
                             <div class="text-xs text-gray-500">

@@ -30,15 +30,14 @@ class UpdateParticipantRequest extends FormRequest
             'nik' => ['required', 'string', 'digits:16', 'unique:users,nik,' . $userId],
             'address' => ['nullable', 'string'],
             'phone' => ['nullable', 'string', 'max:20'],
-            'violation_type' => ['required', 'string', 'max:255'],
+            'violation_type_id' => ['required', 'integer', 'exists:violation_types,id'],
             'case_notes' => ['nullable', 'string'],
             'supervision_start' => ['required', 'date'],
             'supervision_end' => ['required', 'date', 'after:supervision_start'],
             'quota_type' => ['required', 'in:weekly,monthly'],
             'quota_amount' => ['required', 'integer', 'min:1', 'max:30'],
             'status' => ['required', 'in:active,inactive'],
-            'location_ids' => ['required', 'array', 'min:1'],
-            'location_ids.*' => ['required', 'integer', 'exists:locations,id'],
+            'location_id' => ['required', 'integer', 'exists:locations,id'],
         ];
     }
 
@@ -54,7 +53,8 @@ class UpdateParticipantRequest extends FormRequest
             'nik.required' => 'NIK wajib diisi.',
             'nik.digits' => 'NIK harus terdiri dari 16 digit.',
             'nik.unique' => 'NIK sudah terdaftar di sistem.',
-            'violation_type.required' => 'Jenis pelanggaran wajib diisi.',
+            'violation_type_id.required' => 'Jenis pelanggaran wajib diisi.',
+            'violation_type_id.exists' => 'Jenis pelanggaran tidak valid.',
             'supervision_start.required' => 'Tanggal mulai wajib diisi.',
             'supervision_end.required' => 'Tanggal selesai wajib diisi.',
             'supervision_end.after' => 'Tanggal selesai harus setelah tanggal mulai.',
@@ -64,10 +64,8 @@ class UpdateParticipantRequest extends FormRequest
             'quota_amount.min' => 'Jumlah kuota minimal 1.',
             'quota_amount.max' => 'Jumlah kuota maksimal 30.',
             'status.in' => 'Status harus active atau inactive.',
-            'location_ids.required' => 'Lokasi wajib lapor harus dipilih.',
-            'location_ids.min' => 'Minimal 1 lokasi harus dipilih.',
-            'location_ids.*.exists' => 'Lokasi yang dipilih tidak valid.',
-
+            'location_id.required' => 'Lokasi wajib lapor harus dipilih.',
+            'location_id.exists' => 'Lokasi yang dipilih tidak valid.',
         ];
     }
 }

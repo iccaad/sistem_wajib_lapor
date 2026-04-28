@@ -77,6 +77,9 @@ Route::middleware(['auth', 'admin', 'log.activity'])->prefix('admin')->name('adm
     Route::patch('locations/{location}/toggle', [LocationController::class, 'toggle'])
         ->name('locations.toggle');
 
+    // Violation Types CRUD
+    Route::resource('violation-types', \App\Http\Controllers\Admin\ViolationTypeController::class)->except(['show']);
+
     // Reports
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('reports/{participant}', [ReportController::class, 'show'])->name('reports.show');

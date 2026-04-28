@@ -32,6 +32,12 @@ class ParticipantUserSeeder extends Seeder
         $locBalai  = Location::where('name', 'Balai Pemuda Kota Semarang')->first();
         $locTaman  = Location::where('name', 'Taman Indonesia Kaya')->first();
 
+        $vtBalap = \App\Models\ViolationType::where('name', 'Balap liar')->first();
+        $vtRusuh = \App\Models\ViolationType::where('name', 'Kerusuhan / ketertiban umum')->first();
+        $vtKelahi = \App\Models\ViolationType::where('name', 'Perkelahian')->first();
+        $vtVandal = \App\Models\ViolationType::where('name', 'Vandalisme')->first();
+        $vtNarkoba = \App\Models\ViolationType::where('name', 'Penyalahgunaan narkoba ringan')->first();
+
         $participants = [
             [
                 'user' => [
@@ -48,16 +54,15 @@ class ParticipantUserSeeder extends Seeder
                     'nik' => '3374012505030001',
                     'address' => 'Jl. Pandanaran No. 45, Semarang Tengah',
                     'phone' => '081234567801',
-                    'violation_type' => 'Balap liar',
+                    'violation_type_id' => $vtBalap?->id,
                     'case_notes' => 'Tertangkap saat razia balap liar di Jl. Siliwangi. Kendaraan Honda Beat, nopol H-1234-AB. Pelanggaran pertama.',
                     'supervision_start' => '2026-04-01',
                     'supervision_end' => '2026-06-30',
                     'quota_type' => 'weekly',
                     'quota_amount' => 1,
                     'status' => 'active',
+                    'location_id' => $locPolres?->id,
                 ],
-                // quota_amount=1 → 1 location
-                'location_ids' => [$locPolres?->id],
             ],
             [
                 'user' => [
@@ -74,16 +79,15 @@ class ParticipantUserSeeder extends Seeder
                     'nik' => '3374011208040002',
                     'address' => 'Jl. Karanganyar Gunung RT 05/RW 02, Candisari',
                     'phone' => '082345678902',
-                    'violation_type' => 'Kerusuhan / ketertiban umum',
+                    'violation_type_id' => $vtRusuh?->id,
                     'case_notes' => 'Terlibat tawuran antar kelompok di daerah Karanganyar Gunung. Tidak ada korban luka berat. Wajib pembinaan rutin.',
                     'supervision_start' => '2026-04-01',
                     'supervision_end' => '2026-07-31',
                     'quota_type' => 'weekly',
                     'quota_amount' => 2,
                     'status' => 'active',
+                    'location_id' => $locPolres?->id,
                 ],
-                // quota_amount=2 → 2 locations
-                'location_ids' => [$locPolres?->id, $locGor?->id],
             ],
             [
                 'user' => [
@@ -100,16 +104,15 @@ class ParticipantUserSeeder extends Seeder
                     'nik' => '3374024703050003',
                     'address' => 'Jl. Dr. Cipto No. 78, Semarang Timur',
                     'phone' => '085678901203',
-                    'violation_type' => 'Perkelahian',
+                    'violation_type_id' => $vtKelahi?->id,
                     'case_notes' => 'Terlibat perkelahian di area publik (Mall Ciputra). Diselesaikan secara kekeluargaan. Wajib lapor sebagai bentuk pembinaan.',
                     'supervision_start' => '2026-03-15',
                     'supervision_end' => '2026-06-15',
                     'quota_type' => 'monthly',
                     'quota_amount' => 4,
                     'status' => 'active',
+                    'location_id' => $locBalai?->id,
                 ],
-                // quota_amount=4 → 4 locations (all available)
-                'location_ids' => [$locPolres?->id, $locGor?->id, $locBalai?->id, $locTaman?->id],
             ],
             [
                 'user' => [
@@ -126,16 +129,15 @@ class ParticipantUserSeeder extends Seeder
                     'nik' => '3374011509020004',
                     'address' => 'Jl. Majapahit No. 112, Pedurungan',
                     'phone' => '087890123404',
-                    'violation_type' => 'Vandalisme',
+                    'violation_type_id' => $vtVandal?->id,
                     'case_notes' => 'Tertangkap mencoret-coret fasilitas umum (halte BRT). Diwajibkan membersihkan dan menjalani program pembinaan.',
                     'supervision_start' => '2026-04-07',
                     'supervision_end' => '2026-07-07',
                     'quota_type' => 'weekly',
                     'quota_amount' => 1,
                     'status' => 'active',
+                    'location_id' => $locBalai?->id,
                 ],
-                // quota_amount=1 → 1 location
-                'location_ids' => [$locBalai?->id],
             ],
             [
                 'user' => [
@@ -152,16 +154,15 @@ class ParticipantUserSeeder extends Seeder
                     'nik' => '3374012201060005',
                     'address' => 'Jl. Sompok Baru No. 23, Lamper Tengah',
                     'phone' => '089012345605',
-                    'violation_type' => 'Penyalahgunaan narkoba ringan',
+                    'violation_type_id' => $vtNarkoba?->id,
                     'case_notes' => 'Tertangkap memiliki ganja dalam jumlah kecil untuk pemakaian pribadi. Menjalani rehabilitasi sekaligus program wajib lapor.',
                     'supervision_start' => '2026-03-01',
                     'supervision_end' => '2026-08-31',
                     'quota_type' => 'monthly',
                     'quota_amount' => 4,
                     'status' => 'active',
+                    'location_id' => $locPolres?->id,
                 ],
-                // quota_amount=4 → 4 locations (all available)
-                'location_ids' => [$locPolres?->id, $locGor?->id, $locBalai?->id, $locTaman?->id],
             ],
         ];
 
@@ -176,14 +177,6 @@ class ParticipantUserSeeder extends Seeder
                 array_merge($data['profile'], ['user_id' => $user->id])
             );
 
-            // Assign reporting locations with check-in order
-            $locationIds = array_filter($data['location_ids'] ?? []);
-            if (!empty($locationIds)) {
-                $participant->locations()->detach();
-                foreach (array_values($locationIds) as $order => $locId) {
-                    $participant->locations()->attach($locId, ['check_in_order' => $order + 1]);
-                }
-            }
         }
     }
 }

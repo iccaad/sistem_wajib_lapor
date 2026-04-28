@@ -45,8 +45,9 @@ class ParticipantController extends Controller
     public function create(): View
     {
         $locations = Location::active()->get();
+        $violationTypes = \App\Models\ViolationType::all();
 
-        return view('admin.participants.create', compact('locations'));
+        return view('admin.participants.create', compact('locations', 'violationTypes'));
     }
 
     /**
@@ -74,25 +75,20 @@ class ParticipantController extends Controller
                 'nik'              => $validated['nik'],
                 'address'          => $validated['address'],
                 'phone'            => $validated['phone'],
-                'violation_type'   => $validated['violation_type'],
+                'violation_type_id'=> $validated['violation_type_id'],
                 'case_notes'       => $validated['case_notes'],
                 'supervision_start'=> $validated['supervision_start'],
                 'supervision_end'  => $validated['supervision_end'],
                 'quota_type'       => $validated['quota_type'],
                 'quota_amount'     => $validated['quota_amount'],
                 'status'           => $validated['status'],
+                'location_id'      => $validated['location_id'],
             ]);
 
-            // Auto-generate first attendance period
-            (new PeriodService())->generateFirstPeriod($participant);
+            // Auto-generate all attendance periods
+            (new PeriodService())->generateAllPeriods($participant);
 
-            // Assign reporting locations with check-in order
-            // Using detach+attach instead of sync because the same location
-            // can be assigned to multiple days (duplicate location_ids allowed)
-            $participant->locations()->detach();
-            foreach ($validated['location_ids'] as $order => $locationId) {
-                $participant->locations()->attach($locationId, ['check_in_order' => $order + 1]);
-            }
+
 
             // Log the action
             ActivityLog::create([
@@ -121,7 +117,8 @@ class ParticipantController extends Controller
             'warnings',
             'attendanceLogs',
             'attendancePeriods',
-            'locations',
+            'location',
+            'violationType',
         ]);
 
         return view('admin.participants.show', compact('participant'));
@@ -134,10 +131,9 @@ class ParticipantController extends Controller
     {
         $participant->load('user');
         $locations = Location::active()->get();
-        // Get location IDs ordered by check_in_order
-        $assignedLocationIds = $participant->locations->pluck('id')->toArray();
+        $violationTypes = \App\Models\ViolationType::all();
 
-        return view('admin.participants.edit', compact('participant', 'locations', 'assignedLocationIds'));
+        return view('admin.participants.edit', compact('participant', 'locations', 'violationTypes'));
     }
 
     /**
@@ -162,22 +158,17 @@ class ParticipantController extends Controller
                 'nik' => $validated['nik'],
                 'address' => $validated['address'],
                 'phone' => $validated['phone'],
-                'violation_type' => $validated['violation_type'],
+                'violation_type_id' => $validated['violation_type_id'],
                 'case_notes' => $validated['case_notes'],
                 'supervision_start' => $validated['supervision_start'],
                 'supervision_end' => $validated['supervision_end'],
                 'quota_type' => $validated['quota_type'],
                 'quota_amount' => $validated['quota_amount'],
                 'status' => $validated['status'],
+                'location_id' => $validated['location_id'],
             ]);
 
-            // Sync reporting locations with check-in order
-            // Using detach+attach instead of sync because the same location
-            // can be assigned to multiple days (duplicate location_ids allowed)
-            $participant->locations()->detach();
-            foreach ($validated['location_ids'] as $order => $locationId) {
-                $participant->locations()->attach($locationId, ['check_in_order' => $order + 1]);
-            }
+
 
             // Log the action
             ActivityLog::create([

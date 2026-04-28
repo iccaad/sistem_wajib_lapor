@@ -51,22 +51,16 @@ class AttendanceService
      *   check_in_order: int,
      * }
      */
-    public function getRequiredLocation(Participant $participant, float $lat, float $lng, int $currentAttendedCount): array
+    public function getRequiredLocation(Participant $participant, float $lat, float $lng): array
     {
-        $nextCheckInOrder = $currentAttendedCount + 1;
-
-        // Get the specific location assigned to this check-in order
-        $location = $participant->locations()
-            ->wherePivot('check_in_order', $nextCheckInOrder)
-            ->where('is_active', true)
-            ->first();
+        // Get the specific location assigned to this participant
+        $location = $participant->location()->where('is_active', true)->first();
 
         if (!$location) {
             return [
                 'location'       => null,
                 'distance'       => null,
                 'within_radius'  => false,
-                'check_in_order' => $nextCheckInOrder,
             ];
         }
 
@@ -81,7 +75,6 @@ class AttendanceService
             'location'       => $location,
             'distance'       => $distance,
             'within_radius'  => $distance <= $location->radius_meters,
-            'check_in_order' => $nextCheckInOrder,
         ];
     }
 
@@ -159,14 +152,13 @@ class AttendanceService
             );
         }
 
-        // [7] Must be within the radius of the SPECIFIC location for this check-in order
-        $attendedCount = $currentPeriod->attended_count ?? 0;
-        $locationResult = $this->getRequiredLocation($participant, $lat, $lng, $attendedCount);
+        // [7] Must be within the radius of the SPECIFIC location assigned to the participant
+        $locationResult = $this->getRequiredLocation($participant, $lat, $lng);
 
         if (!$locationResult['location']) {
             return [
                 'valid'         => false,
-                'error_message' => "Tidak ada lokasi wajib lapor yang ditetapkan untuk absensi ke-{$locationResult['check_in_order']}.",
+                'error_message' => "Tidak ada lokasi wajib lapor aktif yang ditetapkan untuk peserta.",
                 'error_code'    => 'NO_LOCATION_ASSIGNED',
                 'location'      => null,
                 'distance'      => null,
@@ -181,7 +173,7 @@ class AttendanceService
 
             return [
                 'valid'         => false,
-                'error_message' => "Anda berada di luar area \"{$locName}\" (lokasi untuk absensi ke-{$locationResult['check_in_order']}). Jarak Anda: {$distanceText}.",
+                'error_message' => "Anda berada di luar area \"{$locName}\". Jarak Anda: {$distanceText}.",
                 'error_code'    => 'OUT_OF_RANGE',
                 'location'      => $locationResult['location'],
                 'distance'      => $locationResult['distance'],

@@ -1344,10 +1344,8 @@ Logic:
 
 3. Generate periode pertama via PeriodService::generateFirstPeriod()
 
-4. Sync lokasi wajib lapor:
-   $participant->locations()->sync($request->location_ids)
-   → Jumlah lokasi yang dipilih harus sesuai dengan quota_amount
-   → Gunakan tabel pivot participant_location
+4. **Assign lokasi wajib lapor tunggal:**
+   → Simpan `location_id` di profil peserta.
 
 5. Redirect ke show dengan pesan sukses
 
@@ -1990,7 +1988,7 @@ Tambahkan lapisan keamanan final:
 
 ```
 Fase 0  → .env, config/app.php, routes/auth.php (modifikasi Breeze)
-Fase 1  → 8 migration files (berurutan) + 1 pivot migration (participant_location)
+Fase 1  → 8 migration files (berurutan) + 1 migration tambahan untuk `location_id` di tabel `participants`.
 Fase 2  → 8 model files
 Fase 3  → PesertaAuthController, RoleMiddleware, LogActivityMiddleware,
            views/peserta-auth/login.blade.php, routes/web.php (struktur)

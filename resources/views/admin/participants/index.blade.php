@@ -117,7 +117,7 @@
                             <span class="text-xs text-gray-500 font-mono">{{ $p->nik }}</span>
                         </td>
                         <td class="px-5 py-4 hidden md:table-cell">
-                            <span class="text-sm text-gray-600">{{ Str::limit($p->violation_type, 22) }}</span>
+                            <span class="text-sm text-gray-600">{{ Str::limit($p->violationType->name ?? '—', 22) }}</span>
                         </td>
                         <td class="px-5 py-4 hidden lg:table-cell">
                             <div class="text-xs text-gray-500 leading-5">

@@ -10,66 +10,42 @@ use Illuminate\Support\Facades\Log;
 class PeriodService
 {
     /**
-     * Generate the first attendance period for a newly registered participant.
+     * Generate all attendance periods for a newly registered participant.
      *
-     * Period starts on supervision_start.
+     * Periods start on supervision_start and end on supervision_end.
      * Duration: weekly = 7 days, monthly = 30 days.
-     * Capped at supervision_end if it falls before the natural period end.
      */
-    public function generateFirstPeriod(Participant $participant): AttendancePeriod
+    public function generateAllPeriods(Participant $participant): void
     {
-        $periodStart = Carbon::parse($participant->supervision_start)->startOfDay();
+        $currentStart = Carbon::parse($participant->supervision_start)->startOfDay();
         $supervisionEnd = Carbon::parse($participant->supervision_end)->startOfDay();
 
-        $periodEnd = $this->calculatePeriodEnd($periodStart, $participant->quota_type);
+        while ($currentStart->lte($supervisionEnd)) {
+            $periodEnd = $this->calculatePeriodEnd($currentStart, $participant->quota_type);
 
-        // Cap period_end at supervision_end
-        if ($periodEnd->gt($supervisionEnd)) {
-            $periodEnd = $supervisionEnd->copy();
+            // Cap period_end at supervision_end
+            if ($periodEnd->gt($supervisionEnd)) {
+                $periodEnd = $supervisionEnd->copy();
+            }
+            
+            // Determine status based on dates
+            $status = 'active';
+            if ($periodEnd->lt(today())) {
+                $status = 'completed';
+            }
+
+            AttendancePeriod::create([
+                'participant_id'  => $participant->id,
+                'period_type'     => $participant->quota_type,
+                'period_start'    => $currentStart->toDateString(),
+                'period_end'      => $periodEnd->toDateString(),
+                'target_count'    => $participant->quota_amount,
+                'attended_count'  => 0,
+                'status'          => $status,
+            ]);
+
+            $currentStart = $periodEnd->copy()->addDay()->startOfDay();
         }
-
-        return AttendancePeriod::create([
-            'participant_id'  => $participant->id,
-            'period_type'     => $participant->quota_type,
-            'period_start'    => $periodStart->toDateString(),
-            'period_end'      => $periodEnd->toDateString(),
-            'target_count'    => $participant->quota_amount,
-            'attended_count'  => 0,
-            'status'          => 'active',
-        ]);
-    }
-
-    /**
-     * Generate the next attendance period after the given current period.
-     *
-     * Returns null if the next period would start after supervision_end.
-     */
-    public function generateNextPeriod(AttendancePeriod $currentPeriod): ?AttendancePeriod
-    {
-        $participant    = $currentPeriod->participant;
-        $supervisionEnd = Carbon::parse($participant->supervision_end)->startOfDay();
-
-        $nextStart = Carbon::parse($currentPeriod->period_end)->addDay()->startOfDay();
-
-        if ($nextStart->gt($supervisionEnd)) {
-            return null; // Supervision is over — no more periods
-        }
-
-        $nextEnd = $this->calculatePeriodEnd($nextStart, $participant->quota_type);
-
-        if ($nextEnd->gt($supervisionEnd)) {
-            $nextEnd = $supervisionEnd->copy();
-        }
-
-        return AttendancePeriod::create([
-            'participant_id'  => $participant->id,
-            'period_type'     => $participant->quota_type,
-            'period_start'    => $nextStart->toDateString(),
-            'period_end'      => $nextEnd->toDateString(),
-            'target_count'    => $participant->quota_amount,
-            'attended_count'  => 0,
-            'status'          => 'active',
-        ]);
     }
 
     /**
@@ -88,40 +64,32 @@ class PeriodService
     }
 
     /**
-     * Scheduler entry point — generates the next period for every participant
-     * whose most recent active period ended yesterday.
+     * Scheduler entry point — updates the status of old periods.
      *
      * Should be called daily at midnight (00:05 WIB).
      *
-     * @return int  Number of new periods generated.
+     * @return int  Number of periods updated.
      */
-    public function generatePeriodsForAllActive(): int
+    public function updateExpiredPeriodsStatus(): int
     {
         $yesterday = today()->subDay()->toDateString();
 
         // Find all periods that ended yesterday and are still marked 'active'
         $endedPeriods = AttendancePeriod::where('period_end', $yesterday)
             ->where('status', 'active')
-            ->with('participant')
             ->get();
 
-        $generated = 0;
+        $updated = 0;
 
         foreach ($endedPeriods as $period) {
             // Mark old period as completed
             $period->update(['status' => 'completed']);
-
-            $newPeriod = $this->generateNextPeriod($period);
-
-            if ($newPeriod) {
-                $generated++;
-                Log::info("PeriodService: Generated new period #{$newPeriod->id} for participant #{$period->participant_id}");
-            }
+            $updated++;
         }
 
-        Log::info("PeriodService::generatePeriodsForAllActive — {$generated} period(s) generated.");
+        Log::info("PeriodService::updateExpiredPeriodsStatus — {$updated} period(s) marked as completed.");
 
-        return $generated;
+        return $updated;
     }
 
     // -------------------------------------------------------
