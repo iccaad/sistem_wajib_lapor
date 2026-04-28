@@ -50,7 +50,7 @@ Route::post('/login', [PesertaAuthController::class, 'login'])
 Route::middleware(['auth', 'peserta'])->prefix('peserta')->name('peserta.')->group(function () {
     Route::get('/dashboard', [PesertaDashboardController::class, 'index'])->name('dashboard');
     Route::get('/absensi', [AbsenceController::class, 'show'])->name('absence');
-    Route::post('/absensi', [AbsenceController::class, 'store'])->name('absence.store');
+    Route::post('/absensi', [AbsenceController::class, 'store'])->middleware('throttle:absensi')->name('absence.store');
     Route::get('/riwayat', [HistoryController::class, 'index'])->name('history');
     Route::post('/logout', [PesertaAuthController::class, 'logout'])->name('logout');
 });

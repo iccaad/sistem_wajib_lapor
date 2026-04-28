@@ -15,7 +15,7 @@ class LocationController extends Controller
         $locations = Location::withCount('attendanceLogs')
             ->orderByDesc('is_active')
             ->orderBy('name')
-            ->get();
+            ->paginate(15);
 
         return view('admin.locations.index', compact('locations'));
     }

@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +22,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // ── Rate limit: Absensi ──
+        // Max 10 submission attempts per authenticated user per day.
+        // Falls back to IP if unauthenticated (should never happen, route is auth-guarded).
+        RateLimiter::for('absensi', function (Request $request) {
+            return Limit::perDay(10)->by($request->user()?->id ?: $request->ip());
+        });
     }
 }

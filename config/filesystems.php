@@ -38,6 +38,17 @@ return [
             'report' => false,
         ],
 
+        // Explicit private disk for sensitive files (selfie photos).
+        // Root maps to the same path as 'local' but is always private visibility.
+        // Only accessible via admin-protected routes — never directly via URL.
+        'private' => [
+            'driver'     => 'local',
+            'root'       => storage_path('app/private'),
+            'visibility' => 'private',
+            'throw'      => false,
+            'report'     => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

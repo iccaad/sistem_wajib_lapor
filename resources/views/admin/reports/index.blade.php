@@ -62,8 +62,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
-                @forelse ($participants as $row)
-                    @php $p = $row['_model']; @endphp
+                @forelse ($participants as $p)
                     <tr class="hover:bg-gray-50">
                         <td class="px-5 py-4 text-sm font-medium text-gray-900">{{ $p->full_name }}</td>
                         <td class="px-5 py-4 text-xs text-gray-500 font-mono hidden sm:table-cell">{{ $p->nik }}</td>
@@ -75,19 +74,19 @@
                                 <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">Selesai</span>
                             @endif
                         </td>
-                        <td class="px-5 py-4 text-center text-sm text-gray-700">{{ $row['total_periods'] }}</td>
-                        <td class="px-5 py-4 text-center text-sm font-semibold {{ $row['total_attended'] >= $row['total_target'] ? 'text-emerald-600' : 'text-gray-700' }}">
-                            {{ $row['total_attended'] }}
+                        <td class="px-5 py-4 text-center text-sm text-gray-700">{{ $p->total_periods }}</td>
+                        <td class="px-5 py-4 text-center text-sm font-semibold {{ $p->total_attended >= $p->total_target ? 'text-emerald-600' : 'text-gray-700' }}">
+                            {{ $p->total_attended }}
                         </td>
-                        <td class="px-5 py-4 text-center text-sm text-gray-700">{{ $row['total_target'] }}</td>
+                        <td class="px-5 py-4 text-center text-sm text-gray-700">{{ $p->total_target }}</td>
                         <td class="px-5 py-4 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 <div class="w-16 bg-gray-200 rounded-full h-1.5">
-                                    <div class="h-1.5 rounded-full {{ $row['compliance_percent'] >= 80 ? 'bg-emerald-500' : ($row['compliance_percent'] >= 50 ? 'bg-amber-500' : 'bg-red-500') }}"
-                                         style="width: {{ min(100, $row['compliance_percent']) }}%"></div>
+                                    <div class="h-1.5 rounded-full {{ $p->compliance_percent >= 80 ? 'bg-emerald-500' : ($p->compliance_percent >= 50 ? 'bg-amber-500' : 'bg-red-500') }}"
+                                         style="width: {{ min(100, $p->compliance_percent) }}%"></div>
                                 </div>
-                                <span class="text-xs font-semibold {{ $row['compliance_percent'] >= 80 ? 'text-emerald-600' : ($row['compliance_percent'] >= 50 ? 'text-amber-600' : 'text-red-600') }}">
-                                    {{ $row['compliance_percent'] }}%
+                                <span class="text-xs font-semibold {{ $p->compliance_percent >= 80 ? 'text-emerald-600' : ($p->compliance_percent >= 50 ? 'text-amber-600' : 'text-red-600') }}">
+                                    {{ $p->compliance_percent }}%
                                 </span>
                             </div>
                         </td>
@@ -106,6 +105,12 @@
             </tbody>
         </table>
     </div>
+
+    @if ($participants->hasPages())
+        <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 no-print">
+            {{ $participants->links() }}
+        </div>
+    @endif
 </div>
 
 @endsection

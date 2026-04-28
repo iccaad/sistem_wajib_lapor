@@ -21,23 +21,25 @@ class ReportController extends Controller
             $query->where('status', $status);
         }
 
-        $participants = $query->latest()->get()->map(function ($p) {
+        $paginated = $query->latest()->paginate(15)->withQueryString();
+
+        // Enrich each row with computed stats (safe with Paginator)
+        $paginated->getCollection()->transform(function ($p) {
             $periods           = $p->attendancePeriods;
-            $totalPeriods      = $periods->count();
             $totalAttended     = $periods->sum('attended_count');
             $totalTarget       = $periods->sum('target_count');
-            $compliancePercent = $totalTarget > 0
+
+            $p->total_periods      = $periods->count();
+            $p->total_attended     = $totalAttended;
+            $p->total_target       = $totalTarget;
+            $p->compliance_percent = $totalTarget > 0
                 ? round($totalAttended / $totalTarget * 100, 1)
                 : 0;
 
-            return array_merge($p->toArray(), [
-                '_model'             => $p,
-                'total_periods'      => $totalPeriods,
-                'total_attended'     => $totalAttended,
-                'total_target'       => $totalTarget,
-                'compliance_percent' => $compliancePercent,
-            ]);
+            return $p;
         });
+
+        $participants = $paginated;
 
         return view('admin.reports.index', compact('participants'));
     }
