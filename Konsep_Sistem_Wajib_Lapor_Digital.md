@@ -67,6 +67,7 @@ Breeze menangani seluruh flow auth admin:
 - Buat dan kelola data peserta (nama, NIK, masa pengawasan, kuota)
 - Set password awal peserta tidak diperlukan (peserta login tanpa password)
 - Kelola lokasi resmi wajib lapor (koordinat + radius)
+- **Tentukan lokasi wajib lapor per peserta** (jumlah lokasi = kuota absensi)
 - Lihat dan verifikasi riwayat absensi beserta foto selfie peserta
 - Override manual absensi jika ada kondisi khusus (wajib isi alasan)
 - Lihat status kepatuhan dan peringatan seluruh peserta
@@ -241,9 +242,10 @@ Lolos semua → absensi tersimpan + redirect dashboard dengan pesan sukses
     → accuracy <= 500 meter
     → Error: "Sinyal GPS terlalu lemah. Pindah ke area dengan sinyal lebih baik."
 
-[7] Berada dalam radius lokasi resmi
-    → Haversine distance ke salah satu lokasi aktif <= radius_meters lokasi tersebut
-    → Error: "Anda berada di luar area wajib lapor. Pastikan Anda berada di lokasi yang ditentukan."
+[7] Berada dalam radius lokasi yang ditetapkan
+    → Haversine distance ke salah satu lokasi YANG DITETAPKAN untuk peserta ini <= radius_meters
+    → Error: "Anda berada di luar area lokasi wajib lapor yang ditetapkan."
+    → Catatan: Peserta hanya bisa absen di lokasi yang ditetapkan admin, bukan di semua lokasi aktif
 
 [8] Foto selfie valid
     → File ada, format JPEG/PNG, ukuran <= 5MB
@@ -254,7 +256,7 @@ Jika validasi 1–7 gagal, percobaan dicatat ke `attendance_attempts` beserta al
 
 ### Validasi Jarak — Haversine Formula
 
-Server menghitung jarak antara koordinat peserta dan setiap lokasi resmi yang aktif. Jika peserta berada dalam radius **salah satu** lokasi, absensi diterima.
+Server menghitung jarak antara koordinat peserta dan setiap lokasi **yang ditetapkan untuk peserta tersebut** (bukan semua lokasi aktif). Jika peserta berada dalam radius **salah satu** lokasi yang ditetapkan, absensi diterima.
 
 ```
 Lokasi: Sasana Olahraga, radius 100 meter
@@ -350,6 +352,20 @@ is_active           BOOLEAN NOT NULL DEFAULT true
 created_at          TIMESTAMP
 updated_at          TIMESTAMP
 ```
+
+### Tabel: participant_location (Pivot)
+
+```
+id                  BIGSERIAL PRIMARY KEY
+participant_id      BIGINT NOT NULL FK → participants(id) ON DELETE CASCADE
+location_id         BIGINT NOT NULL FK → locations(id) ON DELETE CASCADE
+created_at          TIMESTAMP
+updated_at          TIMESTAMP
+
+UNIQUE(participant_id, location_id)     -- mencegah duplikasi assignment
+```
+
+> **Aturan bisnis:** Setiap peserta ditetapkan lokasi wajib lapor oleh admin. Jumlah lokasi yang ditetapkan harus sesuai dengan `quota_amount`. Saat absensi, peserta hanya bisa absen di lokasi yang sudah ditetapkan untuknya, bukan di semua lokasi aktif.
 
 ### Tabel: attendance_periods
 

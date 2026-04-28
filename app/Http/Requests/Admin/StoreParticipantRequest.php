@@ -33,6 +33,8 @@ class StoreParticipantRequest extends FormRequest
             'quota_type' => ['required', 'in:weekly,monthly'],
             'quota_amount' => ['required', 'integer', 'min:1', 'max:30'],
             'status' => ['required', 'in:active,inactive'],
+            'location_ids' => ['required', 'array', 'min:1'],
+            'location_ids.*' => ['required', 'integer', 'exists:locations,id'],
         ];
     }
 
@@ -58,6 +60,10 @@ class StoreParticipantRequest extends FormRequest
             'quota_amount.min' => 'Jumlah kuota minimal 1.',
             'quota_amount.max' => 'Jumlah kuota maksimal 30.',
             'status.in' => 'Status harus active atau inactive.',
+            'location_ids.required' => 'Lokasi wajib lapor harus dipilih.',
+            'location_ids.min' => 'Minimal 1 lokasi harus dipilih.',
+            'location_ids.*.exists' => 'Lokasi yang dipilih tidak valid.',
+
         ];
     }
 }

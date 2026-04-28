@@ -47,9 +47,15 @@ class AbsenceController extends Controller
                 ->with('error', 'Target kehadiran periode ini sudah terpenuhi. ✓');
         }
 
-        $activeLocations = Location::active()->get();
+        // Determine the next check-in order and its specific location
+        $attendedCount = $currentPeriod->attended_count ?? 0;
+        $nextCheckInOrder = $attendedCount + 1;
+        $nextLocation = $participant->locations()
+            ->wherePivot('check_in_order', $nextCheckInOrder)
+            ->where('is_active', true)
+            ->first();
 
-        return view('peserta.absence', compact('participant', 'currentPeriod', 'activeLocations'));
+        return view('peserta.absence', compact('participant', 'currentPeriod', 'nextCheckInOrder', 'nextLocation'));
     }
 
     /**

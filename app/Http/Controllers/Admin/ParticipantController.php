@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreParticipantRequest;
 use App\Http\Requests\Admin\UpdateParticipantRequest;
 use App\Models\ActivityLog;
+use App\Models\Location;
 use App\Models\Participant;
 use App\Models\User;
 use App\Services\PeriodService;
@@ -43,7 +44,9 @@ class ParticipantController extends Controller
      */
     public function create(): View
     {
-        return view('admin.participants.create');
+        $locations = Location::active()->get();
+
+        return view('admin.participants.create', compact('locations'));
     }
 
     /**
@@ -83,6 +86,14 @@ class ParticipantController extends Controller
             // Auto-generate first attendance period
             (new PeriodService())->generateFirstPeriod($participant);
 
+            // Assign reporting locations with check-in order
+            // Using detach+attach instead of sync because the same location
+            // can be assigned to multiple days (duplicate location_ids allowed)
+            $participant->locations()->detach();
+            foreach ($validated['location_ids'] as $order => $locationId) {
+                $participant->locations()->attach($locationId, ['check_in_order' => $order + 1]);
+            }
+
             // Log the action
             ActivityLog::create([
                 'user_id'     => auth()->id(),
@@ -110,6 +121,7 @@ class ParticipantController extends Controller
             'warnings',
             'attendanceLogs',
             'attendancePeriods',
+            'locations',
         ]);
 
         return view('admin.participants.show', compact('participant'));
@@ -121,8 +133,11 @@ class ParticipantController extends Controller
     public function edit(Participant $participant): View
     {
         $participant->load('user');
+        $locations = Location::active()->get();
+        // Get location IDs ordered by check_in_order
+        $assignedLocationIds = $participant->locations->pluck('id')->toArray();
 
-        return view('admin.participants.edit', compact('participant'));
+        return view('admin.participants.edit', compact('participant', 'locations', 'assignedLocationIds'));
     }
 
     /**
@@ -155,6 +170,14 @@ class ParticipantController extends Controller
                 'quota_amount' => $validated['quota_amount'],
                 'status' => $validated['status'],
             ]);
+
+            // Sync reporting locations with check-in order
+            // Using detach+attach instead of sync because the same location
+            // can be assigned to multiple days (duplicate location_ids allowed)
+            $participant->locations()->detach();
+            foreach ($validated['location_ids'] as $order => $locationId) {
+                $participant->locations()->attach($locationId, ['check_in_order' => $order + 1]);
+            }
 
             // Log the action
             ActivityLog::create([

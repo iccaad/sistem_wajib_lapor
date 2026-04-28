@@ -31,7 +31,14 @@ class DashboardController extends Controller
         $isActive        = $participant->isActive();
         $quotaFull       = $currentPeriod?->isFulfilled() ?? false;
 
-        $activeLocations = Location::active()->get();
+        $activeLocations = $participant->locations()->where('is_active', true)->get();
+
+        // Determine the next check-in order and its specific location
+        $nextCheckInOrder = ($currentPeriod ? ($currentPeriod->attended_count ?? 0) : 0) + 1;
+        $nextLocation = $participant->locations()
+            ->wherePivot('check_in_order', $nextCheckInOrder)
+            ->where('is_active', true)
+            ->first();
 
         $activeWarnings  = $participant->warnings()
             ->where('status', 'active')
@@ -55,6 +62,8 @@ class DashboardController extends Controller
             'isActive',
             'quotaFull',
             'activeLocations',
+            'nextCheckInOrder',
+            'nextLocation',
             'activeWarnings',
             'recentLogs'
         ));

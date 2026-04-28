@@ -38,47 +38,50 @@ class AttendanceService
     }
 
     /**
-     * Find the nearest active location to the given coordinates.
+     * Get the required location for the participant's NEXT check-in.
+     *
+     * Each check-in order (1st, 2nd, 3rd...) has a specific assigned location.
+     * The order is determined by how many times the participant has already
+     * checked in during the current period + 1.
      *
      * @return array{
      *   location: ?Location,
      *   distance: ?float,
      *   within_radius: bool,
+     *   check_in_order: int,
      * }
      */
-    public function findNearestActiveLocation(float $lat, float $lng): array
+    public function getRequiredLocation(Participant $participant, float $lat, float $lng, int $currentAttendedCount): array
     {
-        $locations = Location::where('is_active', true)->get();
+        $nextCheckInOrder = $currentAttendedCount + 1;
 
-        if ($locations->isEmpty()) {
+        // Get the specific location assigned to this check-in order
+        $location = $participant->locations()
+            ->wherePivot('check_in_order', $nextCheckInOrder)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$location) {
             return [
-                'location'      => null,
-                'distance'      => null,
-                'within_radius' => false,
+                'location'       => null,
+                'distance'       => null,
+                'within_radius'  => false,
+                'check_in_order' => $nextCheckInOrder,
             ];
         }
 
-        $nearest      = null;
-        $minDistance  = PHP_FLOAT_MAX;
-
-        foreach ($locations as $location) {
-            $distance = $this->haversineDistance(
-                $lat,
-                $lng,
-                (float) $location->latitude,
-                (float) $location->longitude
-            );
-
-            if ($distance < $minDistance) {
-                $minDistance = $distance;
-                $nearest     = $location;
-            }
-        }
+        $distance = $this->haversineDistance(
+            $lat,
+            $lng,
+            (float) $location->latitude,
+            (float) $location->longitude
+        );
 
         return [
-            'location'      => $nearest,
-            'distance'      => $minDistance,
-            'within_radius' => $nearest && $minDistance <= $nearest->radius_meters,
+            'location'       => $location,
+            'distance'       => $distance,
+            'within_radius'  => $distance <= $location->radius_meters,
+            'check_in_order' => $nextCheckInOrder,
         ];
     }
 
@@ -156,17 +159,29 @@ class AttendanceService
             );
         }
 
-        // [7] Must be within the radius of at least one active location
-        $locationResult = $this->findNearestActiveLocation($lat, $lng);
+        // [7] Must be within the radius of the SPECIFIC location for this check-in order
+        $attendedCount = $currentPeriod->attended_count ?? 0;
+        $locationResult = $this->getRequiredLocation($participant, $lat, $lng, $attendedCount);
+
+        if (!$locationResult['location']) {
+            return [
+                'valid'         => false,
+                'error_message' => "Tidak ada lokasi wajib lapor yang ditetapkan untuk absensi ke-{$locationResult['check_in_order']}.",
+                'error_code'    => 'NO_LOCATION_ASSIGNED',
+                'location'      => null,
+                'distance'      => null,
+            ];
+        }
 
         if (!$locationResult['within_radius']) {
             $distanceText = $locationResult['distance']
                 ? round($locationResult['distance']) . 'm'
                 : 'tidak diketahui';
+            $locName = $locationResult['location']->name;
 
             return [
                 'valid'         => false,
-                'error_message' => "Anda berada di luar area wajib lapor ({$distanceText} dari lokasi terdekat).",
+                'error_message' => "Anda berada di luar area \"{$locName}\" (lokasi untuk absensi ke-{$locationResult['check_in_order']}). Jarak Anda: {$distanceText}.",
                 'error_code'    => 'OUT_OF_RANGE',
                 'location'      => $locationResult['location'],
                 'distance'      => $locationResult['distance'],

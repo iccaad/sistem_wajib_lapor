@@ -154,18 +154,55 @@
     @endif
 </div>
 
-{{-- ── SECTION 5: Active Locations Map ── --}}
+{{-- ── SECTION 5: Next Required Location ── --}}
+@if ($nextLocation && !$quotaFull && $isActive)
+    <div class="bg-white rounded-2xl border-2 border-blue-200 shadow-sm overflow-hidden mb-4">
+        <div class="px-5 py-4 bg-blue-50 border-b border-blue-100">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-semibold text-blue-800">📍 Lokasi Absensi ke-{{ $nextCheckInOrder }}</p>
+                <span class="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
+                    Hari ke-{{ $nextCheckInOrder }}
+                </span>
+            </div>
+        </div>
+        <div id="next-location-map" class="w-full h-44" style="z-index: 1;"></div>
+        <div class="px-5 py-3">
+            <p class="font-semibold text-slate-800">{{ $nextLocation->name }}</p>
+            @if ($nextLocation->address)
+                <p class="text-xs text-slate-500 mt-0.5">{{ $nextLocation->address }}</p>
+            @endif
+            <p class="text-xs text-slate-400 mt-1">Radius: {{ $nextLocation->radius_meters }}m</p>
+        </div>
+    </div>
+@elseif ($quotaFull)
+    {{-- Quota already full — no next location needed --}}
+@endif
+
+{{-- ── SECTION 5b: Daily Location Schedule (always visible) ── --}}
 @if ($activeLocations->isNotEmpty())
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4">
-        <div class="px-5 py-4 border-b border-slate-100">
-            <p class="text-sm font-semibold text-slate-700">Lokasi Wajib Lapor</p>
+        <div class="px-5 py-3 border-b border-slate-100">
+            <p class="text-sm font-semibold text-slate-700">📋 Jadwal Lokasi Harian ({{ $activeLocations->count() }} hari)</p>
         </div>
-        <div id="participant-map" class="w-full h-56" style="z-index: 1;"></div>
-        <div class="px-5 py-3 space-y-1.5">
+        <div class="divide-y divide-slate-50">
             @foreach ($activeLocations as $loc)
-                <div class="flex items-center justify-between text-sm">
-                    <span class="font-medium text-slate-700">{{ $loc->name }}</span>
-                    <span class="text-xs text-slate-400">radius {{ $loc->radius_meters }}m</span>
+                <div class="px-5 py-2.5 flex items-center justify-between {{ $nextLocation && $loc->pivot->check_in_order === $nextLocation->pivot->check_in_order ? 'bg-blue-50' : '' }}">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold {{ $loc->pivot->check_in_order <= ($currentPeriod->attended_count ?? 0) ? 'bg-emerald-100 text-emerald-700' : ($nextLocation && $loc->pivot->check_in_order === $nextLocation->pivot->check_in_order ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-500') }}">
+                            {{ $loc->pivot->check_in_order }}
+                        </span>
+                        <div>
+                            <p class="text-sm font-medium text-slate-700">{{ $loc->name }}</p>
+                            <p class="text-xs text-slate-400">{{ $loc->radius_meters }}m radius</p>
+                        </div>
+                    </div>
+                    @if ($loc->pivot->check_in_order <= ($currentPeriod->attended_count ?? 0))
+                        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">✓ Selesai</span>
+                    @elseif ($nextLocation && $loc->pivot->check_in_order === $nextLocation->pivot->check_in_order)
+                        <span class="text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">→ Selanjutnya</span>
+                    @else
+                        <span class="text-xs text-slate-400">Belum</span>
+                    @endif
                 </div>
             @endforeach
         </div>
@@ -219,46 +256,78 @@
 @endpush
 
 @push('scripts')
-@php
-    $locationsJson = $activeLocations->map(fn($l) => [
-        'name'    => $l->name,
-        'lat'     => (float) $l->latitude,
-        'lng'     => (float) $l->longitude,
-        'radius'  => $l->radius_meters,
-        'address' => $l->address,
-    ])->values();
-@endphp
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 (function () {
-    const locations = @json($locationsJson);
+    @if (isset($nextLocation) && $nextLocation && !$quotaFull && $isActive)
+    const mapEl = document.getElementById('next-location-map');
+    if (!mapEl) return;
 
-    if (!locations.length || !document.getElementById('participant-map')) return;
+    const loc = {
+        name: @json($nextLocation->name),
+        lat: {{ (float) $nextLocation->latitude }},
+        lng: {{ (float) $nextLocation->longitude }},
+        radius: {{ $nextLocation->radius_meters }},
+        address: @json($nextLocation->address ?? ''),
+    };
 
-    const center = locations.reduce(
-        (acc, l) => [acc[0] + l.lat / locations.length, acc[1] + l.lng / locations.length],
-        [0, 0]
-    );
-
-    const map = L.map('participant-map', { zoomControl: true }).setView(center, 14);
+    const map = L.map('next-location-map', { zoomControl: true }).setView([loc.lat, loc.lng], 16);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap'
+        attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
-    locations.forEach(loc => {
-        L.circle([loc.lat, loc.lng], {
-            radius: loc.radius,
-            color: '#2563eb',
-            fillColor: '#2563eb',
-            fillOpacity: 0.12,
-            weight: 2,
-        }).addTo(map);
+    L.circle([loc.lat, loc.lng], {
+        radius: loc.radius,
+        color: '#2563eb',
+        fillColor: '#2563eb',
+        fillOpacity: 0.15,
+        weight: 2,
+    }).addTo(map);
 
-        L.marker([loc.lat, loc.lng])
-            .bindPopup(`<b>${loc.name}</b><br>${loc.address || ''}<br>Radius: ${loc.radius}m`)
-            .addTo(map);
-    });
+    L.marker([loc.lat, loc.lng])
+        .bindPopup(`<b>${loc.name}</b><br>${loc.address}<br>Radius: ${loc.radius}m`)
+        .addTo(map);
+
+    // Show user's live GPS location on map
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const userLat = pos.coords.latitude;
+                const userLng = pos.coords.longitude;
+                const acc = pos.coords.accuracy;
+
+                // Blue pulsing dot for user location
+                const userIcon = L.divIcon({
+                    className: '',
+                    html: '<div style="width:14px;height:14px;background:#3b82f6;border:3px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(59,130,246,0.6);"></div>',
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7],
+                });
+
+                L.marker([userLat, userLng], { icon: userIcon })
+                    .bindPopup(`<b>Lokasi Anda</b><br>Akurasi: ±${Math.round(acc)}m`)
+                    .addTo(map);
+
+                // Accuracy circle
+                L.circle([userLat, userLng], {
+                    radius: acc,
+                    color: '#3b82f6',
+                    fillColor: '#3b82f6',
+                    fillOpacity: 0.08,
+                    weight: 1,
+                    dashArray: '4',
+                }).addTo(map);
+
+                // Fit map to show both location and user
+                const bounds = L.latLngBounds([[loc.lat, loc.lng], [userLat, userLng]]);
+                map.fitBounds(bounds.pad(0.3));
+            },
+            () => { /* GPS denied/unavailable, just show location marker */ },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+        );
+    }
+    @endif
 })();
 </script>
 @endpush

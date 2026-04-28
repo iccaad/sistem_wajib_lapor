@@ -83,6 +83,44 @@
         @endif
     </div>
 
+    {{-- ── Assigned Locations ── --}}
+    @if ($participant->locations->isNotEmpty())
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                    <svg class="h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                    </svg>
+                    Lokasi Wajib Lapor ({{ $participant->locations->count() }})
+                </h3>
+            </div>
+            <div class="divide-y divide-gray-100">
+                @foreach ($participant->locations as $loc)
+                    <div class="px-6 py-3 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">
+                                {{ $loc->pivot->check_in_order }}
+                            </span>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">{{ $loc->name }}</p>
+                                <p class="text-xs text-gray-400">{{ $loc->address ?? '—' }} • radius ±{{ $loc->radius_meters }}m</p>
+                            </div>
+                        </div>
+                        @if ($loc->is_active)
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Aktif
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+                                <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span> Nonaktif
+                            </span>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     {{-- ── Stat Row ── --}}
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
         @php

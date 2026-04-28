@@ -14,8 +14,8 @@ class DatabaseSeeder extends Seeder
      *
      * Execution order respects foreign key dependencies:
      * 1. Admin users (no FK deps)
-     * 2. Participant users + profiles (FK → users)
-     * 3. Locations (FK → users)
+     * 2. Locations (FK → users)
+     * 3. Participant users + profiles + location assignments (FK → users, locations)
      * 4. Attendance periods (FK → participants)
      * 5. Attendance logs (FK → participants, periods, locations)
      * 6. Warnings (FK → participants, periods, users)
@@ -25,8 +25,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             AdminUserSeeder::class,
-            ParticipantUserSeeder::class,
             LocationSeeder::class,
+            ParticipantUserSeeder::class,
             AttendancePeriodSeeder::class,
             AttendanceLogSeeder::class,
             WarningSeeder::class,

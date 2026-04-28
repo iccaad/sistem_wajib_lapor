@@ -113,8 +113,46 @@
         <input type="number" id="quota_amount" name="quota_amount"
                value="{{ old('quota_amount', $participant->quota_amount ?? '') }}"
                min="1" max="30" required
+               x-model.number="quotaAmount"
                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('quota_amount') border-red-400 @enderror">
         @error('quota_amount') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+    </div>
+
+    {{-- Section: Lokasi Wajib Lapor --}}
+    <div class="md:col-span-2 mt-2">
+        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 border-b pb-2">Lokasi Wajib Lapor</h3>
+        <p class="text-xs text-gray-400 -mt-1 mb-3">Tetapkan lokasi untuk setiap urutan absensi. Absensi ke-1 harus di Lokasi Hari ke-1, absensi ke-2 di Lokasi Hari ke-2, dst.</p>
+    </div>
+
+    {{-- Dynamic Location Selectors --}}
+    <div class="md:col-span-2">
+        <template x-for="(loc, index) in locationSlots" :key="index">
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <span x-text="'Lokasi Hari ke-' + (index + 1)"></span> <span class="text-red-500">*</span>
+                </label>
+                <select :name="'location_ids[' + index + ']'"
+                        x-model="locationSlots[index]"
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="">-- Pilih Lokasi --</option>
+                    @foreach ($locations as $loc)
+                        <option value="{{ $loc->id }}">
+                            {{ $loc->name }} — {{ $loc->address ? Str::limit($loc->address, 40) : 'Tidak ada alamat' }} (±{{ $loc->radius_meters }}m)
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </template>
+
+        @error('location_ids')   <p class="text-sm text-red-500 mb-2">{{ $message }}</p> @enderror
+        @error('location_ids.*') <p class="text-sm text-red-500 mb-2">{{ $message }}</p> @enderror
+
+        <div x-show="quotaAmount > 0 && locationSlots.length !== quotaAmount" x-cloak
+             class="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+            ⚠ Jumlah lokasi (<span x-text="locationSlots.length"></span>) belum sesuai dengan kuota (<span x-text="quotaAmount"></span>).
+            Lokasi akan otomatis menyesuaikan jumlah kuota.
+        </div>
     </div>
 
     {{-- Status --}}
@@ -129,3 +167,11 @@
     </div>
 
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('alpine:init', () => {
+    // Make locationFormData available as Alpine data for parent x-data usage
+});
+</script>
+@endpush

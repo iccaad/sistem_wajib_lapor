@@ -1312,6 +1312,7 @@ METHOD index():
 
 METHOD create():
 - Ambil semua admin untuk dropdown assigned_admin
+- Ambil Location::active() untuk dropdown lokasi wajib lapor
 - Return view admin.participants.create
 
 METHOD store(Request $request):
@@ -1343,7 +1344,12 @@ Logic:
 
 3. Generate periode pertama via PeriodService::generateFirstPeriod()
 
-4. Redirect ke show dengan pesan sukses
+4. Sync lokasi wajib lapor:
+   $participant->locations()->sync($request->location_ids)
+   → Jumlah lokasi yang dipilih harus sesuai dengan quota_amount
+   → Gunakan tabel pivot participant_location
+
+5. Redirect ke show dengan pesan sukses
 
 METHOD show(Participant $participant):
 - Load relasi: user, assignedAdmin, attendanceLogs (dengan location, overriddenBy), 
@@ -1353,11 +1359,14 @@ METHOD show(Participant $participant):
 
 METHOD edit(Participant $participant):
 - Jangan izinkan edit NIK (NIK adalah identifier tetap)
+- Ambil Location::active() untuk dropdown lokasi
+- Ambil assignedLocationIds = participant->locations->pluck('id')->toArray()
 - Return view admin.participants.edit
 
 METHOD update(Request $request, Participant $participant):
 - Validasi semua kecuali NIK
 - Update participant
+- Sync lokasi wajib lapor: $participant->locations()->sync($request->location_ids)
 - JANGAN regenerate periode (periode yang sudah berjalan tidak berubah)
 - Redirect ke show
 
@@ -1376,6 +1385,11 @@ admin/participants/create.blade.php:
 - Form semua field
 - Dropdown assigned_admin (nama admin)
 - Date picker untuk supervision_start dan supervision_end
+- Dynamic dropdown lokasi wajib lapor (Alpine.js):
+  → Jumlah dropdown otomatis mengikuti quota_amount
+  → Setiap dropdown berisi daftar lokasi aktif
+  → Lokasi yang sudah dipilih di dropdown lain otomatis disabled
+  → Validasi: location_ids required, array, setiap elemen exists:locations,id, distinct
 
 admin/participants/show.blade.php:
 - Card info peserta
@@ -1384,6 +1398,7 @@ admin/participants/show.blade.php:
 - Tabel 10 percobaan ditolak terakhir
 - Section "Override Manual Absensi" (form kecil: tanggal + alasan wajib)
 - Daftar peringatan aktif dan riwayat peringatan
+- Section "Lokasi Wajib Lapor" menampilkan daftar lokasi yang ditetapkan untuk peserta
 
 admin/participants/edit.blade.php:
 - Sama dengan create, NIK ditampilkan tapi readonly (tidak bisa diubah)
@@ -1568,7 +1583,8 @@ Method index():
   * $hasAbsentToday = $participant->hasAbsentToday()
   * $isActive = $participant->isActive()
   * $quotaFull = $currentPeriod ? $currentPeriod->isCompleted() : false
-  * $activeLocations = Location::active()->get()
+  * $activeLocations = $participant->locations()->where('is_active', true)->get()
+  → PENTING: Hanya tampilkan lokasi yang DITETAPKAN untuk peserta ini, bukan semua lokasi aktif
   * $activeWarnings = $participant->warnings()->active()->latest()->get()
   * $recentLogs = $participant->attendanceLogs()->with('location')->latest()->limit(10)->get()
 - Return view('participant.dashboard', compact semua variabel)
@@ -1919,10 +1935,11 @@ Tambahkan lapisan keamanan final:
 - [ ] 5+ percobaan login gagal → rate limit aktif
 
 **Alur Admin:**
-- [ ] Tambah peserta baru → akun peserta terbuat + periode pertama terbuat
+- [ ] Tambah peserta baru dengan lokasi wajib lapor → akun + periode + lokasi terbuat
 - [ ] Login dengan NIK peserta baru → berhasil
-- [ ] Lihat detail peserta → semua data tampil benar
-- [ ] Edit data peserta → tersimpan, periode existing tidak berubah
+- [ ] Lihat detail peserta → semua data tampil benar + section "Lokasi Wajib Lapor" muncul
+- [ ] Edit data peserta → tersimpan, periode existing tidak berubah, lokasi ter-update
+- [ ] Ubah quota_amount → jumlah dropdown lokasi otomatis menyesuaikan
 - [ ] Tambah lokasi dengan klik peta → koordinat terisi → circle radius tampil
 - [ ] Toggle nonaktifkan lokasi → konfirmasi modal muncul → lokasi nonaktif
 - [ ] Override manual absensi → muncul di riwayat dengan badge "Input Manual"
@@ -1931,12 +1948,14 @@ Tambahkan lapisan keamanan final:
 
 **Alur Peserta:**
 - [ ] Dashboard menampilkan info yang benar (nama, status, progress)
+- [ ] Dashboard hanya menampilkan lokasi yang ditetapkan, BUKAN semua lokasi aktif
+- [ ] Peta di dashboard hanya menunjukkan lokasi yang ditetapkan untuk peserta ini
 - [ ] Tombol absensi disabled jika sudah absen hari ini
 - [ ] Tombol absensi disabled jika kuota penuh
 - [ ] Halaman absensi: tombol submit disabled sebelum GPS + foto
 - [ ] GPS berhasil → koordinat tampil + status "berhasil"
-- [ ] GPS di luar radius → error "di luar area wajib lapor" → percobaan tercatat di DB
-- [ ] GPS dalam radius + foto valid → absensi berhasil → redirect dashboard dengan pesan sukses
+- [ ] GPS di luar radius lokasi yang ditetapkan → error "di luar area lokasi wajib lapor yang ditetapkan" → percobaan tercatat di DB
+- [ ] GPS dalam radius lokasi yang ditetapkan + foto valid → absensi berhasil → redirect dashboard dengan pesan sukses
 - [ ] Foto dari galeri (bukan kamera langsung) → cek apakah bisa dicegah di mobile
 - [ ] Riwayat absensi tampil benar
 
@@ -1971,11 +1990,12 @@ Tambahkan lapisan keamanan final:
 
 ```
 Fase 0  → .env, config/app.php, routes/auth.php (modifikasi Breeze)
-Fase 1  → 8 migration files (berurutan)
+Fase 1  → 8 migration files (berurutan) + 1 pivot migration (participant_location)
 Fase 2  → 8 model files
 Fase 3  → PesertaAuthController, RoleMiddleware, LogActivityMiddleware,
            views/peserta-auth/login.blade.php, routes/web.php (struktur)
-Fase 4  → AdminSeeder, LocationSeeder, ParticipantSeeder, DatabaseSeeder
+Fase 4  → AdminSeeder, LocationSeeder (harus sebelum Participant), ParticipantSeeder
+           (termasuk sync lokasi), DatabaseSeeder
 Fase 5  → PeriodService, AttendanceService, WarningService, WarningNotificationMail
 Fase 6  → Admin controllers (Dashboard, Participant, Attendance, Location, Report)
            + semua views admin

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Location;
 use App\Models\Participant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -17,12 +18,19 @@ class ParticipantUserSeeder extends Seeder
      * - Varied violation types
      * - Mixed quota configurations (weekly/monthly)
      * - Assigned to admin accounts
+     * - Assigned reporting locations matching quota_amount
      */
     public function run(): void
     {
         // Fetch admin users to assign as supervisors
         $admin1 = User::where('email', 'budi.santoso@polrestabes-smg.test')->first();
         $admin2 = User::where('email', 'siti.rahayu@polrestabes-smg.test')->first();
+
+        // Fetch location IDs for assignment
+        $locGor    = Location::where('name', 'GOR Jatidiri Semarang')->first();
+        $locPolres = Location::where('name', 'Lapangan Polrestabes Semarang')->first();
+        $locBalai  = Location::where('name', 'Balai Pemuda Kota Semarang')->first();
+        $locTaman  = Location::where('name', 'Taman Indonesia Kaya')->first();
 
         $participants = [
             [
@@ -48,6 +56,8 @@ class ParticipantUserSeeder extends Seeder
                     'quota_amount' => 1,
                     'status' => 'active',
                 ],
+                // quota_amount=1 → 1 location
+                'location_ids' => [$locPolres?->id],
             ],
             [
                 'user' => [
@@ -72,6 +82,8 @@ class ParticipantUserSeeder extends Seeder
                     'quota_amount' => 2,
                     'status' => 'active',
                 ],
+                // quota_amount=2 → 2 locations
+                'location_ids' => [$locPolres?->id, $locGor?->id],
             ],
             [
                 'user' => [
@@ -96,6 +108,8 @@ class ParticipantUserSeeder extends Seeder
                     'quota_amount' => 4,
                     'status' => 'active',
                 ],
+                // quota_amount=4 → 4 locations (all available)
+                'location_ids' => [$locPolres?->id, $locGor?->id, $locBalai?->id, $locTaman?->id],
             ],
             [
                 'user' => [
@@ -120,6 +134,8 @@ class ParticipantUserSeeder extends Seeder
                     'quota_amount' => 1,
                     'status' => 'active',
                 ],
+                // quota_amount=1 → 1 location
+                'location_ids' => [$locBalai?->id],
             ],
             [
                 'user' => [
@@ -144,6 +160,8 @@ class ParticipantUserSeeder extends Seeder
                     'quota_amount' => 4,
                     'status' => 'active',
                 ],
+                // quota_amount=4 → 4 locations (all available)
+                'location_ids' => [$locPolres?->id, $locGor?->id, $locBalai?->id, $locTaman?->id],
             ],
         ];
 
@@ -153,10 +171,19 @@ class ParticipantUserSeeder extends Seeder
                 $data['user']
             );
 
-            Participant::updateOrCreate(
+            $participant = Participant::updateOrCreate(
                 ['user_id' => $user->id],
                 array_merge($data['profile'], ['user_id' => $user->id])
             );
+
+            // Assign reporting locations with check-in order
+            $locationIds = array_filter($data['location_ids'] ?? []);
+            if (!empty($locationIds)) {
+                $participant->locations()->detach();
+                foreach (array_values($locationIds) as $order => $locId) {
+                    $participant->locations()->attach($locId, ['check_in_order' => $order + 1]);
+                }
+            }
         }
     }
 }

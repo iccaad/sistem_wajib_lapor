@@ -6,6 +6,7 @@ use App\Services\PeriodService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Participant extends Model
@@ -97,6 +98,19 @@ class Participant extends Model
     public function warnings(): HasMany
     {
         return $this->hasMany(Warning::class, 'participant_id');
+    }
+
+    /**
+     * The assigned reporting locations for this participant.
+     * Each location is tied to a specific check-in order (1st, 2nd, 3rd...).
+     * Number of locations must match quota_amount.
+     */
+    public function locations(): BelongsToMany
+    {
+        return $this->belongsToMany(Location::class, 'participant_location')
+            ->withPivot('check_in_order')
+            ->withTimestamps()
+            ->orderByPivot('check_in_order');
     }
 
     // -------------------------------------------------------

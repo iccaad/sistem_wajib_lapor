@@ -59,6 +59,30 @@
                         </div>
                         <p class="text-xs text-slate-500 font-mono" x-text="`Koordinat: ${lat?.toFixed(6)}, ${lng?.toFixed(6)}`"></p>
                         <p class="text-xs text-slate-500" x-text="`Akurasi: ±${Math.round(accuracy || 0)}m`"></p>
+
+                        {{-- Within/Outside radius indicator --}}
+                        <template x-if="distanceToLocation !== null">
+                            <div class="mt-2">
+                                <template x-if="withinRadius">
+                                    <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200">
+                                        <span class="text-lg">✅</span>
+                                        <div>
+                                            <p class="text-sm font-semibold text-emerald-700">Anda di dalam area wajib lapor</p>
+                                            <p class="text-xs text-emerald-600" x-text="`Jarak: ${Math.round(distanceToLocation)}m dari lokasi`"></p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template x-if="!withinRadius">
+                                    <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
+                                        <span class="text-lg">❌</span>
+                                        <div>
+                                            <p class="text-sm font-semibold text-red-700">Anda di luar area wajib lapor</p>
+                                            <p class="text-xs text-red-600" x-text="`Jarak: ${Math.round(distanceToLocation)}m (perlu ≤ ${locationRadius}m)`"></p>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
                     </div>
                 </template>
                 <template x-if="gpsState === 'error'">
@@ -71,17 +95,18 @@
                 </template>
             </div>
 
-            {{-- Active locations list --}}
-            @if ($activeLocations->isNotEmpty())
-                <div class="mb-4 space-y-2">
-                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Lokasi Yang Diterima:</p>
-                    @foreach ($activeLocations as $loc)
-                        <div class="flex items-center gap-2 text-sm">
-                            <span class="h-2 w-2 rounded-full bg-blue-500 shrink-0"></span>
-                            <span class="font-medium text-slate-700">{{ $loc->name }}</span>
-                            <span class="text-slate-400 text-xs">(±{{ $loc->radius_meters }}m)</span>
-                        </div>
-                    @endforeach
+            {{-- Required location for this check-in --}}
+            @if ($nextLocation)
+                <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                    <p class="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">📍 Lokasi Absensi ke-{{ $nextCheckInOrder }}:</p>
+                    <div class="flex items-center gap-2 text-sm">
+                        <span class="h-2 w-2 rounded-full bg-blue-500 shrink-0"></span>
+                        <span class="font-semibold text-slate-800">{{ $nextLocation->name }}</span>
+                        <span class="text-slate-400 text-xs">(±{{ $nextLocation->radius_meters }}m)</span>
+                    </div>
+                    @if ($nextLocation->address)
+                        <p class="text-xs text-slate-500 mt-1 ml-4">{{ $nextLocation->address }}</p>
+                    @endif
                 </div>
             @endif
 
@@ -258,6 +283,11 @@ function absensiForm() {
         lat: null,
         lng: null,
         accuracy: null,
+        distanceToLocation: null,
+        withinRadius: false,
+        locationLat: {{ $nextLocation ? (float) $nextLocation->latitude : 'null' }},
+        locationLng: {{ $nextLocation ? (float) $nextLocation->longitude : 'null' }},
+        locationRadius: {{ $nextLocation ? $nextLocation->radius_meters : 0 }},
         // Camera
         cameraStarted: false,
         photoTaken: false,
@@ -285,6 +315,12 @@ function absensiForm() {
                     this.lng      = pos.coords.longitude;
                     this.accuracy = pos.coords.accuracy;
                     this.gpsState = 'success';
+
+                    // Calculate distance to required location (Haversine)
+                    if (this.locationLat !== null && this.locationLng !== null) {
+                        this.distanceToLocation = this.haversine(this.lat, this.lng, this.locationLat, this.locationLng);
+                        this.withinRadius = this.distanceToLocation <= this.locationRadius;
+                    }
                 },
                 (err) => {
                     this.gpsState = 'error';
@@ -301,6 +337,16 @@ function absensiForm() {
                 },
                 { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
+        },
+
+        // Haversine distance in meters (client-side)
+        haversine(lat1, lng1, lat2, lng2) {
+            const R = 6371000;
+            const toRad = d => d * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1);
+            const dLng = toRad(lng2 - lng1);
+            const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         },
 
         // ── Camera ───────────────────────────────────────────
