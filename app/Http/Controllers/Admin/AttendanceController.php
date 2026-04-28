@@ -8,7 +8,7 @@ use App\Models\AttendancePeriod;
 use App\Models\Participant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
@@ -79,7 +79,7 @@ class AttendanceController extends Controller
     /**
      * Serve selfie photo securely (private disk, admin-only).
      */
-    public function showPhoto(AttendanceLog $log): Response
+    public function showPhoto(AttendanceLog $log): BinaryFileResponse
     {
         abort_if(!$log->photo_path, 404, 'Foto tidak tersedia.');
 

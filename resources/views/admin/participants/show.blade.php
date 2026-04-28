@@ -6,7 +6,7 @@
 
 @section('content')
 
-<div class="space-y-5">
+<div class="space-y-5" x-data="{ photoModalOpen: false, photoUrl: '' }">
 
     {{-- ── Error messages ── --}}
     @if ($errors->any())
@@ -236,10 +236,10 @@
                             </td>
                             <td class="px-5 py-3">
                                 @if ($log->photo_path)
-                                    <a href="{{ route('admin.attendance.photo', $log) }}" target="_blank"
+                                    <button type="button" @click="photoUrl = '{{ route('admin.attendance.photo', $log) }}'; photoModalOpen = true"
                                        class="text-xs text-indigo-600 hover:text-indigo-800 font-medium transition">
-                                        Lihat Foto →
-                                    </a>
+                                        Lihat Foto &rarr;
+                                    </button>
                                 @else
                                     <span class="text-xs text-gray-300">—</span>
                                 @endif
@@ -352,6 +352,21 @@
         </form>
     </div>
     @endif
+
+    {{-- Photo Modal --}}
+    <div x-show="photoModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-transition.opacity style="display: none;">
+        <div class="relative bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden" @click.outside="photoModalOpen = false">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
+                <h3 class="text-sm font-semibold text-gray-800">Preview Foto</h3>
+                <button @click="photoModalOpen = false" type="button" class="text-gray-400 hover:text-gray-600 transition">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-4 flex justify-center bg-gray-100">
+                <img :src="photoUrl" class="max-h-[60vh] object-contain rounded-lg shadow-sm" alt="Foto Absensi" />
+            </div>
+        </div>
+    </div>
 
 </div>
 

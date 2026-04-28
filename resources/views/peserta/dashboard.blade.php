@@ -165,7 +165,15 @@
                 </span>
             </div>
         </div>
-        <div id="next-location-map" class="w-full h-44" style="z-index: 1;"></div>
+        <div class="relative">
+            <div id="next-location-map" class="w-full h-44" style="z-index: 1;"></div>
+            <button type="button" id="btn-refresh-location" class="absolute bottom-3 right-3 z-[1000] bg-white p-2 rounded-full shadow-md border border-slate-200 text-slate-600 hover:text-blue-600 transition" title="Perbarui Lokasi Saya">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                </svg>
+            </button>
+        </div>
         <div class="px-5 py-3">
             <p class="font-semibold text-slate-800">{{ $nextLocation->name }}</p>
             @if ($nextLocation->address)
@@ -289,13 +297,24 @@
         .bindPopup(`<b>${loc.name}</b><br>${loc.address}<br>Radius: ${loc.radius}m`)
         .addTo(map);
 
-    // Show user's live GPS location on map
-    if (navigator.geolocation) {
+    let userMarker = null;
+    let userCircle = null;
+
+    function detectUserLocation() {
+        if (!navigator.geolocation) return;
+        
+        const btn = document.getElementById('btn-refresh-location');
+        if(btn) btn.classList.add('animate-pulse');
+
         navigator.geolocation.getCurrentPosition(
             (pos) => {
+                if(btn) btn.classList.remove('animate-pulse');
                 const userLat = pos.coords.latitude;
                 const userLng = pos.coords.longitude;
                 const acc = pos.coords.accuracy;
+
+                if (userMarker) map.removeLayer(userMarker);
+                if (userCircle) map.removeLayer(userCircle);
 
                 // Blue pulsing dot for user location
                 const userIcon = L.divIcon({
@@ -305,12 +324,12 @@
                     iconAnchor: [7, 7],
                 });
 
-                L.marker([userLat, userLng], { icon: userIcon })
+                userMarker = L.marker([userLat, userLng], { icon: userIcon })
                     .bindPopup(`<b>Lokasi Anda</b><br>Akurasi: ±${Math.round(acc)}m`)
                     .addTo(map);
 
                 // Accuracy circle
-                L.circle([userLat, userLng], {
+                userCircle = L.circle([userLat, userLng], {
                     radius: acc,
                     color: '#3b82f6',
                     fillColor: '#3b82f6',
@@ -323,9 +342,20 @@
                 const bounds = L.latLngBounds([[loc.lat, loc.lng], [userLat, userLng]]);
                 map.fitBounds(bounds.pad(0.3));
             },
-            () => { /* GPS denied/unavailable, just show location marker */ },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+            () => { 
+                if(btn) btn.classList.remove('animate-pulse');
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 } // maximumAge 0 forces fresh read
         );
+    }
+
+    // Auto run on load
+    detectUserLocation();
+
+    // Bind button
+    const btn = document.getElementById('btn-refresh-location');
+    if (btn) {
+        btn.addEventListener('click', detectUserLocation);
     }
     @endif
 })();

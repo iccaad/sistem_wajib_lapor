@@ -121,7 +121,9 @@
             <button type="button" @click="step = 'camera'"
                     x-show="gpsState === 'success'"
                     x-cloak
-                    class="mt-3 w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition-all duration-150 active:scale-95">
+                    :disabled="!withinRadius"
+                    :class="!withinRadius ? 'opacity-50 cursor-not-allowed bg-slate-400' : 'bg-emerald-600 hover:bg-emerald-700 active:scale-95'"
+                    class="mt-3 w-full py-3.5 rounded-xl text-white font-semibold text-sm transition-all duration-150">
                 Lanjut → Foto Selfie
             </button>
         </div>
