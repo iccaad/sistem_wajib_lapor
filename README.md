@@ -1,58 +1,144 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Wajib Lapor Digital
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem Wajib Lapor Digital adalah aplikasi berbasis web yang dibangun menggunakan **Laravel 13** untuk mendigitalisasi proses wajib lapor bagi peserta pengawasan (seperti tahanan kota, wajib lapor lantas, dll) di lingkungan kepolisian (Polrestabes). Sistem ini menggantikan proses lapor manual berbasis kertas menjadi sistem digital berbasis lokasi (GPS) dan verifikasi biometrik (Selfie).
 
-## About Laravel
+Aplikasi ini dibagi menjadi dua portal utama:
+1. **Portal Admin**: Untuk petugas kepolisian mengelola data peserta, lokasi wajib lapor, memantau tingkat kepatuhan, dan mencetak laporan bulanan.
+2. **Portal Peserta**: Untuk peserta wajib lapor melakukan presensi mandiri menggunakan smartphone mereka melalui deteksi GPS dan kamera selfie.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🎯 Fitur Utama
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. Portal Peserta (Wajib Lapor)
+- **Login Berbasis NIK**: Peserta tidak perlu mengingat password rumit, cukup menggunakan NIK (Nomor Induk Kependudukan) mereka. Terdapat *Rate Limiter* untuk mencegah brute-force NIK.
+- **Deteksi Lokasi Akurat (GPS + Haversine)**: Aplikasi memverifikasi posisi GPS perangkat peserta secara real-time. Radius lokasi (misal 50 meter) divalidasi baik di sisi klien (*client-side*) menggunakan Javascript maupun di sisi server (*server-side*).
+- **Penugasan Lokasi Sekuensial**: Peserta diberikan rute/lokasi spesifik untuk setiap absennya secara berurutan. Peta akan otomatis menyoroti dan mengarahkan peserta ke *Next Required Location* (Lokasi Wajib Lapor Berikutnya).
+- **Verifikasi Selfie**: Integrasi kamera perangkat secara langsung untuk mengambil foto selfie sebagai bukti kehadiran.
+- **Dashboard Progress**: Menampilkan indikator persentase kehadiran, sisa kuota lapor per periode (mingguan/bulanan), dan masa tenggang pengawasan.
+- **Sistem Peringatan Terpusat**: Pemberitahuan otomatis (Level 1, Level 2, Level 3) jika peserta mulai mangkir dari jadwal.
 
-## Learning Laravel
+### 2. Portal Admin (Petugas)
+- **Manajemen Peserta**: CRUD data peserta, penentuan masa pengawasan, pemilihan jenis pelanggaran, serta penetapan kuota wajib lapor.
+- **Distribusi Lokasi Lapor**: Admin menentukan lokasi mana saja yang harus dikunjungi oleh peserta sesuai kuota secara berurutan.
+- **Manajemen Lokasi (Geofencing)**: Penambahan titik koordinat lokasi wajib lapor beserta penyesuaian radius toleransi (dalam meter) yang terintegrasi dengan Leaflet.js.
+- **Validasi Kehadiran & Override Manual**: Melihat bukti foto selfie dan lokasi presensi peserta. Admin juga memiliki otoritas *Manual Override* jika terjadi kendala teknis (misal perangkat peserta rusak).
+- **Sistem *Log Activity***: Semua tindakan krusial admin (Create, Update, Delete) akan direkam otomatis oleh `LogActivityMiddleware` untuk tujuan audit.
+- **Pelaporan & Ekspor**: Rekapitulasi absensi peserta untuk kebutuhan pemberkasan.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 3. Otomatisasi (Task Scheduler)
+- **Generate Periode Otomatis**: Secara otomatis memotong atau memperpanjang periode wajib lapor (Mingguan/Bulanan) tepat pada jam 00:05 WIB.
+- **Peringatan Mangkir**: *Cron job* berjalan setiap hari untuk mendeteksi peserta yang gagal memenuhi target kuota dan secara otomatis menerbitkan peringatan (Warning L1/L2/L3) serta mengirim notifikasi Email.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 🛠️ Stack Teknologi
 
-## Agentic Development
+- **Framework**: Laravel 13.x (PHP 8.2+)
+- **Database**: PostgreSQL (direkomendasikan) / MySQL
+- **Frontend**: Blade Templating, Tailwind CSS (Utility-First), Alpine.js (Lightweight Javascript behavior)
+- **Peta & Geolocation**: Leaflet.js (OpenStreetMap)
+- **Authentication**: Laravel Breeze (Admin) & Custom Auth (Peserta NIK)
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+---
 
+## 🚀 Panduan Instalasi (Development)
+
+Berikut adalah langkah-langkah untuk menjalankan aplikasi secara lokal.
+
+### 1. Kloning Repositori
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/iccaad/sistem_wajib_lapor.git
+cd sistem_wajib_lapor
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Instalasi Dependensi
+Pastikan [Composer](https://getcomposer.org/) dan [Node.js/NPM](https://nodejs.org/) sudah terinstal.
+```bash
+composer install
+npm install
+```
 
-## Contributing
+### 3. Konfigurasi Environment
+Buat file `.env` dari file `.env.example`.
+```bash
+cp .env.example .env
+```
+Generate APP_KEY Laravel:
+```bash
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Ubah konfigurasi database di file `.env` sesuai dengan database lokal Anda:
+```env
+DB_CONNECTION=pgsql # atau mysql
+DB_HOST=127.0.0.1
+DB_PORT=5432        # 3306 untuk mysql
+DB_DATABASE=sistem_wajib_lapor
+DB_USERNAME=root
+DB_PASSWORD=
+```
+> **Catatan**: Aplikasi ini dikonfigurasi untuk bahasa Indonesia. Pastikan `APP_LOCALE=id` dan `APP_FAKER_LOCALE=id_ID` ada di file `.env`.
 
-## Code of Conduct
+### 4. Migrasi & Seeder Database
+Aplikasi dilengkapi dengan dummy data yang komprehensif (termasuk admin, peserta, lokasi, riwayat absen, dsb).
+```bash
+php artisan migrate:fresh --seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 5. Storage Link
+Buat symlink agar foto selfie dan file lokal bisa diakses (meskipun foto absensi disimpan secara *private*).
+```bash
+php artisan storage:link
+```
 
-## Security Vulnerabilities
+### 6. Jalankan Server
+Jalankan Vite untuk kompilasi *asset* (Tailwind/Alpine) dan PHP *development server*. Buka dua terminal terpisah:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+**Terminal 1:**
+```bash
+npm run dev
+```
 
-## License
+**Terminal 2:**
+```bash
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 🔐 Akses Pengguna Default
+
+Setelah *seeder* berhasil dijalankan, Anda bisa login menggunakan akun berikut:
+
+**Portal Admin** (Akses di: `http://localhost:8000/admin/login`)
+- Email: `budi.santoso@polrestabes-smg.test` (atau admin lain yang ada di Database)
+- Password: `password`
+
+**Portal Peserta** (Akses di: `http://localhost:8000/login`)
+- NIK: `1234567890123451` s/d `1234567890123460` (Bisa dicek melalui tabel `participants` atau di halaman admin).
+
+---
+
+## ⏰ Cron Job (Scheduler)
+
+Sistem ini sangat bergantung pada otomatisasi periode dan pengecekan tingkat kepatuhan absensi. Untuk lingkungan *development*, Anda bisa menjalankan scheduler secara manual atau biarkan proses `schedule:work` berjalan.
+
+Jalankan perintah ini di **Terminal 3**:
+```bash
+php artisan schedule:work
+```
+*(Ini akan menjalankan Task Scheduler setiap menit untuk mensimulasikan Cron)*.
+
+---
+
+## 🛡️ Keamanan (Security Features)
+
+1. **Private File System**: Foto selfie diunggah ke `storage/app/private`. Foto disajikan menggunakan *controller* melalui `BinaryFileResponse` sehingga tidak terekspos ke publik dan hanya Admin terautentikasi yang bisa melihatnya.
+2. **Rate Limiting**: Peserta yang gagal login menggunakan NIK 5x dalam 10 menit akan diblokir sementara (*IP Based*). Rute pengiriman absensi (POST) juga dibatasi maksimal 10x sehari per user untuk mencegah SPAM/Auto-clicker.
+3. **Session Timeout**: Diatur ke 30 menit (idle) melalui konfigurasi `SESSION_LIFETIME`.
+
+---
+
+## 📝 Lisensi
+Sistem ini dibangun untuk kepentingan instansi terkait dan dikembangkan secara *in-house*. Tidak untuk diperjualbelikan secara komersial tanpa izin.
