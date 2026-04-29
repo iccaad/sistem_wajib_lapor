@@ -55,27 +55,54 @@ class PeriodService
      */
     public function syncPeriodsForUpdate(Participant $participant): void
     {
-        // 1. Instantly fix the targets for all currently active and future periods
-        // This solves the bug where dashboard shows old target counts
+        $supervisionEnd = Carbon::parse($participant->supervision_end)->startOfDay();
+
+        // 1. Update targets and period_type for all active periods.
+        // We update period_type here because the admin might have changed it (e.g. weekly to monthly).
         $participant->attendancePeriods()
             ->where('status', 'active')
             ->update([
                 'target_count' => $participant->quota_amount,
-                // Do not update period_type here to avoid messing up existing date boundaries.
-                // New periods generated will use the new period_type.
+                'period_type'  => $participant->quota_type,
             ]);
 
-        $supervisionEnd = Carbon::parse($participant->supervision_end)->startOfDay();
+        // 2. Adjust date boundaries for the first active period and remove subsequent ones,
+        // so they can be regenerated with the correct boundaries based on the new period_type.
+        $activePeriods = $participant->attendancePeriods()
+            ->where('status', 'active')
+            ->orderBy('period_start', 'asc')
+            ->get();
 
-        // 2. If supervision_end was reduced, delete periods completely beyond the new end
-        // (Only if they have 0 attendances to be safe)
+        if ($activePeriods->isNotEmpty()) {
+            $firstActive = $activePeriods->first();
+            
+            $newEnd = $this->calculatePeriodEnd(Carbon::parse($firstActive->period_start), $participant->quota_type);
+            
+            if ($newEnd->gt($supervisionEnd)) {
+                $newEnd = $supervisionEnd->copy();
+            }
+
+            $firstActive->update([
+                'period_end' => $newEnd->toDateString(),
+                'status'     => $newEnd->lt(today()) ? 'completed' : 'active',
+            ]);
+
+            // Delete subsequent active periods (if they have 0 attendances) so they can be accurately regenerated
+            $participant->attendancePeriods()
+                ->where('status', 'active')
+                ->where('id', '!=', $firstActive->id)
+                ->where('attended_count', 0)
+                ->delete();
+        }
+
+        // 3. If supervision_end was reduced, delete periods completely beyond the new end
         $participant->attendancePeriods()
             ->where('status', 'active')
             ->where('period_start', '>', $supervisionEnd)
             ->where('attended_count', 0)
             ->delete();
 
-        // 3. If supervision_end was extended, generate missing periods
+        // 4. Generate missing periods up to supervision_end
         $latestPeriod = $participant->attendancePeriods()->orderBy('period_end', 'desc')->first();
         
         $currentStart = $latestPeriod 

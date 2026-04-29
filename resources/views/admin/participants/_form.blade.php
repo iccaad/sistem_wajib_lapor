@@ -1,7 +1,7 @@
 {{-- Shared form fields for create/edit participant --}}
 {{-- Expects $participant (nullable for create) --}}
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6" x-data="periodCalculator()">
 
     {{-- Section: Identitas --}}
     <div class="md:col-span-2">
@@ -84,37 +84,46 @@
     <div>
         <label for="supervision_start" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai <span class="text-red-500">*</span></label>
         <input type="date" id="supervision_start" name="supervision_start"
-               value="{{ old('supervision_start', isset($participant) ? $participant->supervision_start->format('Y-m-d') : '') }}"
+               x-model="startDate" @change="calculateEndDate()"
                required
                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('supervision_start') border-red-400 @enderror">
         @error('supervision_start') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+    </div>
+
+    {{-- Tipe Kuota --}}
+    <div>
+        <label for="quota_type" class="block text-sm font-medium text-gray-700 mb-1">Tipe Kuota <span class="text-red-500">*</span></label>
+        <select id="quota_type" name="quota_type" x-model="quotaType" @change="calculateEndDate()" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('quota_type') border-red-400 @enderror">
+            <option value="">-- Pilih --</option>
+            <option value="weekly">Mingguan (Weekly)</option>
+            <option value="monthly">Bulanan (Monthly)</option>
+        </select>
+        @error('quota_type') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+    </div>
+
+    {{-- Jumlah Periode --}}
+    <div>
+        <label for="number_of_periods" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Periode <span class="text-red-500">*</span></label>
+        <input type="number" id="number_of_periods" x-model="numberOfPeriods" @input="calculateEndDate()"
+               min="1" max="100" placeholder="Misal: 3"
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500">
+        <p class="mt-1 text-xs text-gray-500">Isi ini untuk menghitung otomatis tanggal selesai.</p>
     </div>
 
     {{-- Tanggal Selesai --}}
     <div>
         <label for="supervision_end" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai <span class="text-red-500">*</span></label>
         <input type="date" id="supervision_end" name="supervision_end"
-               value="{{ old('supervision_end', isset($participant) ? $participant->supervision_end->format('Y-m-d') : '') }}"
+               x-model="endDate" readonly
                required
-               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('supervision_end') border-red-400 @enderror">
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 cursor-not-allowed focus:ring-indigo-500 focus:border-indigo-500 @error('supervision_end') border-red-400 @enderror">
         @error('supervision_end') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
-    </div>
-
-    {{-- Tipe Kuota --}}
-    <div>
-        <label for="quota_type" class="block text-sm font-medium text-gray-700 mb-1">Tipe Kuota <span class="text-red-500">*</span></label>
-        <select id="quota_type" name="quota_type" required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('quota_type') border-red-400 @enderror">
-            <option value="">-- Pilih --</option>
-            <option value="weekly" {{ old('quota_type', $participant->quota_type ?? '') === 'weekly' ? 'selected' : '' }}>Mingguan (Weekly)</option>
-            <option value="monthly" {{ old('quota_type', $participant->quota_type ?? '') === 'monthly' ? 'selected' : '' }}>Bulanan (Monthly)</option>
-        </select>
-        @error('quota_type') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
     </div>
 
     {{-- Jumlah Kuota --}}
     <div>
-        <label for="quota_amount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Kuota <span class="text-red-500">*</span></label>
+        <label for="quota_amount" class="block text-sm font-medium text-gray-700 mb-1">Target Kuota per Periode <span class="text-red-500">*</span></label>
         <input type="number" id="quota_amount" name="quota_amount"
                value="{{ old('quota_amount', $participant->quota_amount ?? '') }}"
                min="1" max="30" required
@@ -161,7 +170,47 @@
 @push('scripts')
 <script>
 document.addEventListener('alpine:init', () => {
-    // Make locationFormData available as Alpine data for parent x-data usage
+    Alpine.data('periodCalculator', () => ({
+        startDate: '{{ old('supervision_start', isset($participant) ? $participant->supervision_start->format('Y-m-d') : '') }}',
+        quotaType: '{{ old('quota_type', $participant->quota_type ?? '') }}',
+        numberOfPeriods: '',
+        endDate: '{{ old('supervision_end', isset($participant) ? $participant->supervision_end->format('Y-m-d') : '') }}',
+
+        init() {
+            if (this.startDate && this.endDate && this.quotaType) {
+                const start = new Date(this.startDate);
+                const end = new Date(this.endDate);
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 because inclusive boundaries
+                
+                if (this.quotaType === 'weekly') {
+                    this.numberOfPeriods = Math.round(diffDays / 7);
+                } else if (this.quotaType === 'monthly') {
+                    this.numberOfPeriods = Math.round(diffDays / 30);
+                }
+            }
+        },
+
+        calculateEndDate() {
+            if (!this.startDate || !this.quotaType || !this.numberOfPeriods) {
+                return;
+            }
+
+            const start = new Date(this.startDate);
+            let daysToAdd = 0;
+
+            if (this.quotaType === 'weekly') {
+                daysToAdd = (parseInt(this.numberOfPeriods) * 7) - 1;
+            } else if (this.quotaType === 'monthly') {
+                daysToAdd = (parseInt(this.numberOfPeriods) * 30) - 1;
+            }
+
+            const end = new Date(start);
+            end.setDate(end.getDate() + daysToAdd);
+
+            this.endDate = end.toISOString().split('T')[0];
+        }
+    }));
 });
 </script>
 @endpush
