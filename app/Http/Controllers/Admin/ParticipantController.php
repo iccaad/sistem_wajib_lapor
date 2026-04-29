@@ -168,7 +168,8 @@ class ParticipantController extends Controller
                 'location_id' => $validated['location_id'],
             ]);
 
-
+            // Sync attendance periods to reflect new quota or dates
+            (new \App\Services\PeriodService())->syncPeriodsForUpdate($participant);
 
             // Log the action
             ActivityLog::create([

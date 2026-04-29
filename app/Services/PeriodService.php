@@ -49,6 +49,61 @@ class PeriodService
     }
 
     /**
+     * Sync periods after a participant is updated by admin.
+     * Updates target_count for all active periods so the dashboard reflects the new quota.
+     * Also handles generating any missing future periods if supervision_end was extended.
+     */
+    public function syncPeriodsForUpdate(Participant $participant): void
+    {
+        // 1. Instantly fix the targets for all currently active and future periods
+        // This solves the bug where dashboard shows old target counts
+        $participant->attendancePeriods()
+            ->where('status', 'active')
+            ->update([
+                'target_count' => $participant->quota_amount,
+                // Do not update period_type here to avoid messing up existing date boundaries.
+                // New periods generated will use the new period_type.
+            ]);
+
+        $supervisionEnd = Carbon::parse($participant->supervision_end)->startOfDay();
+
+        // 2. If supervision_end was reduced, delete periods completely beyond the new end
+        // (Only if they have 0 attendances to be safe)
+        $participant->attendancePeriods()
+            ->where('status', 'active')
+            ->where('period_start', '>', $supervisionEnd)
+            ->where('attended_count', 0)
+            ->delete();
+
+        // 3. If supervision_end was extended, generate missing periods
+        $latestPeriod = $participant->attendancePeriods()->orderBy('period_end', 'desc')->first();
+        
+        $currentStart = $latestPeriod 
+            ? Carbon::parse($latestPeriod->period_end)->addDay()->startOfDay() 
+            : Carbon::parse($participant->supervision_start)->startOfDay();
+
+        while ($currentStart->lte($supervisionEnd)) {
+            $periodEnd = $this->calculatePeriodEnd($currentStart, $participant->quota_type);
+
+            if ($periodEnd->gt($supervisionEnd)) {
+                $periodEnd = $supervisionEnd->copy();
+            }
+
+            AttendancePeriod::create([
+                'participant_id'  => $participant->id,
+                'period_type'     => $participant->quota_type,
+                'period_start'    => $currentStart->toDateString(),
+                'period_end'      => $periodEnd->toDateString(),
+                'target_count'    => $participant->quota_amount,
+                'attended_count'  => 0,
+                'status'          => $periodEnd->lt(today()) ? 'completed' : 'active',
+            ]);
+
+            $currentStart = $periodEnd->copy()->addDay()->startOfDay();
+        }
+    }
+
+    /**
      * Get the currently active attendance period for a participant.
      *
      * A period is "current" if today falls within its date range and
