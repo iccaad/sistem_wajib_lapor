@@ -370,11 +370,8 @@ function absensiForm() {
             canvas.width  = video.videoWidth;
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
-            // Mirror front camera
-            ctx.translate(canvas.width, 0);
-            ctx.scale(-1, 1);
+            // Capture without mirroring
             ctx.drawImage(video, 0, 0);
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
 
             this.photoDataUrl = canvas.toDataURL('image/jpeg', 0.85);
             canvas.toBlob((blob) => {
