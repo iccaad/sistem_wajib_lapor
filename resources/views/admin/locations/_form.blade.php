@@ -7,6 +7,7 @@
 --}}
 @push('head')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <style>
         #location-map { height: 380px; border-radius: 8px; z-index: 1; }
     </style>
@@ -38,6 +39,21 @@
                 this.hasCoords = true;
                 this.placeMarker(this.lat, this.lng);
             });
+
+            // Add Search Geocoder
+            L.Control.geocoder({
+                defaultMarkGeocode: false,
+                placeholder: 'Cari lokasi...'
+            })
+            .on('markgeocode', (e) => {
+                var center = e.geocode.center;
+                this.map.setView(center, 16);
+                this.lat = parseFloat(center.lat.toFixed(7));
+                this.lng = parseFloat(center.lng.toFixed(7));
+                this.hasCoords = true;
+                this.placeMarker(this.lat, this.lng);
+            })
+            .addTo(this.map);
         },
 
         placeMarker(lat, lng) {
@@ -174,4 +190,5 @@
 
 @push('scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 @endpush
