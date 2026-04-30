@@ -57,7 +57,7 @@
                 <tr>
                     <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Nama</th>
                     <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase hidden sm:table-cell">NIK</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase hidden md:table-cell">Pelanggaran</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase hidden md:table-cell">Tipe Kuota</th>
                     <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
                     <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Periode</th>
                     <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Total Hadir</th>
@@ -71,7 +71,7 @@
                     <tr class="hover:bg-gray-50">
                         <td class="px-5 py-4 text-sm font-medium text-gray-900">{{ $p->full_name }}</td>
                         <td class="px-5 py-4 text-xs text-gray-500 font-mono hidden sm:table-cell">{{ $p->nik }}</td>
-                        <td class="px-5 py-4 text-sm text-gray-600 hidden md:table-cell">{{ Str::limit($p->violationType->name ?? '—', 20) }}</td>
+                        <td class="px-5 py-4 text-sm text-gray-600 hidden md:table-cell">{{ $p->quota_amount }}×/{{ $p->quota_type === 'weekly' ? 'minggu' : 'bulan' }}</td>
                         <td class="px-5 py-4">
                             @if ($p->status === 'active')
                                 <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Aktif</span>
