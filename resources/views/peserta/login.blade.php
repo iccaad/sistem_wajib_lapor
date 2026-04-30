@@ -30,7 +30,7 @@
 
             {{-- Login Card --}}
             <div class="w-full max-w-sm">
-                <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-8">
+                <div class="bg-gray-800/10 backdrop-blur-xl border border-white/20 rounded-md shadow-2xl p-8">
                     <h2 class="text-lg font-semibold text-white text-center mb-1">Login Peserta</h2>
                     <p class="text-blue-300/70 text-sm text-center mb-6">Masukkan NIK Anda untuk masuk</p>
 
@@ -53,7 +53,7 @@
                                 placeholder="Masukkan 16 digit NIK"
                                 autofocus
                                 required
-                                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-center text-lg tracking-widest @error('nik') border-red-400 ring-1 ring-red-400 @enderror"
+                                class="w-full px-4 py-3 rounded-md bg-gray-800/10 border border-white/20 text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-center text-lg tracking-widest @error('nik') border-red-400 ring-1 ring-red-400 @enderror"
                             >
 
                             @error('nik')
@@ -64,7 +64,7 @@
                         {{-- Submit Button --}}
                         <button
                             type="submit"
-                            class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold rounded-xl transition duration-200 shadow-lg shadow-blue-600/30 hover:shadow-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900"
+                            class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold rounded-md transition duration-200 shadow-lg shadow-blue-600/30 hover:shadow-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900"
                         >
                             Masuk
                         </button>
@@ -80,3 +80,5 @@
         </div>
     </body>
 </html>
+
+

@@ -7,7 +7,7 @@
 {{-- ── SECTION 1: Warning Banners ── --}}
 @foreach ($activeWarnings as $warning)
     @if ($warning->level === 'level_3')
-        <div class="mb-4 rounded-xl bg-red-700 text-white px-4 py-4 shadow-lg">
+        <div class="mb-4 rounded-md bg-red-700 text-white px-4 py-4 shadow-lg">
             <div class="flex items-start gap-3">
                 <span class="text-2xl">🚨</span>
                 <div>
@@ -18,22 +18,22 @@
             </div>
         </div>
     @elseif ($warning->level === 'level_2')
-        <div class="mb-4 rounded-xl bg-red-50 border border-red-200 px-4 py-4">
+        <div class="mb-4 rounded-md bg-red-500/20 border border-red-200 px-4 py-4">
             <div class="flex items-start gap-3">
                 <span class="text-xl">⚠️</span>
                 <div>
                     <p class="font-bold text-sm text-red-800">Peringatan Level 2 — Mangkir</p>
-                    <p class="text-sm text-red-700 mt-1">{{ $warning->reason }}</p>
+                    <p class="text-sm text-red-400 mt-1">{{ $warning->reason }}</p>
                 </div>
             </div>
         </div>
     @elseif ($warning->level === 'level_1')
-        <div class="mb-4 rounded-xl bg-amber-50 border border-amber-200 px-4 py-4">
+        <div class="mb-4 rounded-md bg-amber-500/20 border border-amber-200 px-4 py-4">
             <div class="flex items-start gap-3">
                 <span class="text-xl">⏰</span>
                 <div>
                     <p class="font-bold text-sm text-amber-800">Peringatan Level 1 — Hampir Habis</p>
-                    <p class="text-sm text-amber-700 mt-1">{{ $warning->reason }}</p>
+                    <p class="text-sm text-amber-400 mt-1">{{ $warning->reason }}</p>
                 </div>
             </div>
         </div>
@@ -41,20 +41,20 @@
 @endforeach
 
 {{-- ── SECTION 2: Participant Status Card ── --}}
-<div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4">
+<div class="bg-gray-800 rounded-md border border-gray-700 shadow-md border-t-2 border-indigo-500 shadow-gray-950/50 overflow-hidden mb-4">
     <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-5">
         <p class="text-blue-100 text-xs font-semibold uppercase tracking-widest mb-1">Data Peserta</p>
         <h2 class="text-white text-xl font-bold leading-tight">{{ $participant->full_name }}</h2>
         <div class="mt-2 flex items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/20 text-white border border-white/20">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-800/20 text-white border border-white/20">
                 {{ $participant->violation_type }}
             </span>
             @if ($isActive)
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-100 border border-emerald-400/30">
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/200/20 text-emerald-100 border border-emerald-400/30">
                     <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> AKTIF
                 </span>
             @else
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-500/20 text-gray-200 border border-gray-400/30">
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-9000/20 text-gray-200 border border-gray-400/30">
                     SELESAI
                 </span>
             @endif
@@ -62,21 +62,21 @@
     </div>
 
     <div class="px-5 py-4 grid grid-cols-2 gap-3">
-        <div class="bg-slate-50 rounded-xl p-3">
-            <p class="text-xs text-slate-500 font-medium mb-0.5">Mulai Pengawasan</p>
-            <p class="text-sm font-semibold text-slate-800">
+        <div class="bg-gray-900 rounded-md p-3">
+            <p class="text-xs text-gray-400 font-medium mb-0.5">Mulai Pengawasan</p>
+            <p class="text-sm font-semibold text-gray-200">
                 {{ $participant->supervision_start->translatedFormat('d M Y') }}
             </p>
         </div>
-        <div class="bg-slate-50 rounded-xl p-3">
-            <p class="text-xs text-slate-500 font-medium mb-0.5">Selesai Pengawasan</p>
-            <p class="text-sm font-semibold text-slate-800">
+        <div class="bg-gray-900 rounded-md p-3">
+            <p class="text-xs text-gray-400 font-medium mb-0.5">Selesai Pengawasan</p>
+            <p class="text-sm font-semibold text-gray-200">
                 {{ $participant->supervision_end->translatedFormat('d M Y') }}
             </p>
         </div>
-        <div class="bg-slate-50 rounded-xl p-3 col-span-2">
-            <p class="text-xs text-slate-500 font-medium mb-0.5">Sisa Hari Pengawasan</p>
-            <p class="text-xl font-bold {{ $remainingDays <= 7 ? 'text-red-600' : ($remainingDays <= 30 ? 'text-amber-600' : 'text-emerald-600') }}">
+        <div class="bg-gray-900 rounded-md p-3 col-span-2">
+            <p class="text-xs text-gray-400 font-medium mb-0.5">Sisa Hari Pengawasan</p>
+            <p class="text-xl font-bold {{ $remainingDays <= 7 ? 'text-red-400' : ($remainingDays <= 30 ? 'text-amber-400' : 'text-emerald-400') }}">
                 {{ $remainingDays }} hari lagi
             </p>
         </div>
@@ -85,25 +85,25 @@
 
 {{-- ── SECTION 3: Period Progress ── --}}
 @if ($currentPeriod)
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-5 mb-4">
-        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">Periode Ini</p>
-        <p class="text-xs text-slate-400 mb-3">
+    <div class="bg-gray-800 rounded-md border border-gray-700 shadow-md border-t-2 border-indigo-500 shadow-gray-950/50 px-5 py-5 mb-4">
+        <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Periode Ini</p>
+        <p class="text-xs text-gray-500 mb-3">
             {{ $currentPeriod->period_start->format('d/m/Y') }} s.d. {{ $currentPeriod->period_end->format('d/m/Y') }}
         </p>
 
         {{-- Progress bar --}}
         @php $pct = min(100, round($attendedCount / max(1, $currentPeriod->target_count) * 100)); @endphp
         <div class="flex items-center justify-between mb-2">
-            <span class="text-2xl font-bold {{ $quotaFull ? 'text-emerald-600' : 'text-slate-800' }}">
+            <span class="text-2xl font-bold {{ $quotaFull ? 'text-emerald-400' : 'text-gray-200' }}">
                 {{ $attendedCount }} / {{ $currentPeriod->target_count }}
             </span>
-            <span class="text-sm font-semibold {{ $quotaFull ? 'text-emerald-600' : 'text-blue-600' }}">{{ $pct }}%</span>
+            <span class="text-sm font-semibold {{ $quotaFull ? 'text-emerald-400' : 'text-blue-600' }}">{{ $pct }}%</span>
         </div>
         <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-            <div class="h-3 rounded-full transition-all duration-500 {{ $quotaFull ? 'bg-emerald-500' : 'bg-blue-500' }}"
+            <div class="h-3 rounded-full transition-all duration-500 {{ $quotaFull ? 'bg-emerald-500/200' : 'bg-blue-500' }}"
                  style="width: {{ $pct }}%"></div>
         </div>
-        <p class="text-xs text-slate-500 mt-2">
+        <p class="text-xs text-gray-400 mt-2">
             @if ($quotaFull)
                 🎉 Target periode ini sudah terpenuhi!
             @else
@@ -112,8 +112,8 @@
         </p>
     </div>
 @else
-    <div class="bg-slate-50 rounded-2xl border border-slate-200 px-5 py-5 mb-4 text-center">
-        <p class="text-sm text-slate-500">Tidak ada periode absensi aktif saat ini.</p>
+    <div class="bg-gray-900 rounded-md border border-gray-700 px-5 py-5 mb-4 text-center">
+        <p class="text-sm text-gray-400">Tidak ada periode absensi aktif saat ini.</p>
     </div>
 @endif
 
@@ -126,7 +126,7 @@
     @if ($canAbsent)
         <a href="{{ route('peserta.absence') }}"
            id="btn-absensi-sekarang"
-           class="flex items-center justify-center gap-3 w-full py-4 rounded-2xl
+           class="flex items-center justify-center gap-3 w-full py-4 rounded-md
                   bg-gradient-to-r from-blue-600 to-indigo-600
                   text-white text-base font-bold shadow-lg shadow-blue-200
                   hover:shadow-xl hover:shadow-blue-300 active:scale-95
@@ -137,26 +137,26 @@
             Absensi Sekarang
         </a>
     @elseif ($hasAbsentToday)
-        <div class="flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200">
+        <div class="flex items-center justify-center gap-3 w-full py-4 rounded-md bg-emerald-500/20 border-2 border-emerald-200">
             <svg class="h-6 w-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg>
-            <span class="text-base font-bold text-emerald-700">Sudah Absen Hari Ini ✓</span>
+            <span class="text-base font-bold text-emerald-400">Sudah Absen Hari Ini ✓</span>
         </div>
     @elseif ($quotaFull)
-        <div class="flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200">
-            <span class="text-base font-bold text-emerald-700">🎉 Target Periode Ini Sudah Terpenuhi ✓</span>
+        <div class="flex items-center justify-center gap-3 w-full py-4 rounded-md bg-emerald-500/20 border-2 border-emerald-200">
+            <span class="text-base font-bold text-emerald-400">🎉 Target Periode Ini Sudah Terpenuhi ✓</span>
         </div>
     @else
-        <div class="flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-slate-100 border border-slate-200">
-            <span class="text-sm font-medium text-slate-500">Masa pengawasan sudah selesai</span>
+        <div class="flex items-center justify-center gap-3 w-full py-4 rounded-md bg-slate-100 border border-gray-700">
+            <span class="text-sm font-medium text-gray-400">Masa pengawasan sudah selesai</span>
         </div>
     @endif
 </div>
 
 {{-- ── SECTION 5: Next Required Location ── --}}
 @if ($nextLocation && !$quotaFull && $isActive)
-    <div class="bg-white rounded-2xl border-2 border-blue-200 shadow-sm overflow-hidden mb-4">
+    <div class="bg-gray-800 rounded-md border-2 border-blue-200 shadow-md border-t-2 border-indigo-500 shadow-gray-950/50 overflow-hidden mb-4">
         <div class="px-5 py-4 bg-blue-50 border-b border-blue-100">
             <div class="flex items-center justify-between">
                 <p class="text-sm font-semibold text-blue-800">📍 Lokasi Absensi ke-{{ $nextCheckInOrder }}</p>
@@ -167,7 +167,7 @@
         </div>
         <div class="relative">
             <div id="next-location-map" class="w-full h-44" style="z-index: 1;"></div>
-            <button type="button" id="btn-refresh-location" class="absolute bottom-3 right-3 z-[1000] bg-white p-2 rounded-full shadow-md border border-slate-200 text-slate-600 hover:text-blue-600 transition" title="Perbarui Lokasi Saya">
+            <button type="button" id="btn-refresh-location" class="absolute bottom-3 right-3 z-[1000] bg-gray-800 p-2 rounded-full shadow-md border border-gray-700 text-slate-600 hover:text-blue-600 transition" title="Perbarui Lokasi Saya">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
@@ -175,11 +175,11 @@
             </button>
         </div>
         <div class="px-5 py-3">
-            <p class="font-semibold text-slate-800">{{ $nextLocation->name }}</p>
+            <p class="font-semibold text-gray-200">{{ $nextLocation->name }}</p>
             @if ($nextLocation->address)
-                <p class="text-xs text-slate-500 mt-0.5">{{ $nextLocation->address }}</p>
+                <p class="text-xs text-gray-400 mt-0.5">{{ $nextLocation->address }}</p>
             @endif
-            <p class="text-xs text-slate-400 mt-1">Radius: {{ $nextLocation->radius_meters }}m</p>
+            <p class="text-xs text-gray-500 mt-1">Radius: {{ $nextLocation->radius_meters }}m</p>
         </div>
     </div>
 @elseif ($quotaFull)
@@ -188,28 +188,28 @@
 
 {{-- ── SECTION 5b: Daily Location Schedule (always visible) ── --}}
 @if ($activeLocations->isNotEmpty())
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4">
+    <div class="bg-gray-800 rounded-md border border-gray-700 shadow-md border-t-2 border-indigo-500 shadow-gray-950/50 overflow-hidden mb-4">
         <div class="px-5 py-3 border-b border-slate-100">
-            <p class="text-sm font-semibold text-slate-700">📋 Jadwal Lokasi Harian ({{ $activeLocations->count() }} hari)</p>
+            <p class="text-sm font-semibold text-gray-300">📋 Jadwal Lokasi Harian ({{ $activeLocations->count() }} hari)</p>
         </div>
         <div class="divide-y divide-slate-50">
             @foreach ($activeLocations as $loc)
                 <div class="px-5 py-2.5 flex items-center justify-between {{ $nextLocation && $loc->pivot->check_in_order === $nextLocation->pivot->check_in_order ? 'bg-blue-50' : '' }}">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold {{ $loc->pivot->check_in_order <= ($currentPeriod->attended_count ?? 0) ? 'bg-emerald-100 text-emerald-700' : ($nextLocation && $loc->pivot->check_in_order === $nextLocation->pivot->check_in_order ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-500') }}">
+                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold {{ $loc->pivot->check_in_order <= ($currentPeriod->attended_count ?? 0) ? 'bg-emerald-500/20 text-emerald-400' : ($nextLocation && $loc->pivot->check_in_order === $nextLocation->pivot->check_in_order ? 'bg-blue-500 text-white' : 'bg-slate-100 text-gray-400') }}">
                             {{ $loc->pivot->check_in_order }}
                         </span>
                         <div>
-                            <p class="text-sm font-medium text-slate-700">{{ $loc->name }}</p>
-                            <p class="text-xs text-slate-400">{{ $loc->radius_meters }}m radius</p>
+                            <p class="text-sm font-medium text-gray-300">{{ $loc->name }}</p>
+                            <p class="text-xs text-gray-500">{{ $loc->radius_meters }}m radius</p>
                         </div>
                     </div>
                     @if ($loc->pivot->check_in_order <= ($currentPeriod->attended_count ?? 0))
-                        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">✓ Selesai</span>
+                        <span class="text-xs font-semibold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full">✓ Selesai</span>
                     @elseif ($nextLocation && $loc->pivot->check_in_order === $nextLocation->pivot->check_in_order)
                         <span class="text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">→ Selanjutnya</span>
                     @else
-                        <span class="text-xs text-slate-400">Belum</span>
+                        <span class="text-xs text-gray-500">Belum</span>
                     @endif
                 </div>
             @endforeach
@@ -218,9 +218,9 @@
 @endif
 
 {{-- ── SECTION 6: Recent Attendance ── --}}
-<div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+<div class="bg-gray-800 rounded-md border border-gray-700 shadow-md border-t-2 border-indigo-500 shadow-gray-950/50 overflow-hidden">
     <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-        <p class="text-sm font-semibold text-slate-700">Riwayat Terakhir</p>
+        <p class="text-sm font-semibold text-gray-300">Riwayat Terakhir</p>
         <a href="{{ route('peserta.history') }}" class="text-xs font-medium text-blue-600 hover:text-blue-800 transition">
             Lihat Semua →
         </a>
@@ -231,19 +231,19 @@
             @foreach ($recentLogs as $log)
                 <div class="px-5 py-3 flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-slate-800">
+                        <p class="text-sm font-medium text-gray-200">
                             {{ \Carbon\Carbon::parse($log->attendance_date)->translatedFormat('l, d M Y') }}
                         </p>
-                        <p class="text-xs text-slate-400">
+                        <p class="text-xs text-gray-500">
                             {{ $log->attendance_time }} • {{ $log->location?->name ?? '—' }}
                         </p>
                     </div>
                     @if ($log->status === 'manual_override')
-                        <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                        <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400">
                             Manual
                         </span>
                     @else
-                        <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                        <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400">
                             ✓ Hadir
                         </span>
                     @endif
@@ -251,7 +251,7 @@
             @endforeach
         </div>
     @else
-        <div class="px-5 py-8 text-center text-sm text-slate-400">
+        <div class="px-5 py-8 text-center text-sm text-gray-500">
             Belum ada catatan absensi.
         </div>
     @endif
@@ -361,3 +361,5 @@
 })();
 </script>
 @endpush
+
+

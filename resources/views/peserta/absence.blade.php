@@ -6,14 +6,14 @@
 
 {{-- Validation errors --}}
 @if ($errors->has('attendance'))
-    <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+    <div class="mb-4 rounded-md border border-red-200 bg-red-500/20 px-4 py-3">
         <div class="flex items-start gap-2">
             <svg class="h-5 w-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
             </svg>
             <div>
                 <p class="text-sm font-semibold text-red-800">Absensi Gagal</p>
-                <p class="text-sm text-red-700 mt-0.5">{{ $errors->first('attendance') }}</p>
+                <p class="text-sm text-red-400 mt-0.5">{{ $errors->first('attendance') }}</p>
             </div>
         </div>
     </div>
@@ -24,21 +24,21 @@
 
     {{-- ── Step 1: GPS ── --}}
     <div x-show="step === 'gps'" class="space-y-4">
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-5">
+        <div class="bg-gray-800 rounded-md border border-gray-700 shadow-md border-t-2 border-indigo-500 shadow-gray-950/50 px-5 py-5">
             <div class="text-center mb-5">
                 <div class="inline-flex items-center justify-center h-14 w-14 rounded-full bg-blue-100 mb-3">
                     <svg class="h-7 w-7 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                     </svg>
                 </div>
-                <h3 class="font-bold text-slate-800 text-lg">Verifikasi Lokasi</h3>
-                <p class="text-sm text-slate-500 mt-1">Pastikan Anda berada di lokasi wajib lapor yang telah ditentukan.</p>
+                <h3 class="font-bold text-gray-200 text-lg">Verifikasi Lokasi</h3>
+                <p class="text-sm text-gray-400 mt-1">Pastikan Anda berada di lokasi wajib lapor yang telah ditentukan.</p>
             </div>
 
             {{-- GPS status --}}
-            <div class="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 mb-4 text-sm">
+            <div class="rounded-md border border-slate-100 bg-gray-900 px-4 py-3 mb-4 text-sm">
                 <template x-if="gpsState === 'idle'">
-                    <p class="text-slate-500 text-center">Tekan tombol di bawah untuk mendeteksi lokasi Anda.</p>
+                    <p class="text-gray-400 text-center">Tekan tombol di bawah untuk mendeteksi lokasi Anda.</p>
                 </template>
                 <template x-if="gpsState === 'loading'">
                     <div class="flex items-center justify-center gap-2 text-blue-600">
@@ -51,33 +51,33 @@
                 </template>
                 <template x-if="gpsState === 'success'">
                     <div>
-                        <div class="flex items-center gap-2 text-emerald-600 font-semibold mb-2">
+                        <div class="flex items-center gap-2 text-emerald-400 font-semibold mb-2">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
                             </svg>
                             Lokasi terdeteksi
                         </div>
-                        <p class="text-xs text-slate-500 font-mono" x-text="`Koordinat: ${lat?.toFixed(6)}, ${lng?.toFixed(6)}`"></p>
-                        <p class="text-xs text-slate-500" x-text="`Akurasi: ±${Math.round(accuracy || 0)}m`"></p>
+                        <p class="text-xs text-gray-400 font-mono" x-text="`Koordinat: ${lat?.toFixed(6)}, ${lng?.toFixed(6)}`"></p>
+                        <p class="text-xs text-gray-400" x-text="`Akurasi: ±${Math.round(accuracy || 0)}m`"></p>
 
                         {{-- Within/Outside radius indicator --}}
                         <template x-if="distanceToLocation !== null">
                             <div class="mt-2">
                                 <template x-if="withinRadius">
-                                    <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200">
+                                    <div class="flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-500/20 border border-emerald-200">
                                         <span class="text-lg">✅</span>
                                         <div>
-                                            <p class="text-sm font-semibold text-emerald-700">Anda di dalam area wajib lapor</p>
-                                            <p class="text-xs text-emerald-600" x-text="`Jarak: ${Math.round(distanceToLocation)}m dari lokasi`"></p>
+                                            <p class="text-sm font-semibold text-emerald-400">Anda di dalam area wajib lapor</p>
+                                            <p class="text-xs text-emerald-400" x-text="`Jarak: ${Math.round(distanceToLocation)}m dari lokasi`"></p>
                                         </div>
                                     </div>
                                 </template>
                                 <template x-if="!withinRadius">
-                                    <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
+                                    <div class="flex items-center gap-2 px-3 py-2 rounded-md bg-red-500/20 border border-red-200">
                                         <span class="text-lg">❌</span>
                                         <div>
-                                            <p class="text-sm font-semibold text-red-700">Anda di luar area wajib lapor</p>
-                                            <p class="text-xs text-red-600" x-text="`Jarak: ${Math.round(distanceToLocation)}m (perlu ≤ ${locationRadius}m)`"></p>
+                                            <p class="text-sm font-semibold text-red-400">Anda di luar area wajib lapor</p>
+                                            <p class="text-xs text-red-400" x-text="`Jarak: ${Math.round(distanceToLocation)}m (perlu ≤ ${locationRadius}m)`"></p>
                                         </div>
                                     </div>
                                 </template>
@@ -86,7 +86,7 @@
                     </div>
                 </template>
                 <template x-if="gpsState === 'error'">
-                    <div class="flex items-center gap-2 text-red-600 text-sm">
+                    <div class="flex items-center gap-2 text-red-400 text-sm">
                         <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
                         </svg>
@@ -97,15 +97,15 @@
 
             {{-- Required location for this check-in --}}
             @if ($nextLocation)
-                <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
                     <p class="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">📍 Lokasi Absensi ke-{{ $nextCheckInOrder }}:</p>
                     <div class="flex items-center gap-2 text-sm">
                         <span class="h-2 w-2 rounded-full bg-blue-500 shrink-0"></span>
-                        <span class="font-semibold text-slate-800">{{ $nextLocation->name }}</span>
-                        <span class="text-slate-400 text-xs">(±{{ $nextLocation->radius_meters }}m)</span>
+                        <span class="font-semibold text-gray-200">{{ $nextLocation->name }}</span>
+                        <span class="text-gray-500 text-xs">(±{{ $nextLocation->radius_meters }}m)</span>
                     </div>
                     @if ($nextLocation->address)
-                        <p class="text-xs text-slate-500 mt-1 ml-4">{{ $nextLocation->address }}</p>
+                        <p class="text-xs text-gray-400 mt-1 ml-4">{{ $nextLocation->address }}</p>
                     @endif
                 </div>
             @endif
@@ -113,7 +113,7 @@
             <button type="button" @click="detectGPS()"
                     :disabled="gpsState === 'loading'"
                     :class="gpsState === 'loading' ? 'opacity-60 cursor-not-allowed' : 'hover:bg-blue-700 active:scale-95'"
-                    class="w-full py-3.5 rounded-xl bg-blue-600 text-white font-semibold text-sm transition-all duration-150">
+                    class="w-full py-3.5 rounded-md bg-blue-600 text-white font-semibold text-sm transition-all duration-150">
                 <span x-show="gpsState !== 'loading'">📍 Deteksi Lokasi GPS</span>
                 <span x-show="gpsState === 'loading'">Mendeteksi...</span>
             </button>
@@ -123,7 +123,7 @@
                     x-cloak
                     :disabled="!withinRadius"
                     :class="!withinRadius ? 'opacity-50 cursor-not-allowed bg-slate-400' : 'bg-emerald-600 hover:bg-emerald-700 active:scale-95'"
-                    class="mt-3 w-full py-3.5 rounded-xl text-white font-semibold text-sm transition-all duration-150">
+                    class="mt-3 w-full py-3.5 rounded-md text-white font-semibold text-sm transition-all duration-150">
                 Lanjut → Foto Selfie
             </button>
         </div>
@@ -131,20 +131,20 @@
 
     {{-- ── Step 2: Camera ── --}}
     <div x-show="step === 'camera'" x-cloak class="space-y-4">
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-5">
+        <div class="bg-gray-800 rounded-md border border-gray-700 shadow-md border-t-2 border-indigo-500 shadow-gray-950/50 px-5 py-5">
             <div class="text-center mb-5">
-                <div class="inline-flex items-center justify-center h-14 w-14 rounded-full bg-emerald-100 mb-3">
-                    <svg class="h-7 w-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <div class="inline-flex items-center justify-center h-14 w-14 rounded-full bg-emerald-500/20 mb-3">
+                    <svg class="h-7 w-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
                     </svg>
                 </div>
-                <h3 class="font-bold text-slate-800 text-lg">Foto Selfie</h3>
-                <p class="text-sm text-slate-500 mt-1">Ambil foto selfie dengan wajah terlihat jelas. Pastikan pencahayaan cukup.</p>
+                <h3 class="font-bold text-gray-200 text-lg">Foto Selfie</h3>
+                <p class="text-sm text-gray-400 mt-1">Ambil foto selfie dengan wajah terlihat jelas. Pastikan pencahayaan cukup.</p>
             </div>
 
             {{-- Video preview or captured image --}}
-            <div class="relative rounded-xl overflow-hidden bg-slate-900 mb-4" style="aspect-ratio: 4/3;">
+            <div class="relative rounded-md overflow-hidden bg-gray-950 mb-4" style="aspect-ratio: 4/3;">
                 <video id="camera-video" autoplay playsinline muted
                        class="w-full h-full object-cover"
                        x-show="!photoTaken"></video>
@@ -154,7 +154,7 @@
                      :src="photoDataUrl"
                      alt="Foto selfie" />
                 {{-- Camera not started overlay --}}
-                <div class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/70 text-white"
+                <div class="absolute inset-0 flex flex-col items-center justify-center bg-gray-950/70 text-white"
                      x-show="!cameraStarted && !photoTaken">
                     <svg class="h-10 w-10 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
@@ -169,25 +169,25 @@
             <div class="space-y-2">
                 <button type="button" @click="startCamera()"
                         x-show="!cameraStarted && !photoTaken"
-                        class="w-full py-3.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-semibold text-sm transition-all active:scale-95">
+                        class="w-full py-3.5 rounded-md bg-slate-800 hover:bg-gray-950 text-white font-semibold text-sm transition-all active:scale-95">
                     📷 Aktifkan Kamera
                 </button>
 
                 <button type="button" @click="takePhoto()"
                         x-show="cameraStarted && !photoTaken"
                         x-cloak
-                        class="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all active:scale-95">
+                        class="w-full py-3.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all active:scale-95">
                     🤳 Ambil Foto
                 </button>
 
                 <template x-if="photoTaken">
                     <div class="flex gap-2">
                         <button type="button" @click="retakePhoto()"
-                                class="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition-all active:scale-95">
+                                class="flex-1 py-3 rounded-md bg-slate-100 hover:bg-slate-200 text-gray-300 font-semibold text-sm transition-all active:scale-95">
                             🔄 Ulang Foto
                         </button>
                         <button type="button" @click="step = 'confirm'"
-                                class="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition-all active:scale-95">
+                                class="flex-1 py-3 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition-all active:scale-95">
                             Lanjut ✓
                         </button>
                     </div>
@@ -202,34 +202,34 @@
 
     {{-- ── Step 3: Confirm & Submit ── --}}
     <div x-show="step === 'confirm'" x-cloak class="space-y-4">
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-5">
+        <div class="bg-gray-800 rounded-md border border-gray-700 shadow-md border-t-2 border-indigo-500 shadow-gray-950/50 px-5 py-5">
             <div class="text-center mb-5">
-                <div class="inline-flex items-center justify-center h-14 w-14 rounded-full bg-indigo-100 mb-3">
-                    <svg class="h-7 w-7 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <div class="inline-flex items-center justify-center h-14 w-14 rounded-full bg-indigo-500/20 mb-3">
+                    <svg class="h-7 w-7 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
                     </svg>
                 </div>
-                <h3 class="font-bold text-slate-800 text-lg">Konfirmasi Absensi</h3>
-                <p class="text-sm text-slate-500 mt-1">Periksa kembali sebelum mengirim.</p>
+                <h3 class="font-bold text-gray-200 text-lg">Konfirmasi Absensi</h3>
+                <p class="text-sm text-gray-400 mt-1">Periksa kembali sebelum mengirim.</p>
             </div>
 
             {{-- Summary --}}
-            <div class="bg-slate-50 rounded-xl divide-y divide-slate-100 mb-5">
+            <div class="bg-gray-900 rounded-md divide-y divide-slate-100 mb-5">
                 <div class="px-4 py-3 flex justify-between text-sm">
-                    <span class="text-slate-500">Tanggal</span>
-                    <span class="font-semibold text-slate-800">{{ today()->translatedFormat('l, d F Y') }}</span>
+                    <span class="text-gray-400">Tanggal</span>
+                    <span class="font-semibold text-gray-200">{{ today()->translatedFormat('l, d F Y') }}</span>
                 </div>
                 <div class="px-4 py-3 flex justify-between text-sm">
-                    <span class="text-slate-500">Koordinat GPS</span>
-                    <span class="font-mono text-xs text-slate-700" x-text="`${lat?.toFixed(6)}, ${lng?.toFixed(6)}`"></span>
+                    <span class="text-gray-400">Koordinat GPS</span>
+                    <span class="font-mono text-xs text-gray-300" x-text="`${lat?.toFixed(6)}, ${lng?.toFixed(6)}`"></span>
                 </div>
                 <div class="px-4 py-3 flex justify-between text-sm">
-                    <span class="text-slate-500">Akurasi</span>
-                    <span class="font-semibold text-slate-800" x-text="`±${Math.round(accuracy || 0)}m`"></span>
+                    <span class="text-gray-400">Akurasi</span>
+                    <span class="font-semibold text-gray-200" x-text="`±${Math.round(accuracy || 0)}m`"></span>
                 </div>
                 <div class="px-4 py-3">
-                    <p class="text-xs text-slate-500 mb-2">Foto Selfie:</p>
-                    <img :src="photoDataUrl" alt="Selfie" class="w-24 h-24 object-cover rounded-lg border border-slate-200 mx-auto">
+                    <p class="text-xs text-gray-400 mb-2">Foto Selfie:</p>
+                    <img :src="photoDataUrl" alt="Selfie" class="w-24 h-24 object-cover rounded-md border border-gray-700 mx-auto">
                 </div>
             </div>
 
@@ -246,7 +246,7 @@
             <button type="button" @click="submitAbsence()"
                     :disabled="submitting"
                     :class="submitting ? 'opacity-60 cursor-not-allowed' : 'hover:bg-indigo-700 active:scale-95'"
-                    class="w-full py-4 rounded-xl bg-indigo-600 text-white font-bold text-base shadow-lg shadow-indigo-200 transition-all duration-150">
+                    class="w-full py-4 rounded-md bg-indigo-600 text-white font-bold text-base shadow-lg shadow-indigo-200 transition-all duration-150">
                 <span x-show="!submitting">✅ Kirim Absensi</span>
                 <div x-show="submitting" class="flex items-center justify-center gap-2">
                     <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
@@ -417,3 +417,5 @@ function absensiForm() {
 }
 </script>
 @endpush
+
+

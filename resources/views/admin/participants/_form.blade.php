@@ -5,101 +5,101 @@
 
     {{-- Section: Identitas --}}
     <div class="md:col-span-2">
-        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 border-b pb-2">Identitas</h3>
+        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 border-b pb-2">Identitas</h3>
     </div>
 
     {{-- Nama Lengkap --}}
     <div>
-        <label for="full_name" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
+        <label for="full_name" class="block text-sm font-medium text-gray-300 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
         <input type="text" id="full_name" name="full_name"
                value="{{ old('full_name', $participant->full_name ?? '') }}"
                required
-               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('full_name') border-red-400 @enderror">
+               class="w-full px-3 py-2 border border-gray-600 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('full_name') border-red-400 @enderror">
         @error('full_name') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
     </div>
 
     {{-- NIK --}}
     <div>
-        <label for="nik" class="block text-sm font-medium text-gray-700 mb-1">NIK <span class="text-red-500">*</span></label>
+        <label for="nik" class="block text-sm font-medium text-gray-300 mb-1">NIK <span class="text-red-500">*</span></label>
         <input type="text" id="nik" name="nik"
                value="{{ old('nik', $participant->nik ?? '') }}"
                maxlength="16" inputmode="numeric" pattern="[0-9]*"
                required
                {{ isset($nikReadonly) && $nikReadonly ? 'readonly' : '' }}
-               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono tracking-wider focus:ring-indigo-500 focus:border-indigo-500 @error('nik') border-red-400 @enderror {{ isset($nikReadonly) && $nikReadonly ? 'bg-gray-50 cursor-not-allowed' : '' }}">
+               class="w-full px-3 py-2 border border-gray-600 rounded-md text-sm font-mono tracking-wider focus:ring-indigo-500 focus:border-indigo-500 @error('nik') border-red-400 @enderror {{ isset($nikReadonly) && $nikReadonly ? 'bg-gray-900 cursor-not-allowed' : '' }}">
         @error('nik') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
     </div>
 
     {{-- Alamat --}}
     <div class="md:col-span-2">
-        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+        <label for="address" class="block text-sm font-medium text-gray-300 mb-1">Alamat</label>
         <textarea id="address" name="address" rows="2"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('address') border-red-400 @enderror">{{ old('address', $participant->address ?? '') }}</textarea>
+                  class="w-full px-3 py-2 border border-gray-600 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('address') border-red-400 @enderror">{{ old('address', $participant->address ?? '') }}</textarea>
         @error('address') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
     </div>
 
     {{-- Telepon --}}
     <div>
-        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">No. Telepon</label>
+        <label for="phone" class="block text-sm font-medium text-gray-300 mb-1">No. Telepon</label>
         <input type="text" id="phone" name="phone"
                value="{{ old('phone', $participant->phone ?? '') }}"
-               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('phone') border-red-400 @enderror">
+               class="w-full px-3 py-2 border border-gray-600 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('phone') border-red-400 @enderror">
         @error('phone') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
     </div>
 
     {{-- Section: Pelanggaran --}}
     <div class="md:col-span-2 mt-2">
-        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 border-b pb-2">Detail Pelanggaran</h3>
+        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 border-b pb-2">Detail Pelanggaran</h3>
     </div>
 
     {{-- Jenis Pelanggaran --}}
     <div>
-        <label for="violation_type" class="block text-sm font-medium text-gray-700 mb-1">Jenis Pelanggaran <span class="text-red-500">*</span></label>
+        <label for="violation_type" class="block text-sm font-medium text-gray-300 mb-1">Jenis Pelanggaran <span class="text-red-500">*</span></label>
         <input type="text" id="violation_type" name="violation_type"
                value="{{ old('violation_type', $participant->violation_type ?? '') }}"
                required
-               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('violation_type') border-red-400 @enderror">
+               class="w-full px-3 py-2 border border-gray-600 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('violation_type') border-red-400 @enderror">
         @error('violation_type') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
     </div>
 
     {{-- Catatan Kasus --}}
     <div class="md:col-span-2">
-        <label for="case_notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan Kasus</label>
+        <label for="case_notes" class="block text-sm font-medium text-gray-300 mb-1">Catatan Kasus</label>
         <textarea id="case_notes" name="case_notes" rows="3"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('case_notes') border-red-400 @enderror">{{ old('case_notes', $participant->case_notes ?? '') }}</textarea>
+                  class="w-full px-3 py-2 border border-gray-600 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('case_notes') border-red-400 @enderror">{{ old('case_notes', $participant->case_notes ?? '') }}</textarea>
         @error('case_notes') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
     </div>
 
     {{-- Section: Pengawasan --}}
     <div class="md:col-span-2 mt-2">
-        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 border-b pb-2">Pengawasan & Kuota</h3>
+        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 border-b pb-2">Pengawasan & Kuota</h3>
     </div>
 
     {{-- Tanggal Mulai --}}
     <div>
-        <label for="supervision_start" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai <span class="text-red-500">*</span></label>
+        <label for="supervision_start" class="block text-sm font-medium text-gray-300 mb-1">Tanggal Mulai <span class="text-red-500">*</span></label>
         <input type="date" id="supervision_start" name="supervision_start"
                value="{{ old('supervision_start', isset($participant) ? $participant->supervision_start->format('Y-m-d') : '') }}"
                required
-               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('supervision_start') border-red-400 @enderror">
+               class="w-full px-3 py-2 border border-gray-600 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('supervision_start') border-red-400 @enderror">
         @error('supervision_start') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
     </div>
 
     {{-- Tanggal Selesai --}}
     <div>
-        <label for="supervision_end" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai <span class="text-red-500">*</span></label>
+        <label for="supervision_end" class="block text-sm font-medium text-gray-300 mb-1">Tanggal Selesai <span class="text-red-500">*</span></label>
         <input type="date" id="supervision_end" name="supervision_end"
                value="{{ old('supervision_end', isset($participant) ? $participant->supervision_end->format('Y-m-d') : '') }}"
                required
-               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('supervision_end') border-red-400 @enderror">
+               class="w-full px-3 py-2 border border-gray-600 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('supervision_end') border-red-400 @enderror">
         @error('supervision_end') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
     </div>
 
     {{-- Tipe Kuota --}}
     <div>
-        <label for="quota_type" class="block text-sm font-medium text-gray-700 mb-1">Tipe Kuota <span class="text-red-500">*</span></label>
+        <label for="quota_type" class="block text-sm font-medium text-gray-300 mb-1">Tipe Kuota <span class="text-red-500">*</span></label>
         <select id="quota_type" name="quota_type" required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('quota_type') border-red-400 @enderror">
+                class="w-full px-3 py-2 border border-gray-600 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('quota_type') border-red-400 @enderror">
             <option value="">-- Pilih --</option>
             <option value="weekly" {{ old('quota_type', $participant->quota_type ?? '') === 'weekly' ? 'selected' : '' }}>Mingguan (Weekly)</option>
             <option value="monthly" {{ old('quota_type', $participant->quota_type ?? '') === 'monthly' ? 'selected' : '' }}>Bulanan (Monthly)</option>
@@ -109,18 +109,18 @@
 
     {{-- Jumlah Kuota --}}
     <div>
-        <label for="quota_amount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Kuota <span class="text-red-500">*</span></label>
+        <label for="quota_amount" class="block text-sm font-medium text-gray-300 mb-1">Jumlah Kuota <span class="text-red-500">*</span></label>
         <input type="number" id="quota_amount" name="quota_amount"
                value="{{ old('quota_amount', $participant->quota_amount ?? '') }}"
                min="1" max="30" required
                x-model.number="quotaAmount"
-               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('quota_amount') border-red-400 @enderror">
+               class="w-full px-3 py-2 border border-gray-600 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('quota_amount') border-red-400 @enderror">
         @error('quota_amount') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
     </div>
 
     {{-- Section: Lokasi Wajib Lapor --}}
     <div class="md:col-span-2 mt-2">
-        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 border-b pb-2">Lokasi Wajib Lapor</h3>
+        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 border-b pb-2">Lokasi Wajib Lapor</h3>
         <p class="text-xs text-gray-400 -mt-1 mb-3">Tetapkan lokasi untuk setiap urutan absensi. Absensi ke-1 harus di Lokasi Hari ke-1, absensi ke-2 di Lokasi Hari ke-2, dst.</p>
     </div>
 
@@ -128,13 +128,13 @@
     <div class="md:col-span-2">
         <template x-for="(loc, index) in locationSlots" :key="index">
             <div class="mb-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label class="block text-sm font-medium text-gray-300 mb-1">
                     <span x-text="'Lokasi Hari ke-' + (index + 1)"></span> <span class="text-red-500">*</span>
                 </label>
                 <select :name="'location_ids[' + index + ']'"
                         x-model="locationSlots[index]"
                         required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        class="w-full px-3 py-2 border border-gray-600 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500">
                     <option value="">-- Pilih Lokasi --</option>
                     @foreach ($locations as $loc)
                         <option value="{{ $loc->id }}">
@@ -149,7 +149,7 @@
         @error('location_ids.*') <p class="text-sm text-red-500 mb-2">{{ $message }}</p> @enderror
 
         <div x-show="quotaAmount > 0 && locationSlots.length !== quotaAmount" x-cloak
-             class="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+             class="text-xs text-amber-400 bg-amber-500/20 border border-amber-200 rounded-md px-3 py-2">
             ⚠ Jumlah lokasi (<span x-text="locationSlots.length"></span>) belum sesuai dengan kuota (<span x-text="quotaAmount"></span>).
             Lokasi akan otomatis menyesuaikan jumlah kuota.
         </div>
@@ -157,9 +157,9 @@
 
     {{-- Status --}}
     <div>
-        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status <span class="text-red-500">*</span></label>
+        <label for="status" class="block text-sm font-medium text-gray-300 mb-1">Status <span class="text-red-500">*</span></label>
         <select id="status" name="status" required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('status') border-red-400 @enderror">
+                class="w-full px-3 py-2 border border-gray-600 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('status') border-red-400 @enderror">
             <option value="active" {{ old('status', $participant->status ?? 'active') === 'active' ? 'selected' : '' }}>Aktif</option>
             <option value="inactive" {{ old('status', $participant->status ?? '') === 'inactive' ? 'selected' : '' }}>Nonaktif</option>
         </select>
@@ -175,3 +175,5 @@ document.addEventListener('alpine:init', () => {
 });
 </script>
 @endpush
+
+
