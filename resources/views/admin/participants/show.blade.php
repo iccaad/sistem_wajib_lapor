@@ -25,7 +25,16 @@
         <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-5">
             <div class="flex items-center justify-between gap-4">
                 <div>
-                    <h3 class="text-lg font-bold text-white">{{ $participant->full_name }}</h3>
+                    <h3 class="text-lg font-bold flex items-center gap-2">
+                        <span class="{{ $participant->hasCompletedAllPeriods() ? 'text-green-400' : 'text-white' }}">
+                            {{ $participant->full_name }}
+                        </span>
+                        @if ($participant->hasCompletedAllPeriods())
+                            <span class="text-xs font-semibold bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 px-2 py-0.5 rounded-full">Completed</span>
+                        @else
+                            <span class="text-xs font-semibold bg-amber-500/20 text-amber-100 border border-amber-400/30 px-2 py-0.5 rounded-full">In Progress</span>
+                        @endif
+                    </h3>
                     <p class="text-indigo-200 text-sm font-mono mt-0.5">NIK: {{ $participant->nik }}</p>
                 </div>
                 <div class="flex items-center gap-2">

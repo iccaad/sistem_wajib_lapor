@@ -124,7 +124,7 @@
                                             text-xs font-bold uppercase">
                                     {{ substr($p->full_name, 0, 1) }}
                                 </div>
-                                <div class="text-sm font-medium text-gray-900">{{ $p->full_name }}</div>
+                                <div class="text-sm font-medium {{ $p->hasCompletedAllPeriods() ? 'text-green-600' : 'text-gray-900' }}">{{ $p->full_name }}</div>
                             </div>
                         </td>
                         <td class="px-6 py-4 hidden sm:table-cell">

@@ -162,4 +162,18 @@ class Participant extends Model
     {
         return (new PeriodService())->getCurrentPeriod($this);
     }
+
+    /**
+     * Check if the participant has successfully fulfilled all their assigned periods' quotas.
+     */
+    public function hasCompletedAllPeriods(): bool
+    {
+        $periods = $this->attendancePeriods;
+
+        if ($periods->isEmpty()) {
+            return false;
+        }
+
+        return $periods->every(fn($period) => $period->isFulfilled());
+    }
 }

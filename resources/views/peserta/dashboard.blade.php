@@ -44,7 +44,7 @@
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4">
     <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-5">
         <p class="text-blue-100 text-xs font-semibold uppercase tracking-widest mb-1">Data Peserta</p>
-        <h2 class="text-white text-xl font-bold leading-tight">{{ $participant->full_name }}</h2>
+        <h2 class="text-xl font-bold leading-tight {{ $participant->hasCompletedAllPeriods() ? 'text-green-400' : 'text-white' }}">{{ $participant->full_name }}</h2>
         <div class="mt-2 flex items-center gap-2">
             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/20 text-white border border-white/20">
                 {{ $participant->violationType->name ?? '—' }}
