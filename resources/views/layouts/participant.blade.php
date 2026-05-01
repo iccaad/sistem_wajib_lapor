@@ -125,7 +125,7 @@
             <form method="POST" action="{{ route('peserta.logout') }}" class="flex-1">
                 @csrf
                 <button type="submit"
-                        class="w-full h-full flex flex-col items-center justify-center py-3 gap-1 text-brand-soft hover:text-red-600 transition-colors">
+                        class="w-full h-full flex flex-col items-center justify-center py-3 gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-300">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />

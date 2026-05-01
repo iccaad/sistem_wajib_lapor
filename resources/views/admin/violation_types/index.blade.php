@@ -7,7 +7,7 @@
 @section('content')
 
 <div class="mb-5 flex justify-end">
-    <a href="{{ route('admin.violation-types.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition">
+    <a href="{{ route('admin.violation-types.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-brand-accent hover:bg-brand-accent/80 text-white text-sm font-bold rounded-xl shadow-lg shadow-black/10 transition transform active:scale-95">
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
@@ -18,12 +18,12 @@
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-100">
-            <thead class="bg-gray-50/75">
+            <thead class="bg-brand-light/10">
                 <tr>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">#</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Jenis Pelanggaran</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Deskripsi</th>
-                    <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em]">#</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em]">Nama Jenis Pelanggaran</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em]">Deskripsi</th>
+                    <th class="px-6 py-4 text-right text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em]">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -44,12 +44,21 @@
                                 @method('DELETE')
                             </form>
                             
-                            <div class="flex items-center justify-end gap-3">
-                                <a href="{{ route('admin.violation-types.edit', $vt) }}" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium transition">Edit</a>
+                            <div class="flex items-center justify-end gap-1">
+                                <a href="{{ route('admin.violation-types.edit', $vt) }}" 
+                                   class="p-2 rounded-lg text-orange-500 hover:bg-orange-50 transition-all duration-200"
+                                   title="Edit Jenis">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                    </svg>
+                                </a>
                                 <button type="button" 
                                         onclick="if(confirm('Apakah Anda yakin ingin menghapus jenis pelanggaran ini?')) document.getElementById('delete-form-{{ $vt->id }}').submit();"
-                                        class="text-red-600 hover:text-red-800 text-xs font-medium transition">
-                                    Hapus
+                                        class="p-2 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200"
+                                        title="Hapus">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
                                 </button>
                             </div>
                         </td>

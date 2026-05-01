@@ -60,24 +60,27 @@
                         <p class="text-xs text-slate-500 font-mono" x-text="`Koordinat: ${lat?.toFixed(6)}, ${lng?.toFixed(6)}`"></p>
                         <p class="text-xs text-slate-500" x-text="`Akurasi: ±${Math.round(accuracy || 0)}m`"></p>
 
-                        {{-- Within/Outside radius indicator --}}
                         <template x-if="distanceToLocation !== null">
-                            <div class="mt-2">
+                            <div class="mt-3">
                                 <template x-if="withinRadius">
-                                    <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200">
-                                        <span class="text-lg">✅</span>
+                                    <div class="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-emerald-600 border border-emerald-500 shadow-lg shadow-emerald-200">
+                                        <div class="h-10 w-10 flex items-center justify-center rounded-xl bg-white/20">
+                                            <span class="text-xl">✅</span>
+                                        </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-emerald-700">Anda di dalam area wajib lapor</p>
-                                            <p class="text-xs text-emerald-600" x-text="`Jarak: ${Math.round(distanceToLocation)}m dari lokasi`"></p>
+                                            <p class="text-sm font-black text-white leading-tight">Area Wajib Lapor Valid</p>
+                                            <p class="text-xs text-white/80 mt-0.5 font-bold" x-text="`Jarak: ${Math.round(distanceToLocation)}m dari lokasi`"></p>
                                         </div>
                                     </div>
                                 </template>
                                 <template x-if="!withinRadius">
-                                    <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
-                                        <span class="text-lg">❌</span>
+                                    <div class="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-red-600 border border-red-500 shadow-lg shadow-red-200">
+                                        <div class="h-10 w-10 flex items-center justify-center rounded-xl bg-white/20">
+                                            <span class="text-xl">❌</span>
+                                        </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-red-700">Anda di luar area wajib lapor</p>
-                                            <p class="text-xs text-red-600" x-text="`Jarak: ${Math.round(distanceToLocation)}m (perlu ≤ ${locationRadius}m)`"></p>
+                                            <p class="text-sm font-black text-white leading-tight">Di Luar Area Wajib Lapor</p>
+                                            <p class="text-xs text-white/80 mt-0.5 font-bold" x-text="`Jarak: ${Math.round(distanceToLocation)}m (Perlu ≤ ${locationRadius}m)`"></p>
                                         </div>
                                     </div>
                                 </template>
@@ -241,9 +244,9 @@
 
             <button type="button" @click="submitAbsence()"
                     :disabled="submitting"
-                    :class="submitting ? 'opacity-60 cursor-not-allowed' : 'hover:bg-brand-secondary active:scale-95 shadow-xl shadow-brand-accent/30'"
-                    class="w-full py-4.5 rounded-xl bg-brand-accent text-white font-black text-base transition-all duration-300">
-                <span x-show="!submitting">✅ Kirim Absensi</span>
+                    :class="submitting ? 'opacity-60 cursor-not-allowed' : 'hover:bg-brand-secondary hover:-translate-y-0.5 active:scale-95 shadow-xl shadow-brand-accent/30'"
+                    class="w-full py-5 rounded-2xl bg-brand-accent text-white font-black text-lg tracking-tight transition-all duration-300 transform">
+                <span x-show="!submitting">✅ Kirim Absensi Sekarang</span>
                 <div x-show="submitting" class="flex items-center justify-center gap-2">
                     <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

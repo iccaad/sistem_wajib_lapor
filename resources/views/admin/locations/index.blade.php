@@ -131,9 +131,14 @@
                                 <span class="text-sm text-gray-600">{{ $loc->attendance_logs_count }} kali</span>
                             </td>
                             <td class="px-5 py-4 text-right">
-                                <div class="flex items-center justify-end gap-3">
+                                <div class="flex items-center justify-end gap-1">
                                     <a href="{{ route('admin.locations.edit', $loc) }}"
-                                       class="text-brand-accent hover:text-brand-secondary text-xs font-bold transition">Edit</a>
+                                       class="p-2 rounded-lg text-orange-500 hover:bg-orange-50 transition-all duration-200"
+                                       title="Edit Lokasi">
+                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                        </svg>
+                                    </a>
 
                                     {{-- Hidden form — submitted via Alpine modal --}}
                                     <form id="toggle-form-{{ $loc->id }}"
@@ -145,8 +150,11 @@
 
                                     <button type="button"
                                             @click="openConfirm('toggle-form-{{ $loc->id }}', '{{ addslashes($loc->name) }}', {{ $loc->is_active ? 'true' : 'false' }})"
-                                            class="{{ $loc->is_active ? 'text-amber-600 hover:text-amber-800' : 'text-brand-accent hover:text-brand-secondary' }} text-xs font-bold transition">
-                                        {{ $loc->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
+                                            class="p-2 rounded-lg {{ $loc->is_active ? 'text-red-500 hover:bg-red-50' : 'text-emerald-600 hover:bg-emerald-50' }} transition-all duration-200"
+                                            title="{{ $loc->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
+                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 5.636a9 9 0 1 0 12.728 12.728M12 3v9" />
+                                        </svg>
                                     </button>
                                 </div>
                             </td>
