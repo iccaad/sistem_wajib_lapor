@@ -20,6 +20,7 @@
         <table class="min-w-full divide-y divide-gray-100">
             <thead class="bg-gray-50/75">
                 <tr>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">#</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Jenis Pelanggaran</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Deskripsi</th>
                     <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
@@ -28,6 +29,9 @@
             <tbody class="divide-y divide-gray-100">
                 @forelse ($violationTypes as $vt)
                     <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-xs font-medium text-gray-400">
+                            {{ $loop->iteration + $violationTypes->firstItem() - 1 }}
+                        </td>
                         <td class="px-6 py-4">
                             <span class="text-sm font-medium text-gray-900">{{ $vt->name }}</span>
                         </td>
@@ -52,7 +56,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="3" class="px-6 py-10 text-center text-gray-500 text-sm">
+                        <td colspan="4" class="px-6 py-10 text-center text-gray-500 text-sm">
                             Belum ada data jenis pelanggaran.
                         </td>
                     </tr>
@@ -60,6 +64,11 @@
             </tbody>
         </table>
     </div>
+    @if ($violationTypes->hasPages())
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+            {{ $violationTypes->links() }}
+        </div>
+    @endif
 </div>
 
 @endsection

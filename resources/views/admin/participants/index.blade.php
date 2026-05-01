@@ -76,7 +76,7 @@
 
     <a href="{{ route('admin.participants.create') }}"
        id="btn-tambah-peserta"
-       class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition">
+       class="inline-flex items-center gap-2 px-4 py-2 bg-brand-accent hover:bg-brand-accent/80 text-white text-sm font-bold rounded-xl shadow-lg shadow-black/10 transition transform active:scale-95">
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
@@ -85,32 +85,39 @@
 </div>
 
 {{-- ── Table ── --}}
-<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+<div class="bg-white rounded-2xl border border-brand-light shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-100">
-            <thead class="bg-gray-50">
+            <thead class="bg-brand-light/10">
                 <tr>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">NIK</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">Pelanggaran</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Masa Pengawasan</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Kuota</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden xl:table-cell">Admin</th>
-                    <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
+                    <th class="px-5 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em]">#</th>
+                    <th class="px-5 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em]">Nama</th>
+                    <th class="px-5 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em] hidden sm:table-cell">NIK</th>
+                    <th class="px-5 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em] hidden md:table-cell">Pelanggaran</th>
+                    <th class="px-5 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em] hidden lg:table-cell">Masa Pengawasan</th>
+                    <th class="px-5 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em] hidden lg:table-cell">Kuota</th>
+                    <th class="px-5 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em]">Status</th>
+                    <th class="px-5 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em] hidden xl:table-cell">Admin</th>
+                    <th class="px-5 py-4 text-right text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em]">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 @forelse ($participants as $p)
                     <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-5 py-4 text-xs font-bold text-brand-soft">
+                            {{ $loop->iteration + $participants->firstItem() - 1 }}
+                        </td>
                         <td class="px-5 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full
-                                            {{ $p->status === 'active' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-400' }}
-                                            text-xs font-bold uppercase">
+                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg
+                                            {{ $p->status === 'active' ? 'bg-brand-light text-brand-secondary' : 'bg-brand-light/30 text-brand-soft' }}
+                                            text-xs font-black uppercase shadow-sm">
                                     {{ substr($p->full_name, 0, 1) }}
                                 </div>
-                                <span class="text-sm font-medium {{ $p->hasCompletedAllPeriods() ? 'text-green-600' : 'text-gray-900' }}">{{ $p->full_name }}</span>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-black text-brand-primary leading-none truncate">{{ $p->full_name }}</p>
+                                    <p class="text-[10px] text-brand-secondary mt-1 uppercase font-black tracking-tight opacity-70">NIK: {{ $p->nik }}</p>
+                                </div>
                             </div>
                         </td>
                         <td class="px-5 py-4 hidden sm:table-cell">
@@ -153,11 +160,11 @@
                                 @method('DELETE')
                             </form>
 
-                            <div class="flex items-center justify-end gap-3">
+                            <div class="flex items-center justify-end gap-4">
                                 <a href="{{ route('admin.participants.show', $p) }}"
-                                   class="text-indigo-600 hover:text-indigo-800 text-xs font-medium transition">Detail</a>
+                                   class="text-brand-accent hover:text-brand-secondary text-xs font-black uppercase tracking-wider transition">Detail</a>
                                 <a href="{{ route('admin.participants.edit', $p) }}"
-                                   class="text-amber-600 hover:text-amber-800 text-xs font-medium transition">Edit</a>
+                                   class="text-amber-600 hover:text-amber-800 text-xs font-black uppercase tracking-wider transition">Edit</a>
                                 @if($p->status === 'active')
                                     <button type="button"
                                             @click="openConfirm('{{ addslashes($p->full_name) }}', {{ $p->id }})"
@@ -172,7 +179,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="px-6 py-16 text-center text-sm text-gray-400">
+                        <td colspan="9" class="px-6 py-16 text-center text-sm text-gray-400">
                             <svg class="h-10 w-10 mx-auto mb-2 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
                             </svg>
@@ -185,7 +192,7 @@
     </div>
 
     @if ($participants->hasPages())
-        <div class="px-5 py-3 bg-gray-50 border-t border-gray-100">
+        <div class="px-6 py-5 bg-brand-light/5 border-t border-brand-light/50">
             {{ $participants->withQueryString()->links() }}
         </div>
     @endif

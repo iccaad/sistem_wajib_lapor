@@ -1,3 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body {
+        @apply font-['Outfit'] text-brand-primary;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Standardize table headers for high contrast */
+    th {
+        @apply font-black tracking-widest text-brand-secondary;
+    }
+
+    /* Ensure consistent button weights */
+    button {
+        @apply font-bold;
+    }
+}
+
+@layer utilities {
+    .text-shadow-sm {
+        text-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+}

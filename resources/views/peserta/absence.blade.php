@@ -24,25 +24,25 @@
 
     {{-- ── Step 1: GPS ── --}}
     <div x-show="step === 'gps'" class="space-y-4">
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-5">
-            <div class="text-center mb-5">
-                <div class="inline-flex items-center justify-center h-14 w-14 rounded-full bg-blue-100 mb-3">
-                    <svg class="h-7 w-7 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <div class="bg-white rounded-2xl border border-brand-light shadow-sm px-5 py-6">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-brand-light/20 mb-3">
+                    <svg class="h-8 w-8 text-brand-accent" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                     </svg>
                 </div>
-                <h3 class="font-bold text-slate-800 text-lg">Verifikasi Lokasi</h3>
-                <p class="text-sm text-slate-500 mt-1">Pastikan Anda berada di lokasi wajib lapor yang telah ditentukan.</p>
+                <h3 class="font-bold text-brand-primary text-xl tracking-tight">Verifikasi Lokasi</h3>
+                <p class="text-sm text-brand-soft mt-1 leading-relaxed px-4">Pastikan Anda berada di lokasi wajib lapor yang telah ditentukan.</p>
             </div>
 
             {{-- GPS status --}}
-            <div class="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 mb-4 text-sm">
+            <div class="rounded-xl border border-brand-light bg-brand-light/10 px-4 py-4 mb-4 text-sm">
                 <template x-if="gpsState === 'idle'">
-                    <p class="text-slate-500 text-center">Tekan tombol di bawah untuk mendeteksi lokasi Anda.</p>
+                    <p class="text-brand-soft text-center font-medium">Tekan tombol di bawah untuk mendeteksi lokasi Anda.</p>
                 </template>
                 <template x-if="gpsState === 'loading'">
-                    <div class="flex items-center justify-center gap-2 text-blue-600">
-                        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    <div class="flex items-center justify-center gap-2 text-brand-accent font-bold">
+                        <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                         </svg>
@@ -97,22 +97,19 @@
 
             {{-- Required location for this check-in --}}
             @if ($location)
-                <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl">
-                    <p class="text-xs font-semibold text-blue-800 uppercase tracking-wider mb-1">📍 Lokasi Wajib Lapor</p>
-                    <p class="text-sm font-medium text-slate-800">{{ $location->name }}</p>
-                    <p class="text-xs text-blue-700 mt-2">
-                        Anda harus berada dalam radius <strong>{{ $location->radius_meters }}m</strong> dari lokasi ini.
+                <div class="mb-4 p-4 bg-brand-light/20 border border-brand-light rounded-xl">
+                    <p class="text-[10px] font-bold text-brand-secondary uppercase tracking-widest mb-1.5">📍 Lokasi Target</p>
+                    <p class="text-sm font-bold text-brand-primary leading-tight">{{ $location->name }}</p>
+                    <p class="text-xs text-brand-soft mt-3 leading-relaxed">
+                        Radius toleransi: <strong class="text-brand-accent">{{ $location->radius_meters }} meter</strong>
                     </p>
-                    @if ($location->address)
-                        <p class="text-xs text-slate-500 mt-1">{{ $location->address }}</p>
-                    @endif
                 </div>
             @endif
 
             <button type="button" @click="detectGPS()"
                     :disabled="gpsState === 'loading'"
-                    :class="gpsState === 'loading' ? 'opacity-60 cursor-not-allowed' : 'hover:bg-blue-700 active:scale-95'"
-                    class="w-full py-3.5 rounded-xl bg-blue-600 text-white font-semibold text-sm transition-all duration-150">
+                    :class="gpsState === 'loading' ? 'opacity-60 cursor-not-allowed' : 'hover:bg-brand-secondary active:scale-95 shadow-lg shadow-brand-accent/20'"
+                    class="w-full py-4 rounded-xl bg-brand-accent text-white font-bold text-sm transition-all duration-300">
                 <span x-show="gpsState !== 'loading'">📍 Deteksi Lokasi GPS</span>
                 <span x-show="gpsState === 'loading'">Mendeteksi...</span>
             </button>
@@ -175,7 +172,7 @@
                 <button type="button" @click="takePhoto()"
                         x-show="cameraStarted && !photoTaken"
                         x-cloak
-                        class="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all active:scale-95">
+                        class="w-full py-3.5 rounded-xl bg-brand-accent hover:bg-brand-secondary text-white font-bold text-sm transition-all active:scale-95 shadow-lg shadow-brand-accent/20">
                     🤳 Ambil Foto
                 </button>
 
@@ -203,8 +200,8 @@
     <div x-show="step === 'confirm'" x-cloak class="space-y-4">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-5">
             <div class="text-center mb-5">
-                <div class="inline-flex items-center justify-center h-14 w-14 rounded-full bg-indigo-100 mb-3">
-                    <svg class="h-7 w-7 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <div class="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-brand-light/20 mb-3">
+                    <svg class="h-8 w-8 text-brand-accent" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
                     </svg>
                 </div>
@@ -244,8 +241,8 @@
 
             <button type="button" @click="submitAbsence()"
                     :disabled="submitting"
-                    :class="submitting ? 'opacity-60 cursor-not-allowed' : 'hover:bg-indigo-700 active:scale-95'"
-                    class="w-full py-4 rounded-xl bg-indigo-600 text-white font-bold text-base shadow-lg shadow-indigo-200 transition-all duration-150">
+                    :class="submitting ? 'opacity-60 cursor-not-allowed' : 'hover:bg-brand-secondary active:scale-95 shadow-xl shadow-brand-accent/30'"
+                    class="w-full py-4.5 rounded-xl bg-brand-accent text-white font-black text-base transition-all duration-300">
                 <span x-show="!submitting">✅ Kirim Absensi</span>
                 <div x-show="submitting" class="flex items-center justify-center gap-2">
                     <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
@@ -263,10 +260,10 @@
     </div>
 
     {{-- Step indicator --}}
-    <div class="flex justify-center gap-2 mt-5">
-        <div class="h-2 rounded-full transition-all duration-300" :class="step === 'gps'     ? 'w-8 bg-blue-600' : 'w-2 bg-slate-200'"></div>
-        <div class="h-2 rounded-full transition-all duration-300" :class="step === 'camera'  ? 'w-8 bg-blue-600' : 'w-2 bg-slate-200'"></div>
-        <div class="h-2 rounded-full transition-all duration-300" :class="step === 'confirm' ? 'w-8 bg-blue-600' : 'w-2 bg-slate-200'"></div>
+    <div class="flex justify-center gap-3 mt-8">
+        <div class="h-1.5 rounded-full transition-all duration-500" :class="step === 'gps'     ? 'w-10 bg-brand-accent' : 'w-3 bg-brand-light'"></div>
+        <div class="h-1.5 rounded-full transition-all duration-500" :class="step === 'camera'  ? 'w-10 bg-brand-accent' : 'w-3 bg-brand-light'"></div>
+        <div class="h-1.5 rounded-full transition-all duration-500" :class="step === 'confirm' ? 'w-10 bg-brand-accent' : 'w-3 bg-brand-light'"></div>
     </div>
 
 </div>

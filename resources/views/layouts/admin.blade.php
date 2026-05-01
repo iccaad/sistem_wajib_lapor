@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-gray-50">
+<html lang="id" class="h-full bg-brand-light/30">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +15,12 @@
 </head>
 <body class="h-full font-sans antialiased">
 
-<div x-data="{ sidebarOpen: false }" class="flex h-full">
+<div x-data="{ 
+        sidebarOpen: false, 
+        sidebarCollapsed: localStorage.getItem('sidebar-collapsed') === 'false' ? false : true 
+    }" 
+    x-init="$watch('sidebarCollapsed', value => localStorage.setItem('sidebar-collapsed', value))"
+    class="flex h-full">
 
     {{-- ═══════════════ SIDEBAR ═══════════════ --}}
     {{-- Mobile overlay --}}
@@ -31,18 +36,20 @@
          style="display:none;"></div>
 
     {{-- Sidebar panel --}}
-    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-           class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-gray-900 transition-transform duration-300 ease-in-out lg:static lg:translate-x-0">
+    <aside :class="{
+                'translate-x-0': sidebarOpen,
+                '-translate-x-full': !sidebarOpen,
+                'lg:w-60': !sidebarCollapsed,
+                'lg:w-20': sidebarCollapsed
+           }"
+           class="fixed inset-y-0 left-0 z-40 flex flex-col bg-brand-primary transition-all duration-300 ease-in-out lg:static lg:translate-x-0 shadow-2xl">
 
         {{-- Logo --}}
-        <div class="flex h-16 shrink-0 items-center gap-3 px-6 border-b border-gray-700/50">
-            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-600">
-                <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
-                </svg>
+        <div class="flex h-16 shrink-0 items-center gap-3 px-5 border-b border-white/10">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-transparent">
+                <img src="{{ asset('assets/images/logo-libas.png') }}" alt="LIBAS Logo" class="h-10 w-auto object-contain">
             </div>
-            <div class="min-w-0">
+            <div class="min-w-0" x-show="!sidebarCollapsed" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
                 <p class="truncate text-sm font-semibold text-white leading-tight">Wajib Lapor</p>
                 <p class="truncate text-xs text-gray-400">Panel Admin</p>
             </div>
@@ -63,26 +70,28 @@
             @foreach ($navLinks as $link)
                 @php $active = request()->routeIs($link['route'] . '*'); @endphp
                 <a href="{{ route($link['route']) }}"
-                   class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors
+                   class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200
                           {{ $active
-                             ? 'bg-indigo-600 text-white'
-                             : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-                    <svg class="h-5 w-5 shrink-0 {{ $active ? 'text-white' : 'text-gray-400 group-hover:text-white' }}"
+                             ? 'bg-brand-secondary text-white shadow-lg shadow-black/20'
+                             : 'text-brand-soft hover:bg-white/5 hover:text-white' }}"
+                   :class="sidebarCollapsed ? 'justify-center px-2' : ''"
+                   title="{{ $link['label'] }}">
+                    <svg class="h-6 w-6 shrink-0 {{ $active ? 'text-brand-accent' : 'text-brand-soft group-hover:text-white' }}"
                          fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="{{ $link['icon'] }}" />
                     </svg>
-                    {{ $link['label'] }}
+                    <span x-show="!sidebarCollapsed" class="truncate">{{ $link['label'] }}</span>
                 </a>
             @endforeach
         </nav>
 
         {{-- Admin info + logout --}}
-        <div class="shrink-0 border-t border-gray-700/50 p-4">
-            <div class="flex items-center gap-3 rounded-lg px-3 py-2 mb-2">
-                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-500 text-white text-xs font-bold uppercase">
+        <div class="shrink-0 border-t border-white/10 p-4 bg-black/10">
+            <div class="flex items-center gap-3 rounded-lg px-3 py-2 mb-2" :class="sidebarCollapsed ? 'justify-center px-0' : ''">
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-accent text-brand-primary text-xs font-bold uppercase shadow-sm">
                     {{ substr(auth()->user()->name, 0, 1) }}
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0" x-show="!sidebarCollapsed">
                     <p class="truncate text-sm font-medium text-white">{{ auth()->user()->name }}</p>
                     <p class="truncate text-xs text-gray-400">{{ auth()->user()->email }}</p>
                 </div>
@@ -90,12 +99,14 @@
             <form method="POST" action="{{ route('admin.logout') }}">
                 @csrf
                 <button type="submit"
-                        class="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        class="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-brand-soft hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                        :class="sidebarCollapsed ? 'justify-center px-2' : ''"
+                        title="Keluar">
+                    <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
                     </svg>
-                    Keluar
+                    <span x-show="!sidebarCollapsed">Keluar</span>
                 </button>
             </form>
         </div>
@@ -105,12 +116,19 @@
     <div class="flex flex-1 flex-col min-w-0 overflow-hidden">
 
         {{-- Top header bar --}}
-        <header class="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-4 border-b border-gray-200 bg-white px-4 sm:px-6 shadow-sm">
+        <header class="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-4 border-b border-brand-light bg-white/80 backdrop-blur-md px-4 sm:px-6 shadow-sm">
 
             {{-- Mobile sidebar toggle --}}
             <button @click="sidebarOpen = true" class="lg:hidden text-gray-400 hover:text-gray-600 transition">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+            </button>
+
+            {{-- Desktop Sidebar Collapse Toggle --}}
+            <button @click="sidebarCollapsed = !sidebarCollapsed" class="hidden lg:flex items-center justify-center h-8 w-8 rounded-lg bg-gray-100 text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition">
+                <svg class="h-5 w-5 transition-transform duration-300" :class="sidebarCollapsed ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                 </svg>
             </button>
 

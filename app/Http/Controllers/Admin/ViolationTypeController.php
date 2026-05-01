@@ -13,7 +13,7 @@ class ViolationTypeController extends Controller
      */
     public function index()
     {
-        $violationTypes = ViolationType::latest()->get();
+        $violationTypes = \App\Models\ViolationType::latest()->paginate(10);
         return view('admin.violation_types.index', compact('violationTypes'));
     }
 

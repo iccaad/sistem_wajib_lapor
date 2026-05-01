@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('admin.dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                        <img src="{{ asset('assets/images/logo-libas.png') }}" alt="LIBAS Logo" class="h-9 w-auto object-contain">
                     </a>
                 </div>
 

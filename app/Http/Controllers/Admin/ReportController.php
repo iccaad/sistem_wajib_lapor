@@ -21,7 +21,7 @@ class ReportController extends Controller
             $query->where('status', $status);
         }
 
-        $paginated = $query->latest()->paginate(15)->withQueryString();
+        $paginated = $query->latest()->paginate(10)->withQueryString();
 
         // Enrich each row with computed stats (safe with Paginator)
         $paginated->getCollection()->transform(function ($p) {

@@ -5,9 +5,9 @@
 @section('content')
 
 {{-- Header info --}}
-<div class="mb-5">
-    <h2 class="text-lg font-bold text-slate-800">Riwayat Absensi</h2>
-    <p class="text-sm text-slate-500 mt-0.5">Semua catatan kehadiran selama masa pengawasan.</p>
+<div class="mb-6">
+    <h2 class="text-2xl font-black text-brand-primary tracking-tight">Riwayat Absensi</h2>
+    <p class="text-sm font-bold text-brand-soft mt-1">Semua catatan kehadiran selama masa pengawasan.</p>
 </div>
 
 {{-- Summary strip --}}
@@ -18,18 +18,18 @@
     $metPeriods   = $periods->filter(fn($p) => $p->isFulfilled())->count();
 @endphp
 
-<div class="grid grid-cols-3 gap-3 mb-5">
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 text-center">
-        <p class="text-2xl font-bold text-blue-600">{{ $totalLogged }}</p>
-        <p class="text-xs text-slate-500 mt-0.5">Total Hadir</p>
+<div class="grid grid-cols-3 gap-3 mb-6">
+    <div class="bg-white rounded-2xl border border-brand-light shadow-sm p-5 text-center">
+        <p class="text-3xl font-black text-brand-primary leading-tight">{{ $totalLogged }}</p>
+        <p class="text-[10px] font-black text-brand-secondary uppercase tracking-widest mt-1">Hadir</p>
     </div>
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 text-center">
-        <p class="text-2xl font-bold text-emerald-600">{{ $compliance }}%</p>
-        <p class="text-xs text-slate-500 mt-0.5">Kepatuhan</p>
+    <div class="bg-white rounded-2xl border border-brand-light shadow-sm p-5 text-center">
+        <p class="text-3xl font-black text-emerald-600 leading-tight">{{ $compliance }}%</p>
+        <p class="text-[10px] font-black text-brand-secondary uppercase tracking-widest mt-1">Patuh</p>
     </div>
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 text-center">
-        <p class="text-2xl font-bold text-indigo-600">{{ $metPeriods }}/{{ $periods->count() }}</p>
-        <p class="text-xs text-slate-500 mt-0.5">Periode Patuh</p>
+    <div class="bg-white rounded-2xl border border-brand-light shadow-sm p-5 text-center">
+        <p class="text-3xl font-black text-brand-accent leading-tight">{{ $metPeriods }}/{{ $periods->count() }}</p>
+        <p class="text-[10px] font-black text-brand-secondary uppercase tracking-widest mt-1">Periode</p>
     </div>
 </div>
 
@@ -43,41 +43,41 @@
         $active    = !$ended;
     @endphp
 
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4">
+    <div class="bg-white rounded-2xl border border-brand-light shadow-sm overflow-hidden mb-5">
         {{-- Period header --}}
-        <div class="px-5 py-4 border-b border-slate-100">
+        <div class="px-5 py-5 border-b border-brand-light/30 bg-brand-light/5">
             <div class="flex items-start justify-between gap-2">
                 <div>
-                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                    <p class="text-[10px] font-black text-brand-secondary uppercase tracking-[0.2em] mb-1">
                         {{ ucfirst($period->period_type) }}
                     </p>
-                    <p class="text-sm text-slate-600 mt-0.5">
-                        {{ $period->period_start->format('d/m/Y') }} — {{ $period->period_end->format('d/m/Y') }}
+                    <p class="text-sm font-black text-brand-primary leading-tight">
+                        {{ $period->period_start->translatedFormat('d M') }} — {{ $period->period_end->translatedFormat('d M Y') }}
                     </p>
                 </div>
                 @if ($fulfilled)
-                    <span class="shrink-0 inline-flex px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                    <span class="shrink-0 inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700 shadow-sm border border-emerald-200/50">
                         ✓ Patuh
                     </span>
                 @elseif ($ended)
-                    <span class="shrink-0 inline-flex px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600">
+                    <span class="shrink-0 inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-100 text-red-700 shadow-sm border border-red-200/50">
                         Mangkir
                     </span>
                 @else
-                    <span class="shrink-0 inline-flex px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
+                    <span class="shrink-0 inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-accent/10 text-brand-accent shadow-sm border border-brand-accent/20">
                         Berjalan
                     </span>
                 @endif
             </div>
 
             {{-- Progress bar --}}
-            <div class="mt-3">
-                <div class="flex items-center justify-between mb-1.5">
-                    <span class="text-xs text-slate-500">{{ $attended }} / {{ $period->target_count }} kehadiran</span>
-                    <span class="text-xs font-semibold {{ $fulfilled ? 'text-emerald-600' : 'text-slate-500' }}">{{ $pct }}%</span>
+            <div class="mt-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-brand-secondary">{{ $attended }} <span class="text-brand-soft">/ {{ $period->target_count }} kehadiran</span></span>
+                    <span class="text-xs font-black {{ $fulfilled ? 'text-emerald-600' : 'text-brand-accent' }}">{{ $pct }}%</span>
                 </div>
-                <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div class="h-2 rounded-full {{ $fulfilled ? 'bg-emerald-500' : ($ended ? 'bg-red-400' : 'bg-blue-500') }}"
+                <div class="w-full bg-brand-light/30 rounded-full h-2.5 overflow-hidden shadow-inner">
+                    <div class="h-2.5 rounded-full shadow-sm transition-all duration-700 {{ $fulfilled ? 'bg-emerald-500' : ($ended ? 'bg-red-400' : 'bg-brand-accent') }}"
                          style="width: {{ $pct }}%"></div>
                 </div>
             </div>

@@ -11,8 +11,17 @@ export default {
 
     theme: {
         extend: {
+            colors: {
+                brand: {
+                    primary: '#021024',
+                    secondary: '#052659',
+                    accent: '#5483B3',
+                    soft: '#7DA0CA',
+                    light: '#C1E8FF',
+                }
+            },
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Outfit', ...defaultTheme.fontFamily.sans],
             },
         },
     },
