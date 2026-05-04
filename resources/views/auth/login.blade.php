@@ -12,14 +12,14 @@
 
         <!-- Email Address -->
         <div>
-            <x-input-label for="email" :value="__('Email')" class="text-brand-light" />
+            <x-input-label for="email" :value="__('Email')" class="text-white" />
             <x-text-input id="email" class="block mt-1 w-full bg-white/5 border-white/10 text-white focus:ring-brand-accent" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <!-- Password -->
         <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" class="text-brand-light" />
+            <x-input-label for="password" :value="__('Password')" class="text-white" />
 
             <x-text-input id="password" class="block mt-1 w-full bg-white/5 border-white/10 text-white focus:ring-brand-accent"
                             type="password"
