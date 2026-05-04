@@ -6,6 +6,8 @@
     <meta name="description" content="Panel Admin — Sistem Wajib Lapor Digital Polrestabes Semarang">
     <title>@yield('title', 'Dashboard') — Admin Wajib Lapor</title>
 
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-libas.png') }}">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     {{-- Alpine.js --}}
