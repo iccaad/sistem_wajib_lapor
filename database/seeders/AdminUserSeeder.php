@@ -19,15 +19,15 @@ class AdminUserSeeder extends Seeder
     {
         $admins = [
             [
-                'name' => 'AKBP Budi Santoso',
-                'email' => 'budi.santoso@polrestabes-smg.test',
-                'password' => Hash::make('admin123'),
+                'name' => 'PCC Polrestabes Semarang',
+                'email' => 'pccpolrestabessemarang@gmail.com',
+                'password' => Hash::make('presisi110'),
                 'role' => 'admin',
                 'is_active' => true,
             ],
             [
-                'name' => 'AKP Siti Rahayu',
-                'email' => 'siti.rahayu@polrestabes-smg.test',
+                'name' => 'AKBP Budi Santoso',
+                'email' => 'budi.santoso@gmail.com',
                 'password' => Hash::make('admin123'),
                 'role' => 'admin',
                 'is_active' => true,
