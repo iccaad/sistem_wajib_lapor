@@ -26,11 +26,11 @@ class AbsenceController extends Controller
     {
         $participant = Auth::user()->participantProfile;
 
-        if (!$participant) {
+        if (! $participant) {
             return redirect()->route('peserta.dashboard');
         }
 
-        if (!$participant->isActive()) {
+        if (! $participant->isActive()) {
             return redirect()->route('peserta.dashboard')
                 ->with('error', 'Masa pengawasan Anda sudah berakhir.');
         }
@@ -42,7 +42,7 @@ class AbsenceController extends Controller
 
         $currentPeriod = $this->periodService->getCurrentPeriod($participant);
 
-        if (!$currentPeriod || $currentPeriod->isFulfilled()) {
+        if (! $currentPeriod || $currentPeriod->isFulfilled()) {
             return redirect()->route('peserta.dashboard')
                 ->with('error', 'Target kehadiran periode ini sudah terpenuhi. ✓');
         }
@@ -68,31 +68,31 @@ class AbsenceController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'latitude'  => 'nullable|numeric',
+            'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
-            'accuracy'  => 'nullable|numeric',
-            'photo'     => 'required|file|mimes:jpeg,jpg,png|max:5120',
+            'accuracy' => 'nullable|numeric',
+            'photo' => 'required|file|mimes:jpeg,jpg,png|max:5120',
         ], [
             'photo.required' => 'Foto selfie wajib diambil.',
-            'photo.mimes'    => 'Format foto harus JPEG atau PNG.',
-            'photo.max'      => 'Ukuran foto maksimal 5MB.',
+            'photo.mimes' => 'Format foto harus JPEG atau PNG.',
+            'photo.max' => 'Ukuran foto maksimal 5MB.',
         ]);
 
         $participant = Auth::user()->participantProfile;
 
-        if (!$participant) {
+        if (! $participant) {
             return redirect()->route('peserta.dashboard');
         }
 
         // Parse GPS values
-        $lat      = $request->filled('latitude')  ? (float) $request->input('latitude')  : null;
-        $lng      = $request->filled('longitude') ? (float) $request->input('longitude') : null;
-        $accuracy = $request->filled('accuracy')  ? (float) $request->input('accuracy')  : null;
+        $lat = $request->filled('latitude') ? (float) $request->input('latitude') : null;
+        $lng = $request->filled('longitude') ? (float) $request->input('longitude') : null;
+        $accuracy = $request->filled('accuracy') ? (float) $request->input('accuracy') : null;
 
         // Run 7-step server validation
         $result = $this->attendanceService->validateAbsence($participant, $lat, $lng, $accuracy);
 
-        if (!$result['valid']) {
+        if (! $result['valid']) {
             // Record failed attempt (if we at least know coordinates or failure reason)
             $this->attendanceService->recordAttempt(
                 $participant,
@@ -109,14 +109,14 @@ class AbsenceController extends Controller
 
         // Step 8: Store the selfie photo on private disk
         $path = $request->file('photo')->store(
-            'selfies/' . $participant->id . '/' . today()->format('Y/m'),
+            'selfies/'.$participant->id.'/'.today()->format('Y/m'),
             'private'
         );
 
         // Get current period
         $currentPeriod = $this->periodService->getCurrentPeriod($participant);
 
-        if (!$currentPeriod) {
+        if (! $currentPeriod) {
             return back()->withErrors(['attendance' => 'Tidak ada periode absensi aktif. Hubungi petugas.']);
         }
 

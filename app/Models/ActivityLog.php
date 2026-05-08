@@ -60,7 +60,7 @@ class ActivityLog extends Model
      */
     public function getTarget(): ?Model
     {
-        if (!$this->target_type || !$this->target_id) {
+        if (! $this->target_type || ! $this->target_id) {
             return null;
         }
 
@@ -75,7 +75,7 @@ class ActivityLog extends Model
 
         $modelClass = $modelMap[$this->target_type] ?? null;
 
-        if (!$modelClass) {
+        if (! $modelClass) {
             return null;
         }
 

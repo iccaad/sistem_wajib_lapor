@@ -11,10 +11,22 @@ class ViolationTypeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $violationTypes = \App\Models\ViolationType::latest()->paginate(10);
+        $perPage = $this->getPerPage($request, 'violation_types_per_page', 10);
+        $violationTypes = ViolationType::latest()->paginate($perPage);
+
         return view('admin.violation_types.index', compact('violationTypes'));
+    }
+
+    private function getPerPage(Request $request, string $key, int $default = 10): int
+    {
+        $allowed = [5, 10, 15, 20];
+        $perPage = $request->query('per_page', session($key, $default));
+        $perPage = in_array((int) $perPage, $allowed) ? (int) $perPage : $default;
+        session([$key => $perPage]);
+
+        return $perPage;
     }
 
     /**
@@ -54,7 +66,7 @@ class ViolationTypeController extends Controller
     public function update(Request $request, ViolationType $violationType)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:violation_types,name,' . $violationType->id,
+            'name' => 'required|string|max:255|unique:violation_types,name,'.$violationType->id,
             'description' => 'nullable|string',
         ]);
 

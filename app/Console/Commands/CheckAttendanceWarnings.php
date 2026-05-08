@@ -26,7 +26,7 @@ class CheckAttendanceWarnings extends Command
      */
     public function handle(WarningService $warningService): int
     {
-        $this->info('[' . now()->format('Y-m-d H:i:s') . '] attendance:check-warnings — Mulai...');
+        $this->info('['.now()->format('Y-m-d H:i:s').'] attendance:check-warnings — Mulai...');
 
         $generated = $warningService->checkAndGenerateWarnings();
 

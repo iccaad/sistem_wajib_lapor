@@ -36,12 +36,12 @@ class ActivityLogSeeder extends Seeder
                 'action' => 'created_participant',
                 'target_type' => 'participant',
                 'target_id' => $participant->id,
-                'description' => 'Mendaftarkan peserta baru: ' . $participant->full_name . ' (NIK: ' . $participant->nik . ')',
+                'description' => 'Mendaftarkan peserta baru: '.$participant->full_name.' (NIK: '.$participant->nik.')',
                 'metadata' => json_encode([
                     'violation_type' => $participant->violationType->name ?? '—',
-                    'supervision_period' => $participant->supervision_start . ' s/d ' . $participant->supervision_end,
+                    'supervision_period' => $participant->supervision_start.' s/d '.$participant->supervision_end,
                 ]),
-                'ip_address' => '192.168.1.' . mt_rand(10, 50),
+                'ip_address' => '192.168.1.'.mt_rand(10, 50),
                 'created_at' => Carbon::parse($participant->supervision_start)->subDays(mt_rand(1, 3)),
                 'updated_at' => Carbon::parse($participant->supervision_start)->subDays(mt_rand(1, 3)),
             ];

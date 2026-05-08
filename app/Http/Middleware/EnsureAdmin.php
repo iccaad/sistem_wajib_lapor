@@ -16,7 +16,7 @@ class EnsureAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user() || !$request->user()->isAdmin()) {
+        if (! $request->user() || ! $request->user()->isAdmin()) {
             if ($request->user() && $request->user()->isPeserta()) {
                 return redirect()->route('peserta.dashboard');
             }

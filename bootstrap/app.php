@@ -19,13 +19,14 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->is('peserta/*')) {
                 return route('peserta.login');
             }
+
             return route('admin.login');
         });
 
         // Register custom middleware aliases
         $middleware->alias([
-            'admin'        => EnsureAdmin::class,
-            'peserta'      => EnsurePeserta::class,
+            'admin' => EnsureAdmin::class,
+            'peserta' => EnsurePeserta::class,
             'log.activity' => LogActivityMiddleware::class,
         ]);
     })

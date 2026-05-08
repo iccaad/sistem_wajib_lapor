@@ -356,6 +356,67 @@
             </button>
         </form>
     </div>
+
+    <div class="bg-white rounded-xl border border-red-300 shadow-sm p-5" x-data="{ deleteModalOpen: false }">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <p class="text-sm font-semibold text-red-700">Hapus Peserta Permanen</p>
+                <p class="text-xs text-red-500 mt-0.5">Tindakan ini bersifat permanen dan tidak dapat dibatalkan. Semua data termasuk absensi akan dihapus.</p>
+            </div>
+            <button type="button" id="btn-hapus-permanen"
+                    @click="deleteModalOpen = true"
+                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-sm transition">
+                Hapus Permanen
+            </button>
+        </div>
+
+        <div x-show="deleteModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" x-transition.opacity style="display: none;">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden" @click.outside="deleteModalOpen = false">
+                <div class="px-6 py-4 border-b border-red-100 bg-red-50">
+                    <div class="flex items-center gap-3">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-red-800">Hapus Peserta Permanen?</h3>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-sm text-gray-600 mb-4">
+                        Semua data peserta <strong>{{ $participant->full_name }}</strong> akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.
+                    </p>
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+                        <p class="text-xs text-gray-500 mb-2">Ketik kode berikut untuk konfirmasi:</p>
+                        <p class="text-lg font-mono font-bold text-gray-800 tracking-wider text-center py-2 bg-white border border-gray-300 rounded">{{ $deletionCode }}</p>
+                    </div>
+                    <form method="POST" action="{{ route('admin.participants.force-delete', $participant) }}" x-data="{ confirmText: '' }">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" name="deletion_code" :value="confirmText">
+                        <input type="text"
+                               x-model="confirmText"
+                               placeholder="Masukkan kode di atas"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 mb-4"
+                               autocomplete="off">
+                        <div class="flex gap-3 justify-end">
+                            <button type="button"
+                                    @click="deleteModalOpen = false"
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                    :disabled="confirmText !== '{{ $deletionCode }}'"
+                                    :class="confirmText !== '{{ $deletionCode }}' ? 'opacity-50 cursor-not-allowed' : ''"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition disabled:cursor-not-allowed">
+                                Hapus Permanen
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     @endif
 
     {{-- Photo Modal --}}

@@ -36,9 +36,9 @@ return new class extends Migration
             // Track which admin created this location
             $table->unsignedBigInteger('created_by')->nullable();
             $table->foreign('created_by')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('set null');
+                ->references('id')
+                ->on('users')
+                ->onDelete('set null');
 
             $table->timestamps();
 

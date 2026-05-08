@@ -10,14 +10,25 @@ use Illuminate\View\View;
 
 class LocationController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $perPage = $this->getPerPage($request, 'locations_per_page', 10);
         $locations = Location::withCount('attendanceLogs')
             ->orderByDesc('is_active')
             ->orderBy('name')
-            ->paginate(10);
+            ->paginate($perPage);
 
         return view('admin.locations.index', compact('locations'));
+    }
+
+    private function getPerPage(Request $request, string $key, int $default = 10): int
+    {
+        $allowed = [5, 10, 15, 20];
+        $perPage = $request->query('per_page', session($key, $default));
+        $perPage = in_array((int) $perPage, $allowed) ? (int) $perPage : $default;
+        session([$key => $perPage]);
+
+        return $perPage;
     }
 
     public function create(): View
@@ -28,10 +39,10 @@ class LocationController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name'          => 'required|string|max:255',
-            'address'       => 'nullable|string|max:1000',
-            'latitude'      => 'required|numeric|between:-90,90',
-            'longitude'     => 'required|numeric|between:-180,180',
+            'name' => 'required|string|max:255',
+            'address' => 'nullable|string|max:1000',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
             'radius_meters' => 'required|integer|min:50|max:500',
         ]);
 
@@ -49,10 +60,10 @@ class LocationController extends Controller
     public function update(Request $request, Location $location): RedirectResponse
     {
         $validated = $request->validate([
-            'name'          => 'required|string|max:255',
-            'address'       => 'nullable|string|max:1000',
-            'latitude'      => 'required|numeric|between:-90,90',
-            'longitude'     => 'required|numeric|between:-180,180',
+            'name' => 'required|string|max:255',
+            'address' => 'nullable|string|max:1000',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
             'radius_meters' => 'required|integer|min:50|max:500',
         ]);
 
@@ -64,7 +75,7 @@ class LocationController extends Controller
 
     public function toggle(Location $location): RedirectResponse
     {
-        $location->update(['is_active' => !$location->is_active]);
+        $location->update(['is_active' => ! $location->is_active]);
 
         $status = $location->is_active ? 'diaktifkan' : 'dinonaktifkan';
 

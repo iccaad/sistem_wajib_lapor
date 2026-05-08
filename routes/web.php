@@ -5,10 +5,12 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\ParticipantController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ViolationTypeController;
 use App\Http\Controllers\Peserta\AbsenceController;
 use App\Http\Controllers\Peserta\DashboardController as PesertaDashboardController;
 use App\Http\Controllers\Peserta\HistoryController;
 use App\Http\Controllers\Peserta\PesertaAuthController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +32,7 @@ Route::get('/', function () {
             ? redirect('/admin/dashboard')
             : redirect('/peserta/dashboard');
     }
+
     return redirect('/login');
 });
 
@@ -65,6 +68,8 @@ Route::middleware(['auth', 'admin', 'log.activity'])->prefix('admin')->name('adm
 
     // Participants CRUD
     Route::resource('participants', ParticipantController::class);
+    Route::delete('participants/{participant}/force', [ParticipantController::class, 'forceDelete'])
+        ->name('participants.force-delete');
 
     // Attendance override & photo access
     Route::post('participants/{participant}/attendance/override', [AdminAttendanceController::class, 'override'])
@@ -78,7 +83,7 @@ Route::middleware(['auth', 'admin', 'log.activity'])->prefix('admin')->name('adm
         ->name('locations.toggle');
 
     // Violation Types CRUD
-    Route::resource('violation-types', \App\Http\Controllers\Admin\ViolationTypeController::class)->except(['show']);
+    Route::resource('violation-types', ViolationTypeController::class)->except(['show']);
 
     // Reports
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
@@ -89,9 +94,9 @@ Route::middleware(['auth', 'admin', 'log.activity'])->prefix('admin')->name('adm
 // Profile routes (Breeze) - admin auth middleware
 // -------------------------------------------------------
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [\App\Http\Controllers\ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__.'/auth.php';

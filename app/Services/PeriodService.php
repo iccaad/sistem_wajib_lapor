@@ -27,7 +27,7 @@ class PeriodService
             if ($periodEnd->gt($supervisionEnd)) {
                 $periodEnd = $supervisionEnd->copy();
             }
-            
+
             // Determine status based on dates
             $status = 'active';
             if ($periodEnd->lt(today())) {
@@ -35,13 +35,13 @@ class PeriodService
             }
 
             AttendancePeriod::create([
-                'participant_id'  => $participant->id,
-                'period_type'     => $participant->quota_type,
-                'period_start'    => $currentStart->toDateString(),
-                'period_end'      => $periodEnd->toDateString(),
-                'target_count'    => $participant->quota_amount,
-                'attended_count'  => 0,
-                'status'          => $status,
+                'participant_id' => $participant->id,
+                'period_type' => $participant->quota_type,
+                'period_start' => $currentStart->toDateString(),
+                'period_end' => $periodEnd->toDateString(),
+                'target_count' => $participant->quota_amount,
+                'attended_count' => 0,
+                'status' => $status,
             ]);
 
             $currentStart = $periodEnd->copy()->addDay()->startOfDay();
@@ -63,7 +63,7 @@ class PeriodService
             ->where('status', 'active')
             ->update([
                 'target_count' => $participant->quota_amount,
-                'period_type'  => $participant->quota_type,
+                'period_type' => $participant->quota_type,
             ]);
 
         // 2. Adjust date boundaries for the first active period and remove subsequent ones,
@@ -75,16 +75,16 @@ class PeriodService
 
         if ($activePeriods->isNotEmpty()) {
             $firstActive = $activePeriods->first();
-            
+
             $newEnd = $this->calculatePeriodEnd(Carbon::parse($firstActive->period_start), $participant->quota_type);
-            
+
             if ($newEnd->gt($supervisionEnd)) {
                 $newEnd = $supervisionEnd->copy();
             }
 
             $firstActive->update([
                 'period_end' => $newEnd->toDateString(),
-                'status'     => $newEnd->lt(today()) ? 'completed' : 'active',
+                'status' => $newEnd->lt(today()) ? 'completed' : 'active',
             ]);
 
             // Delete subsequent active periods (if they have 0 attendances) so they can be accurately regenerated
@@ -104,9 +104,9 @@ class PeriodService
 
         // 4. Generate missing periods up to supervision_end
         $latestPeriod = $participant->attendancePeriods()->orderBy('period_end', 'desc')->first();
-        
-        $currentStart = $latestPeriod 
-            ? Carbon::parse($latestPeriod->period_end)->addDay()->startOfDay() 
+
+        $currentStart = $latestPeriod
+            ? Carbon::parse($latestPeriod->period_end)->addDay()->startOfDay()
             : Carbon::parse($participant->supervision_start)->startOfDay();
 
         while ($currentStart->lte($supervisionEnd)) {
@@ -117,13 +117,13 @@ class PeriodService
             }
 
             AttendancePeriod::create([
-                'participant_id'  => $participant->id,
-                'period_type'     => $participant->quota_type,
-                'period_start'    => $currentStart->toDateString(),
-                'period_end'      => $periodEnd->toDateString(),
-                'target_count'    => $participant->quota_amount,
-                'attended_count'  => 0,
-                'status'          => $periodEnd->lt(today()) ? 'completed' : 'active',
+                'participant_id' => $participant->id,
+                'period_type' => $participant->quota_type,
+                'period_start' => $currentStart->toDateString(),
+                'period_end' => $periodEnd->toDateString(),
+                'target_count' => $participant->quota_amount,
+                'attended_count' => 0,
+                'status' => $periodEnd->lt(today()) ? 'completed' : 'active',
             ]);
 
             $currentStart = $periodEnd->copy()->addDay()->startOfDay();
@@ -150,7 +150,7 @@ class PeriodService
      *
      * Should be called daily at midnight (00:05 WIB).
      *
-     * @return int  Number of periods updated.
+     * @return int Number of periods updated.
      */
     public function updateExpiredPeriodsStatus(): int
     {
@@ -188,7 +188,7 @@ class PeriodService
     {
         return match ($quotaType) {
             'monthly' => $start->copy()->addDays(29),
-            default   => $start->copy()->addDays(6), // 'weekly'
+            default => $start->copy()->addDays(6), // 'weekly'
         };
     }
 }

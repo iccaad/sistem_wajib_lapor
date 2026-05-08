@@ -14,7 +14,9 @@ class Warning extends Model
      * Warning level constants.
      */
     public const LEVEL_1 = 'level_1';
+
     public const LEVEL_2 = 'level_2';
+
     public const LEVEL_3 = 'level_3';
 
     /**

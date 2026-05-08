@@ -24,9 +24,9 @@ return new class extends Migration
             // The admin who performed the action — nullable, set null if deleted
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('set null');
+                ->references('id')
+                ->on('users')
+                ->onDelete('set null');
 
             // Action identifier (e.g., 'created_participant', 'deleted_location')
             $table->string('action', 100);

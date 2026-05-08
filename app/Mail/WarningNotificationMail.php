@@ -29,8 +29,8 @@ class WarningNotificationMail extends Mailable
     public function envelope(): Envelope
     {
         $levelLabel = match ($this->level) {
-            2       => 'Level 2 — Mangkir',
-            3       => 'Level 3 — ESKALASI KRITIS',
+            2 => 'Level 2 — Mangkir',
+            3 => 'Level 3 — ESKALASI KRITIS',
             default => "Level {$this->level}",
         };
 
@@ -47,9 +47,9 @@ class WarningNotificationMail extends Mailable
         return new Content(
             view: 'emails.warning-notification',
             with: [
-                'participant'  => $this->participant,
-                'level'        => $this->level,
-                'adminPanelUrl'=> url('/admin/participants/' . $this->participant->id),
+                'participant' => $this->participant,
+                'level' => $this->level,
+                'adminPanelUrl' => url('/admin/participants/'.$this->participant->id),
             ],
         );
     }

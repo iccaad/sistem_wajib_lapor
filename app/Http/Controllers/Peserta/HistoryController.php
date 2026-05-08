@@ -13,7 +13,7 @@ class HistoryController extends Controller
     {
         $participant = Auth::user()->participantProfile;
 
-        if (!$participant) {
+        if (! $participant) {
             return redirect()->route('peserta.dashboard');
         }
 
@@ -21,8 +21,8 @@ class HistoryController extends Controller
         $periods = $participant->attendancePeriods()
             ->with(['attendanceLogs' => function ($q) {
                 $q->with('location')
-                  ->orderBy('attendance_date')
-                  ->orderBy('attendance_time');
+                    ->orderBy('attendance_date')
+                    ->orderBy('attendance_time');
             }])
             ->orderByDesc('period_start')
             ->get();

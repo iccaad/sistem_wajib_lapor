@@ -26,7 +26,7 @@ class GenerateNextPeriods extends Command
      */
     public function handle(PeriodService $periodService): int
     {
-        $this->info('[' . now()->format('Y-m-d H:i:s') . '] periods:generate-next — Mulai...');
+        $this->info('['.now()->format('Y-m-d H:i:s').'] periods:generate-next — Mulai...');
 
         $generated = $periodService->generatePeriodsForAllActive();
 

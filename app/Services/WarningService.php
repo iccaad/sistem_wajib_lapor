@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Mail\WarningNotificationMail;
-use App\Models\AttendancePeriod;
 use App\Models\Participant;
 use App\Models\User;
 use App\Models\Warning;
@@ -18,7 +17,7 @@ class WarningService
      *
      * Should be called daily at 08:00 WIB.
      *
-     * @return int  Total number of warnings created.
+     * @return int Total number of warnings created.
      */
     public function checkAndGenerateWarnings(): int
     {
@@ -41,7 +40,7 @@ class WarningService
     /**
      * Evaluate all three warning levels for a single participant.
      *
-     * @return int  Number of warnings created for this participant (0–3).
+     * @return int Number of warnings created for this participant (0–3).
      */
     public function checkParticipantWarning(Participant $participant): int
     {
@@ -64,13 +63,13 @@ class WarningService
      */
     private function checkLevel1(Participant $participant): int
     {
-        $currentPeriod = (new PeriodService())->getCurrentPeriod($participant);
+        $currentPeriod = (new PeriodService)->getCurrentPeriod($participant);
 
-        if (!$currentPeriod) {
+        if (! $currentPeriod) {
             return 0;
         }
 
-        $remainingDays  = $currentPeriod->getRemainingDays();
+        $remainingDays = $currentPeriod->getRemainingDays();
         $remainingCount = $currentPeriod->getRemainingCount();
 
         if ($remainingDays > 3 || $remainingCount <= 0) {
@@ -89,13 +88,13 @@ class WarningService
         }
 
         Warning::create([
-            'participant_id'      => $participant->id,
-            'attendance_period_id'=> $currentPeriod->id,
-            'level'               => 'level_1',
-            'reason'              => "Periode wajib lapor akan berakhir dalam {$remainingDays} hari. "
-                                   . "Masih ada {$remainingCount} kehadiran yang harus dipenuhi.",
-            'issued_at'           => now(),
-            'status'              => 'active',
+            'participant_id' => $participant->id,
+            'attendance_period_id' => $currentPeriod->id,
+            'level' => 'level_1',
+            'reason' => "Periode wajib lapor akan berakhir dalam {$remainingDays} hari. "
+                                   ."Masih ada {$remainingCount} kehadiran yang harus dipenuhi.",
+            'issued_at' => now(),
+            'status' => 'active',
         ]);
 
         return 1;
@@ -112,7 +111,7 @@ class WarningService
             ->where('period_end', today()->subDay()->toDateString())
             ->first();
 
-        if (!$recentEndedPeriod) {
+        if (! $recentEndedPeriod) {
             return 0;
         }
 
@@ -134,12 +133,12 @@ class WarningService
         $missing = $recentEndedPeriod->getRemainingCount();
 
         Warning::create([
-            'participant_id'      => $participant->id,
-            'attendance_period_id'=> $recentEndedPeriod->id,
-            'level'               => 'level_2',
-            'reason'              => "Periode wajib lapor telah berakhir dengan {$missing} kehadiran yang tidak terpenuhi.",
-            'issued_at'           => now(),
-            'status'              => 'active',
+            'participant_id' => $participant->id,
+            'attendance_period_id' => $recentEndedPeriod->id,
+            'level' => 'level_2',
+            'reason' => "Periode wajib lapor telah berakhir dengan {$missing} kehadiran yang tidak terpenuhi.",
+            'issued_at' => now(),
+            'status' => 'active',
         ]);
 
         // Send email to assigned admin
@@ -177,13 +176,13 @@ class WarningService
         $latestPeriod = $participant->attendancePeriods()->latest('period_end')->first();
 
         Warning::create([
-            'participant_id'      => $participant->id,
-            'attendance_period_id'=> $latestPeriod?->id,
-            'level'               => 'level_3',
-            'reason'              => 'Peserta telah mangkir pada 2 periode berturut-turut. '
-                                   . 'Peserta wajib hadir langsung ke Polres.',
-            'issued_at'           => now(),
-            'status'              => 'active',
+            'participant_id' => $participant->id,
+            'attendance_period_id' => $latestPeriod?->id,
+            'level' => 'level_3',
+            'reason' => 'Peserta telah mangkir pada 2 periode berturut-turut. '
+                                   .'Peserta wajib hadir langsung ke Polres.',
+            'issued_at' => now(),
+            'status' => 'active',
         ]);
 
         // Send email to all admins
@@ -208,8 +207,9 @@ class WarningService
             if ($level === 2) {
                 $assignedAdmin = $participant->assignedAdmin;
 
-                if (!$assignedAdmin || !$assignedAdmin->email) {
+                if (! $assignedAdmin || ! $assignedAdmin->email) {
                     Log::warning("WarningService: Assigned admin not found or has no email for participant #{$participant->id}");
+
                     return;
                 }
 
@@ -223,6 +223,7 @@ class WarningService
 
                 if ($admins->isEmpty()) {
                     Log::warning('WarningService: No admin accounts with email found for Level 3 broadcast.');
+
                     return;
                 }
 

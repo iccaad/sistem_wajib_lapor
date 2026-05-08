@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateParticipantRequest extends FormRequest
@@ -17,7 +18,7 @@ class UpdateParticipantRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -27,7 +28,7 @@ class UpdateParticipantRequest extends FormRequest
 
         return [
             'full_name' => ['required', 'string', 'max:255'],
-            'nik' => ['required', 'string', 'digits:16', 'unique:users,nik,' . $userId],
+            'nik' => ['required', 'string', 'digits:16', 'unique:users,nik,'.$userId],
             'address' => ['nullable', 'string'],
             'phone' => ['nullable', 'string', 'max:20'],
             'violation_type_id' => ['required', 'integer', 'exists:violation_types,id'],

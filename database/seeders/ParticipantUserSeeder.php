@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Location;
 use App\Models\Participant;
 use App\Models\User;
+use App\Models\ViolationType;
 use Illuminate\Database\Seeder;
 
 class ParticipantUserSeeder extends Seeder
@@ -27,16 +28,16 @@ class ParticipantUserSeeder extends Seeder
         $admin2 = User::where('email', 'siti.rahayu@polrestabes-smg.test')->first();
 
         // Fetch location IDs for assignment
-        $locGor    = Location::where('name', 'GOR Jatidiri Semarang')->first();
+        $locGor = Location::where('name', 'GOR Jatidiri Semarang')->first();
         $locPolres = Location::where('name', 'Lapangan Polrestabes Semarang')->first();
-        $locBalai  = Location::where('name', 'Balai Pemuda Kota Semarang')->first();
-        $locTaman  = Location::where('name', 'Taman Indonesia Kaya')->first();
+        $locBalai = Location::where('name', 'Balai Pemuda Kota Semarang')->first();
+        $locTaman = Location::where('name', 'Taman Indonesia Kaya')->first();
 
-        $vtBalap = \App\Models\ViolationType::where('name', 'Balap liar')->first();
-        $vtRusuh = \App\Models\ViolationType::where('name', 'Kerusuhan / ketertiban umum')->first();
-        $vtKelahi = \App\Models\ViolationType::where('name', 'Perkelahian')->first();
-        $vtVandal = \App\Models\ViolationType::where('name', 'Vandalisme')->first();
-        $vtNarkoba = \App\Models\ViolationType::where('name', 'Penyalahgunaan narkoba ringan')->first();
+        $vtBalap = ViolationType::where('name', 'Balap liar')->first();
+        $vtRusuh = ViolationType::where('name', 'Kerusuhan / ketertiban umum')->first();
+        $vtKelahi = ViolationType::where('name', 'Perkelahian')->first();
+        $vtVandal = ViolationType::where('name', 'Vandalisme')->first();
+        $vtNarkoba = ViolationType::where('name', 'Penyalahgunaan narkoba ringan')->first();
 
         $participants = [
             [

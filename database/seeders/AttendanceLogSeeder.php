@@ -54,7 +54,7 @@ class AttendanceLogSeeder extends Seeder
 
         foreach ($participant->attendancePeriods as $period) {
             // Only create logs for completed periods or the current period
-            if ($period->status !== 'completed' && !$period->isCurrent()) {
+            if ($period->status !== 'completed' && ! $period->isCurrent()) {
                 continue;
             }
 

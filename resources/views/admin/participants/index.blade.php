@@ -211,7 +211,26 @@
 
     @if ($participants->hasPages())
         <div class="px-6 py-5 bg-brand-light/5 border-t border-brand-light/50">
-            {{ $participants->withQueryString()->links() }}
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-2 text-sm text-gray-500">
+                    <span>Tampilkan</span>
+                    <form method="GET" action="{{ route('admin.participants.index') }}" class="inline">
+                        @foreach(request()->except('per_page') as $key => $value)
+                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                        @endforeach
+                        <select name="per_page"
+                                onchange="this.form.submit()"
+                                class="px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-brand-accent focus:border-brand-accent">
+                            <option value="5" {{ $participants->perPage() == 5 ? 'selected' : '' }}>5</option>
+                            <option value="10" {{ $participants->perPage() == 10 ? 'selected' : '' }}>10</option>
+                            <option value="15" {{ $participants->perPage() == 15 ? 'selected' : '' }}>15</option>
+                            <option value="20" {{ $participants->perPage() == 20 ? 'selected' : '' }}>20</option>
+                        </select>
+                    </form>
+                    <span>data per halaman</span>
+                </div>
+                {{ $participants->withQueryString()->links() }}
+            </div>
         </div>
     @endif
 </div>

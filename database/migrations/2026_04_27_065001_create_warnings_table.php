@@ -30,9 +30,9 @@ return new class extends Migration
             // Link to the attendance period that triggered this warning
             $table->unsignedBigInteger('attendance_period_id')->nullable();
             $table->foreign('attendance_period_id')
-                  ->references('id')
-                  ->on('attendance_periods')
-                  ->onDelete('set null');
+                ->references('id')
+                ->on('attendance_periods')
+                ->onDelete('set null');
 
             // Warning severity level
             $table->string('level', 10);  // 'level_1', 'level_2', 'level_3'
@@ -55,9 +55,9 @@ return new class extends Migration
             // Which admin or system issued this warning
             $table->unsignedBigInteger('created_by')->nullable();
             $table->foreign('created_by')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('set null');
+                ->references('id')
+                ->on('users')
+                ->onDelete('set null');
 
             $table->timestamps();
 

@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\AttendancePeriod;
 use App\Models\Participant;
-use Carbon\Carbon;
+use App\Services\PeriodService;
 use Illuminate\Database\Seeder;
 
 class AttendancePeriodSeeder extends Seeder
@@ -19,12 +18,12 @@ class AttendancePeriodSeeder extends Seeder
     public function run(): void
     {
         $participants = Participant::where('status', 'active')->get();
-        $periodService = new \App\Services\PeriodService();
+        $periodService = new PeriodService;
 
         foreach ($participants as $participant) {
             // Delete existing periods if any to avoid duplicates in case of re-seeding without fresh
             $participant->attendancePeriods()->delete();
-            
+
             // Use the same service used for real users to ensure perfectly consistent date generation
             $periodService->generateAllPeriods($participant);
         }

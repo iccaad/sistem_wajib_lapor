@@ -9,6 +9,7 @@ use App\Models\ActivityLog;
 use App\Models\Location;
 use App\Models\Participant;
 use App\Models\User;
+use App\Models\ViolationType;
 use App\Services\PeriodService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,17 +27,27 @@ class ParticipantController extends Controller
         $query = Participant::with('user', 'assignedAdmin')
             ->latest();
 
-        // Search filter
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('full_name', 'ilike', "%{$search}%")
-                  ->orWhere('nik', 'ilike', "%{$search}%");
+                    ->orWhere('nik', 'ilike', "%{$search}%");
             });
         }
 
-        $participants = $query->paginate(10)->withQueryString();
+        $perPage = $this->getPerPage($request, 'participants_per_page', 10);
+        $participants = $query->paginate($perPage)->withQueryString();
 
         return view('admin.participants.index', compact('participants'));
+    }
+
+    private function getPerPage(Request $request, string $key, int $default = 10): int
+    {
+        $allowed = [5, 10, 15, 20];
+        $perPage = $request->query('per_page', session($key, $default));
+        $perPage = in_array((int) $perPage, $allowed) ? (int) $perPage : $default;
+        session([$key => $perPage]);
+
+        return $perPage;
     }
 
     /**
@@ -45,7 +56,7 @@ class ParticipantController extends Controller
     public function create(): View
     {
         $locations = Location::active()->get();
-        $violationTypes = \App\Models\ViolationType::all();
+        $violationTypes = ViolationType::all();
 
         return view('admin.participants.create', compact('locations', 'violationTypes'));
     }
@@ -61,43 +72,41 @@ class ParticipantController extends Controller
         DB::transaction(function () use ($validated) {
             // Create user account (peserta, no email, no password)
             $user = User::create([
-                'name'      => $validated['full_name'],
-                'nik'       => $validated['nik'],
-                'role'      => 'peserta',
+                'name' => $validated['full_name'],
+                'nik' => $validated['nik'],
+                'role' => 'peserta',
                 'is_active' => $validated['status'] === 'active',
             ]);
 
             // Create participant profile
             $participant = Participant::create([
-                'user_id'          => $user->id,
-                'assigned_admin_id'=> auth()->id(),
-                'full_name'        => $validated['full_name'],
-                'nik'              => $validated['nik'],
-                'address'          => $validated['address'],
-                'phone'            => $validated['phone'],
-                'violation_type_id'=> $validated['violation_type_id'],
-                'case_notes'       => $validated['case_notes'],
-                'supervision_start'=> $validated['supervision_start'],
-                'supervision_end'  => $validated['supervision_end'],
-                'quota_type'       => $validated['quota_type'],
-                'quota_amount'     => $validated['quota_amount'],
-                'status'           => $validated['status'],
-                'location_id'      => $validated['location_id'],
+                'user_id' => $user->id,
+                'assigned_admin_id' => auth()->id(),
+                'full_name' => $validated['full_name'],
+                'nik' => $validated['nik'],
+                'address' => $validated['address'],
+                'phone' => $validated['phone'],
+                'violation_type_id' => $validated['violation_type_id'],
+                'case_notes' => $validated['case_notes'],
+                'supervision_start' => $validated['supervision_start'],
+                'supervision_end' => $validated['supervision_end'],
+                'quota_type' => $validated['quota_type'],
+                'quota_amount' => $validated['quota_amount'],
+                'status' => $validated['status'],
+                'location_id' => $validated['location_id'],
             ]);
 
             // Auto-generate all attendance periods
-            (new PeriodService())->generateAllPeriods($participant);
-
-
+            (new PeriodService)->generateAllPeriods($participant);
 
             // Log the action
             ActivityLog::create([
-                'user_id'     => auth()->id(),
-                'action'      => 'created_participant',
+                'user_id' => auth()->id(),
+                'action' => 'created_participant',
                 'target_type' => 'participant',
-                'target_id'   => $participant->id,
-                'description' => 'Mendaftarkan peserta baru: ' . $validated['full_name'] . ' (NIK: ' . $validated['nik'] . ')',
-                'ip_address'  => request()->ip(),
+                'target_id' => $participant->id,
+                'description' => 'Mendaftarkan peserta baru: '.$validated['full_name'].' (NIK: '.$validated['nik'].')',
+                'ip_address' => request()->ip(),
             ]);
         });
 
@@ -121,7 +130,10 @@ class ParticipantController extends Controller
             'violationType',
         ]);
 
-        return view('admin.participants.show', compact('participant'));
+        $deletionCode = $participant->generateDeletionCode();
+        session(['participant_deletion_code_'.$participant->id => $deletionCode]);
+
+        return view('admin.participants.show', compact('participant', 'deletionCode'));
     }
 
     /**
@@ -131,7 +143,7 @@ class ParticipantController extends Controller
     {
         $participant->load('user');
         $locations = Location::active()->get();
-        $violationTypes = \App\Models\ViolationType::all();
+        $violationTypes = ViolationType::all();
 
         return view('admin.participants.edit', compact('participant', 'locations', 'violationTypes'));
     }
@@ -169,7 +181,7 @@ class ParticipantController extends Controller
             ]);
 
             // Sync attendance periods to reflect new quota or dates
-            (new \App\Services\PeriodService())->syncPeriodsForUpdate($participant);
+            (new PeriodService)->syncPeriodsForUpdate($participant);
 
             // Log the action
             ActivityLog::create([
@@ -177,7 +189,7 @@ class ParticipantController extends Controller
                 'action' => 'updated_participant',
                 'target_type' => 'participant',
                 'target_id' => $participant->id,
-                'description' => 'Memperbarui data peserta: ' . $validated['full_name'],
+                'description' => 'Memperbarui data peserta: '.$validated['full_name'],
                 'ip_address' => request()->ip(),
             ]);
         });
@@ -202,7 +214,7 @@ class ParticipantController extends Controller
                 'action' => 'deactivated_participant',
                 'target_type' => 'participant',
                 'target_id' => $participant->id,
-                'description' => 'Menonaktifkan peserta: ' . $participant->full_name,
+                'description' => 'Menonaktifkan peserta: '.$participant->full_name,
                 'ip_address' => request()->ip(),
             ]);
         });
@@ -210,5 +222,54 @@ class ParticipantController extends Controller
         return redirect()
             ->route('admin.participants.index')
             ->with('success', 'Peserta berhasil dinonaktifkan.');
+    }
+
+    /**
+     * Permanently delete the participant and all related data.
+     */
+    public function forceDelete(Request $request, Participant $participant): RedirectResponse
+    {
+        $request->validate([
+            'deletion_code' => ['required', 'string'],
+        ]);
+
+        $storedCode = session('participant_deletion_code_'.$participant->id);
+
+        if ($request->input('deletion_code') !== $storedCode) {
+            return back()->withErrors(['deletion_code' => 'Kode konfirmasi tidak cocok.']);
+        }
+
+        session()->forget('participant_deletion_code_'.$participant->id);
+
+        DB::transaction(function () use ($participant) {
+            $participantName = $participant->full_name;
+            $userId = $participant->user_id;
+
+            // Delete related records
+            $participant->attendanceLogs()->delete();
+            $participant->attendanceAttempts()->delete();
+            $participant->attendancePeriods()->delete();
+            $participant->warnings()->delete();
+
+            // Delete participant
+            $participant->delete();
+
+            // Delete associated user
+            User::where('id', $userId)->delete();
+
+            // Log the action
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'force_deleted_participant',
+                'target_type' => 'participant',
+                'target_id' => $participant->id,
+                'description' => 'Menghapus permanen peserta: '.$participantName,
+                'ip_address' => request()->ip(),
+            ]);
+        });
+
+        return redirect()
+            ->route('admin.participants.index')
+            ->with('success', 'Peserta berhasil dihapus permanen.');
     }
 }

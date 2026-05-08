@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::table('participants', function (Blueprint $table) {
             $table->unsignedBigInteger('location_id')->after('status')->nullable()->comment('Mandatory reporting location');
-            
+
             $table->foreign('location_id')
-                  ->references('id')
-                  ->on('locations')
-                  ->onDelete('restrict'); // Prevent deleting a location that is assigned to a participant
+                ->references('id')
+                ->on('locations')
+                ->onDelete('restrict'); // Prevent deleting a location that is assigned to a participant
         });
     }
 

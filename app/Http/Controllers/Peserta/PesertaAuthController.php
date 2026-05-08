@@ -8,7 +8,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class PesertaAuthController extends Controller
@@ -38,11 +37,11 @@ class PesertaAuthController extends Controller
             'nik' => ['required', 'string', 'digits:16'],
         ], [
             'nik.required' => 'NIK wajib diisi.',
-            'nik.digits'   => 'NIK harus terdiri dari 16 digit.',
+            'nik.digits' => 'NIK harus terdiri dari 16 digit.',
         ]);
 
         // ── Rate limiting: max 5 attempts per IP per 10 minutes ──
-        $key = 'login.peserta.' . $request->ip();
+        $key = 'login.peserta.'.$request->ip();
 
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
@@ -61,7 +60,7 @@ class PesertaAuthController extends Controller
             ->where('is_active', true)
             ->first();
 
-        if (!$user) {
+        if (! $user) {
             // Increment attempt count (decay: 10 minutes = 600 seconds)
             RateLimiter::hit($key, 600);
 

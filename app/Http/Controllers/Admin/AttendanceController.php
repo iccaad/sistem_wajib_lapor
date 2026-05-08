@@ -9,7 +9,6 @@ use App\Models\Participant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
 {
@@ -23,8 +22,8 @@ class AttendanceController extends Controller
     public function override(Request $request, Participant $participant): RedirectResponse
     {
         $request->validate([
-            'attendance_date'  => 'required|date|before_or_equal:today',
-            'override_reason'  => 'required|string|min:10|max:1000',
+            'attendance_date' => 'required|date|before_or_equal:today',
+            'override_reason' => 'required|string|min:10|max:1000',
         ]);
 
         $date = $request->date('attendance_date');
@@ -44,7 +43,7 @@ class AttendanceController extends Controller
             ->where('period_end', '>=', $date)
             ->first();
 
-        if (!$period) {
+        if (! $period) {
             return back()->withErrors(['override' => 'Tidak ada periode aktif yang mencakup tanggal tersebut.']);
         }
 
@@ -54,16 +53,16 @@ class AttendanceController extends Controller
         }
 
         AttendanceLog::create([
-            'participant_id'       => $participant->id,
+            'participant_id' => $participant->id,
             'attendance_period_id' => $period->id,
-            'location_id'          => null,
-            'attendance_date'      => $date->toDateString(),
-            'attendance_time'      => now()->format('H:i:s'),
-            'latitude'             => 0,
-            'longitude'            => 0,
-            'photo_path'           => null,
-            'notes'                => 'Override manual: ' . $request->override_reason,
-            'status'               => 'manual_override',
+            'location_id' => null,
+            'attendance_date' => $date->toDateString(),
+            'attendance_time' => now()->format('H:i:s'),
+            'latitude' => 0,
+            'longitude' => 0,
+            'photo_path' => null,
+            'notes' => 'Override manual: '.$request->override_reason,
+            'status' => 'manual_override',
         ]);
 
         // Increment period attended count
@@ -73,7 +72,7 @@ class AttendanceController extends Controller
             $period->update(['status' => 'completed']);
         }
 
-        return back()->with('success', 'Absensi manual berhasil ditambahkan untuk tanggal ' . $date->translatedFormat('d F Y') . '.');
+        return back()->with('success', 'Absensi manual berhasil ditambahkan untuk tanggal '.$date->translatedFormat('d F Y').'.');
     }
 
     /**
@@ -81,18 +80,18 @@ class AttendanceController extends Controller
      */
     public function showPhoto(AttendanceLog $log): BinaryFileResponse
     {
-        abort_if(!$log->photo_path, 404, 'Foto tidak tersedia.');
+        abort_if(! $log->photo_path, 404, 'Foto tidak tersedia.');
 
-        $path = storage_path('app/private/' . $log->photo_path);
+        $path = storage_path('app/private/'.$log->photo_path);
 
-        abort_if(!file_exists($path), 404, 'File foto tidak ditemukan.');
+        abort_if(! file_exists($path), 404, 'File foto tidak ditemukan.');
 
         $mimeType = mime_content_type($path) ?: 'image/jpeg';
 
         return response()->file($path, [
-            'Content-Type'        => $mimeType,
-            'Content-Disposition' => 'inline; filename="selfie-' . $log->id . '.jpg"',
-            'Cache-Control'       => 'private, no-store',
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="selfie-'.$log->id.'.jpg"',
+            'Cache-Control' => 'private, no-store',
         ]);
     }
 }

@@ -25,9 +25,9 @@ return new class extends Migration
             // Admin responsible for this participant — nullable, set null if admin deleted
             $table->unsignedBigInteger('assigned_admin_id')->nullable();
             $table->foreign('assigned_admin_id')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('set null');
+                ->references('id')
+                ->on('users')
+                ->onDelete('set null');
 
             // Personal information
             $table->string('full_name', 255);

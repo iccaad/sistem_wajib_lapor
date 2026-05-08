@@ -36,7 +36,7 @@ class WarningSeeder extends Seeder
                     'level' => Warning::LEVEL_1,
                 ],
                 [
-                    'reason' => 'Tidak memenuhi kuota kehadiran periode ' . $fajarPeriod->period_start->format('d/m/Y') . ' - ' . $fajarPeriod->period_end->format('d/m/Y') . '. Kehadiran: ' . $fajarPeriod->attended_count . '/' . $fajarPeriod->target_count . '.',
+                    'reason' => 'Tidak memenuhi kuota kehadiran periode '.$fajarPeriod->period_start->format('d/m/Y').' - '.$fajarPeriod->period_end->format('d/m/Y').'. Kehadiran: '.$fajarPeriod->attended_count.'/'.$fajarPeriod->target_count.'.',
                     'issued_at' => Carbon::parse($fajarPeriod->period_end)->addDay(),
                     'status' => 'active',
                     'notes' => null,
@@ -74,7 +74,7 @@ class WarningSeeder extends Seeder
                     'level' => Warning::LEVEL_1,
                 ],
                 [
-                    'reason' => 'Kehadiran tidak mencukupi kuota periode ' . $rizkyPeriod->period_start->format('d/m/Y') . ' - ' . $rizkyPeriod->period_end->format('d/m/Y') . '. Kehadiran: ' . $rizkyPeriod->attended_count . '/' . $rizkyPeriod->target_count . '.',
+                    'reason' => 'Kehadiran tidak mencukupi kuota periode '.$rizkyPeriod->period_start->format('d/m/Y').' - '.$rizkyPeriod->period_end->format('d/m/Y').'. Kehadiran: '.$rizkyPeriod->attended_count.'/'.$rizkyPeriod->target_count.'.',
                     'issued_at' => Carbon::parse($rizkyPeriod->period_end)->addDay(),
                     'status' => 'active',
                     'notes' => null,

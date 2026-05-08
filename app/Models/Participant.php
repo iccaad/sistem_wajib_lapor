@@ -6,8 +6,8 @@ use App\Services\PeriodService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Participant extends Model
 {
@@ -160,7 +160,7 @@ class Participant extends Model
      */
     public function getCurrentPeriod(): ?AttendancePeriod
     {
-        return (new PeriodService())->getCurrentPeriod($this);
+        return (new PeriodService)->getCurrentPeriod($this);
     }
 
     /**
@@ -174,6 +174,14 @@ class Participant extends Model
             return false;
         }
 
-        return $periods->every(fn($period) => $period->isFulfilled());
+        return $periods->every(fn ($period) => $period->isFulfilled());
+    }
+
+    /**
+     * Generate a random 10-character alphanumeric deletion code.
+     */
+    public function generateDeletionCode(): string
+    {
+        return strtoupper(Str::random(10));
     }
 }

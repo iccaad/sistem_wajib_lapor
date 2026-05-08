@@ -24,16 +24,16 @@ return new class extends Migration
             // Link to participant — nullable, set null if participant deleted
             $table->unsignedBigInteger('participant_id')->nullable();
             $table->foreign('participant_id')
-                  ->references('id')
-                  ->on('participants')
-                  ->onDelete('set null');
+                ->references('id')
+                ->on('participants')
+                ->onDelete('set null');
 
             // Link to location they attempted to check in at
             $table->unsignedBigInteger('location_id')->nullable();
             $table->foreign('location_id')
-                  ->references('id')
-                  ->on('locations')
-                  ->onDelete('set null');
+                ->references('id')
+                ->on('locations')
+                ->onDelete('set null');
 
             // When the attempt was made
             $table->timestamp('attempted_at');

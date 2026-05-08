@@ -15,7 +15,7 @@ class AttendanceService
      * Calculate the great-circle distance between two GPS coordinates
      * using the Haversine formula.
      *
-     * @return float  Distance in metres.
+     * @return float Distance in metres.
      */
     public function haversineDistance(
         float $lat1,
@@ -56,11 +56,11 @@ class AttendanceService
         // Get the specific location assigned to this participant
         $location = $participant->location()->where('is_active', true)->first();
 
-        if (!$location) {
+        if (! $location) {
             return [
-                'location'       => null,
-                'distance'       => null,
-                'within_radius'  => false,
+                'location' => null,
+                'distance' => null,
+                'within_radius' => false,
             ];
         }
 
@@ -72,9 +72,9 @@ class AttendanceService
         );
 
         return [
-            'location'       => $location,
-            'distance'       => $distance,
-            'within_radius'  => $distance <= $location->radius_meters,
+            'location' => $location,
+            'distance' => $distance,
+            'within_radius' => $distance <= $location->radius_meters,
         ];
     }
 
@@ -99,7 +99,7 @@ class AttendanceService
         ?float $accuracy
     ): array {
         // [1] Supervision period must still be active
-        if (!$participant->isActive()) {
+        if (! $participant->isActive()) {
             return $this->invalid(
                 'Masa pengawasan Anda sudah berakhir.',
                 'SUPERVISION_ENDED'
@@ -115,9 +115,9 @@ class AttendanceService
         }
 
         // [3] Quota for current period must not be full
-        $currentPeriod = (new PeriodService())->getCurrentPeriod($participant);
+        $currentPeriod = (new PeriodService)->getCurrentPeriod($participant);
 
-        if (!$currentPeriod || $currentPeriod->isFulfilled()) {
+        if (! $currentPeriod || $currentPeriod->isFulfilled()) {
             return $this->invalid(
                 'Target kehadiran periode ini sudah terpenuhi.',
                 'QUOTA_FULL'
@@ -145,9 +145,9 @@ class AttendanceService
         }
 
         // [6] GPS accuracy must be sufficient (≤ 500 m)
-        if (!is_null($accuracy) && $accuracy > 500) {
+        if (! is_null($accuracy) && $accuracy > 500) {
             return $this->invalid(
-                'Sinyal GPS terlalu lemah (akurasi ' . round($accuracy) . 'm). Pindah ke area terbuka.',
+                'Sinyal GPS terlalu lemah (akurasi '.round($accuracy).'m). Pindah ke area terbuka.',
                 'GPS_ACCURACY'
             );
         }
@@ -155,37 +155,37 @@ class AttendanceService
         // [7] Must be within the radius of the SPECIFIC location assigned to the participant
         $locationResult = $this->getRequiredLocation($participant, $lat, $lng);
 
-        if (!$locationResult['location']) {
+        if (! $locationResult['location']) {
             return [
-                'valid'         => false,
-                'error_message' => "Tidak ada lokasi wajib lapor aktif yang ditetapkan untuk peserta.",
-                'error_code'    => 'NO_LOCATION_ASSIGNED',
-                'location'      => null,
-                'distance'      => null,
+                'valid' => false,
+                'error_message' => 'Tidak ada lokasi wajib lapor aktif yang ditetapkan untuk peserta.',
+                'error_code' => 'NO_LOCATION_ASSIGNED',
+                'location' => null,
+                'distance' => null,
             ];
         }
 
-        if (!$locationResult['within_radius']) {
+        if (! $locationResult['within_radius']) {
             $distanceText = $locationResult['distance']
-                ? round($locationResult['distance']) . 'm'
+                ? round($locationResult['distance']).'m'
                 : 'tidak diketahui';
             $locName = $locationResult['location']->name;
 
             return [
-                'valid'         => false,
+                'valid' => false,
                 'error_message' => "Anda berada di luar area \"{$locName}\". Jarak Anda: {$distanceText}.",
-                'error_code'    => 'OUT_OF_RANGE',
-                'location'      => $locationResult['location'],
-                'distance'      => $locationResult['distance'],
+                'error_code' => 'OUT_OF_RANGE',
+                'location' => $locationResult['location'],
+                'distance' => $locationResult['distance'],
             ];
         }
 
         return [
-            'valid'         => true,
+            'valid' => true,
             'error_message' => null,
-            'error_code'    => null,
-            'location'      => $locationResult['location'],
-            'distance'      => $locationResult['distance'],
+            'error_code' => null,
+            'location' => $locationResult['location'],
+            'distance' => $locationResult['distance'],
         ];
     }
 
@@ -205,16 +205,16 @@ class AttendanceService
         ?float $distance
     ): AttendanceAttempt {
         return AttendanceAttempt::create([
-            'participant_id'  => $participant->id,
-            'location_id'     => $location?->id,
-            'attempted_at'    => now(),
-            'latitude'        => $lat,
-            'longitude'       => $lng,
+            'participant_id' => $participant->id,
+            'location_id' => $location?->id,
+            'attempted_at' => now(),
+            'latitude' => $lat,
+            'longitude' => $lng,
             'distance_meters' => $distance ? round($distance, 2) : null,
-            'failure_reason'  => $failureReason,
-            'metadata'        => $accuracy !== null ? ['accuracy_meters' => $accuracy] : null,
-            'ip_address'      => Request::ip(),
-            'user_agent'      => Request::userAgent(),
+            'failure_reason' => $failureReason,
+            'metadata' => $accuracy !== null ? ['accuracy_meters' => $accuracy] : null,
+            'ip_address' => Request::ip(),
+            'user_agent' => Request::userAgent(),
         ]);
     }
 
@@ -233,14 +233,14 @@ class AttendanceService
         string $photoPath
     ): AttendanceLog {
         $log = AttendanceLog::create([
-            'participant_id'      => $participant->id,
-            'attendance_period_id'=> $period->id,
-            'location_id'         => $location->id,
-            'attendance_date'     => today()->toDateString(),
-            'attendance_time'     => now()->format('H:i:s'),
-            'latitude'            => $lat,
-            'longitude'           => $lng,
-            'distance_meters'     => round(
+            'participant_id' => $participant->id,
+            'attendance_period_id' => $period->id,
+            'location_id' => $location->id,
+            'attendance_date' => today()->toDateString(),
+            'attendance_time' => now()->format('H:i:s'),
+            'latitude' => $lat,
+            'longitude' => $lng,
+            'distance_meters' => round(
                 $this->haversineDistance(
                     $lat, $lng,
                     (float) $location->latitude,
@@ -248,8 +248,8 @@ class AttendanceService
                 ),
                 2
             ),
-            'photo_path'          => $photoPath,
-            'status'              => 'valid',
+            'photo_path' => $photoPath,
+            'status' => 'valid',
         ]);
 
         // Increment denormalized counter on the period
@@ -278,11 +278,11 @@ class AttendanceService
         ?float $distance = null
     ): array {
         return [
-            'valid'         => false,
+            'valid' => false,
             'error_message' => $message,
-            'error_code'    => $code,
-            'location'      => $location,
-            'distance'      => $distance,
+            'error_code' => $code,
+            'location' => $location,
+            'distance' => $distance,
         ];
     }
 }

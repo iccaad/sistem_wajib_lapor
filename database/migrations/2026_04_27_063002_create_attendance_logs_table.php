@@ -24,16 +24,16 @@ return new class extends Migration
             // Link to attendance period — nullable, set null if period deleted
             $table->unsignedBigInteger('attendance_period_id')->nullable();
             $table->foreign('attendance_period_id')
-                  ->references('id')
-                  ->on('attendance_periods')
-                  ->onDelete('set null');
+                ->references('id')
+                ->on('attendance_periods')
+                ->onDelete('set null');
 
             // Link to location — nullable, set null if location deleted
             $table->unsignedBigInteger('location_id')->nullable();
             $table->foreign('location_id')
-                  ->references('id')
-                  ->on('locations')
-                  ->onDelete('set null');
+                ->references('id')
+                ->on('locations')
+                ->onDelete('set null');
 
             // Attendance date and time — separate for easy date-based queries
             $table->date('attendance_date');
