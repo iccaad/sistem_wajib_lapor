@@ -12,7 +12,7 @@ class LocationController extends Controller
 {
     public function index(Request $request): View
     {
-        $perPage = $this->getPerPage($request, 'locations_per_page', 10);
+        $perPage = $this->getPerPage($request, 'locations_per_page', 5);
         $locations = Location::withCount('attendanceLogs')
             ->orderByDesc('is_active')
             ->orderBy('name')

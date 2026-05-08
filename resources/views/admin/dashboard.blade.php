@@ -87,6 +87,8 @@
 </div>
 
 {{-- ── Recent Participants Table ── --}}
+@include('components.per-page-dropdown', ['route' => 'admin.dashboard', 'current' => $recentParticipants->perPage()])
+
 <div class="bg-white rounded-2xl border border-brand-light shadow-sm overflow-hidden">
     <div class="flex items-center justify-between px-6 py-5 border-b border-brand-light/50 bg-brand-light/5">
         <h2 class="text-sm font-bold text-brand-primary uppercase tracking-wider">Peserta Terbaru</h2>
@@ -177,27 +179,8 @@
     </div>
 
     @if ($recentParticipants->hasPages())
-        <div class="px-6 py-4 bg-brand-light/5 border-t border-brand-light/50">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div class="flex items-center gap-2 text-sm text-gray-500">
-                    <span>Tampilkan</span>
-                    <form method="GET" action="{{ route('admin.dashboard') }}" class="inline">
-                        @foreach(request()->except('per_page') as $key => $value)
-                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                        @endforeach
-                        <select name="per_page"
-                                onchange="this.form.submit()"
-                                class="px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-brand-accent focus:border-brand-accent">
-                            <option value="5" {{ $recentParticipants->perPage() == 5 ? 'selected' : '' }}>5</option>
-                            <option value="10" {{ $recentParticipants->perPage() == 10 ? 'selected' : '' }}>10</option>
-                            <option value="15" {{ $recentParticipants->perPage() == 15 ? 'selected' : '' }}>15</option>
-                            <option value="20" {{ $recentParticipants->perPage() == 20 ? 'selected' : '' }}>20</option>
-                        </select>
-                    </form>
-                    <span>data per halaman</span>
-                </div>
-                {{ $recentParticipants->withQueryString()->links() }}
-            </div>
+        <div class="px-6 py-4 border-t border-brand-light/50">
+            {{ $recentParticipants->withQueryString()->links() }}
         </div>
     @endif
 </div>

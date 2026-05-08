@@ -13,7 +13,7 @@ class ViolationTypeController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $this->getPerPage($request, 'violation_types_per_page', 10);
+        $perPage = $this->getPerPage($request, 'violation_types_per_page', 5);
         $violationTypes = ViolationType::latest()->paginate($perPage);
 
         return view('admin.violation_types.index', compact('violationTypes'));

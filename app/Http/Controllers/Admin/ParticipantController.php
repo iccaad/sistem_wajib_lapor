@@ -34,7 +34,7 @@ class ParticipantController extends Controller
             });
         }
 
-        $perPage = $this->getPerPage($request, 'participants_per_page', 10);
+        $perPage = $this->getPerPage($request, 'participants_per_page', 5);
         $participants = $query->paginate($perPage)->withQueryString();
 
         return view('admin.participants.index', compact('participants'));
