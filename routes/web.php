@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminAccountController;
 use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LocationController;
@@ -88,6 +89,11 @@ Route::middleware(['auth', 'admin', 'log.activity'])->prefix('admin')->name('adm
     // Reports
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('reports/{participant}', [ReportController::class, 'show'])->name('reports.show');
+
+    // Admin Accounts CRUD (super admin only)
+    Route::middleware('super.admin')->group(function () {
+        Route::resource('accounts', AdminAccountController::class)->except(['show']);
+    });
 });
 
 // -------------------------------------------------------

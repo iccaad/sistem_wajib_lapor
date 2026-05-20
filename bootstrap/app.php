@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsurePeserta;
 use App\Http\Middleware\LogActivityMiddleware;
+use App\Http\Middleware\SuperAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -28,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => EnsureAdmin::class,
             'peserta' => EnsurePeserta::class,
             'log.activity' => LogActivityMiddleware::class,
+            'super.admin' => SuperAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
