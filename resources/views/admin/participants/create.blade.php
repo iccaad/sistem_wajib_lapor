@@ -4,6 +4,10 @@
 @section('page-title', 'Tambah Peserta Baru')
 @section('breadcrumb', 'Admin / Peserta / Tambah')
 
+@push('head')
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+@endpush
+
 @section('content')
 
 <div class="max-w-3xl">
@@ -22,7 +26,7 @@
 
         <form method="POST" action="{{ route('admin.participants.store') }}" class="p-6">
             @csrf
-            @include('admin.participants._form', ['participant' => null])
+            @include('admin.participants._form', ['participant' => null, 'isCreateForm' => true])
 
             <div class="flex justify-end gap-3 mt-6 pt-5 border-t border-gray-100">
                 <a href="{{ route('admin.participants.index') }}"
