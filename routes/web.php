@@ -88,6 +88,7 @@ Route::middleware(['auth', 'admin', 'log.activity'])->prefix('admin')->name('adm
 
     // Reports
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
     Route::get('reports/{participant}', [ReportController::class, 'show'])->name('reports.show');
 
     // Admin Accounts CRUD (super admin only)

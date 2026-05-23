@@ -9,6 +9,9 @@ use App\Models\ViolationType;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+use App\Exports\ParticipantsReportExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class ReportController extends Controller
 {
     public function index(Request $request): View
@@ -60,6 +63,35 @@ class ReportController extends Controller
         $violationTypes = ViolationType::all();
 
         return view('admin.reports.index', compact('participants', 'violationTypes', 'admins'));
+    }
+
+    public function export(Request $request)
+    {
+        $query = Participant::with(['attendancePeriods', 'warnings', 'violationType', 'assignedAdmin']);
+
+        if ($filter = $request->input('violation_type_id')) {
+            $query->where('violation_type_id', $filter);
+        }
+
+        if ($status = $request->input('status')) {
+            $query->where('status', $status);
+        }
+
+        if ($dateFrom = $request->input('date_from')) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo = $request->input('date_to')) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
+        if ($adminId = $request->input('admin_id')) {
+            $query->where('assigned_admin_id', $adminId);
+        }
+
+        $participants = $query->latest()->get();
+
+        return Excel::download(new ParticipantsReportExport($participants), 'laporan_peserta_' . date('Y-m-d_H-i-s') . '.xlsx');
     }
 
     public function show(Participant $participant): View
