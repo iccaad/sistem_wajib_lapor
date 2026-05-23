@@ -56,24 +56,12 @@
         </div>
     </div>
 
-{{-- ── Top bar ── --}}
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-    <form method="GET" action="{{ route('admin.participants.index') }}" class="flex gap-2 flex-1 max-w-lg">
-        <input type="text" name="search" value="{{ request('search') }}"
-               placeholder="Cari nama atau NIK..."
-               class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-        <button type="submit"
-                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-            Cari
-        </button>
-        @if(request('search'))
-            <a href="{{ route('admin.participants.index') }}"
-               class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-                ✕
-            </a>
-        @endif
-    </form>
+{{-- ── Filter Bar ── --}}
+@include('components.participant-filters', ['route' => 'admin.participants.index', 'admins' => $admins, 'showSearch' => true])
 
+{{-- ── Top Actions ── --}}
+<div class="flex items-center justify-between mb-5">
+    <div></div>
     <a href="{{ route('admin.participants.create') }}"
        id="btn-tambah-peserta"
        class="inline-flex items-center gap-2 px-4 py-2 bg-brand-accent hover:bg-brand-accent/80 text-white text-sm font-bold rounded-xl shadow-lg shadow-black/10 transition transform active:scale-95">

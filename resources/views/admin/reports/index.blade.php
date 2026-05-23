@@ -6,10 +6,24 @@
 
 @section('content')
 
-{{-- Filter + Print --}}
+{{-- ── Filter Bar ── --}}
+@include('components.participant-filters', ['route' => 'admin.reports.index', 'admins' => $admins])
+
+{{-- ── Report-specific Filters + Print ── --}}
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 no-print">
     <form method="GET" action="{{ route('admin.reports.index') }}"
           class="flex flex-wrap gap-2">
+        {{-- Preserve date/admin filters --}}
+        @if(request('date_from'))
+            <input type="hidden" name="date_from" value="{{ request('date_from') }}">
+        @endif
+        @if(request('date_to'))
+            <input type="hidden" name="date_to" value="{{ request('date_to') }}">
+        @endif
+        @if(request('admin_id'))
+            <input type="hidden" name="admin_id" value="{{ request('admin_id') }}">
+        @endif
+
         <select name="violation_type_id" class="px-4 py-2.5 text-sm border border-brand-light rounded-lg focus:ring-brand-accent focus:border-brand-accent bg-white shadow-sm transition-all duration-200 cursor-pointer">
             <option value="">Semua Pelanggaran</option>
             @foreach($violationTypes as $vt)
@@ -28,7 +42,7 @@
             Filter
         </button>
         @if(request('violation_type_id') || request('status'))
-            <a href="{{ route('admin.reports.index') }}"
+            <a href="{{ route('admin.reports.index', request()->only(['date_from', 'date_to', 'admin_id'])) }}"
                class="px-4 py-2.5 text-sm font-bold text-brand-soft hover:text-red-600 border border-brand-light rounded-lg hover:bg-red-50 transition-all duration-200 flex items-center gap-1">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />

@@ -24,6 +24,8 @@ class ParticipantController extends Controller
      */
     public function index(Request $request): View
     {
+        $admins = User::where('role', 'admin')->orderBy('name')->get();
+
         $query = Participant::with('user', 'assignedAdmin')
             ->latest();
 
@@ -34,10 +36,22 @@ class ParticipantController extends Controller
             });
         }
 
+        if ($dateFrom = $request->input('date_from')) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo = $request->input('date_to')) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
+        if ($adminId = $request->input('admin_id')) {
+            $query->where('assigned_admin_id', $adminId);
+        }
+
         $perPage = $this->getPerPage($request, 'participants_per_page', 5);
         $participants = $query->paginate($perPage)->withQueryString();
 
-        return view('admin.participants.index', compact('participants'));
+        return view('admin.participants.index', compact('participants', 'admins'));
     }
 
     private function getPerPage(Request $request, string $key, int $default = 10): int

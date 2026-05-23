@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Participant;
+use App\Models\User;
 use App\Models\ViolationType;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -12,7 +13,9 @@ class ReportController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Participant::with(['attendancePeriods', 'warnings', 'violationType']);
+        $admins = User::where('role', 'admin')->orderBy('name')->get();
+
+        $query = Participant::with(['attendancePeriods', 'warnings', 'violationType', 'assignedAdmin']);
 
         if ($filter = $request->input('violation_type_id')) {
             $query->where('violation_type_id', $filter);
@@ -20,6 +23,18 @@ class ReportController extends Controller
 
         if ($status = $request->input('status')) {
             $query->where('status', $status);
+        }
+
+        if ($dateFrom = $request->input('date_from')) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo = $request->input('date_to')) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
+        if ($adminId = $request->input('admin_id')) {
+            $query->where('assigned_admin_id', $adminId);
         }
 
         $paginated = $query->latest()->paginate(10)->withQueryString();
@@ -44,7 +59,7 @@ class ReportController extends Controller
 
         $violationTypes = ViolationType::all();
 
-        return view('admin.reports.index', compact('participants', 'violationTypes'));
+        return view('admin.reports.index', compact('participants', 'violationTypes', 'admins'));
     }
 
     public function show(Participant $participant): View
