@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\ParticipantsReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Participant;
 use App\Models\User;
-use App\Models\ViolationType;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-
-use App\Exports\ParticipantsReportExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
@@ -19,14 +17,6 @@ class ReportController extends Controller
         $admins = User::where('role', 'admin')->orderBy('name')->get();
 
         $query = Participant::with(['attendancePeriods', 'warnings', 'violationType', 'assignedAdmin']);
-
-        if ($filter = $request->input('violation_type_id')) {
-            $query->where('violation_type_id', $filter);
-        }
-
-        if ($status = $request->input('status')) {
-            $query->where('status', $status);
-        }
 
         if ($dateFrom = $request->input('date_from')) {
             $query->whereDate('created_at', '>=', $dateFrom);
@@ -60,22 +50,12 @@ class ReportController extends Controller
 
         $participants = $paginated;
 
-        $violationTypes = ViolationType::all();
-
-        return view('admin.reports.index', compact('participants', 'violationTypes', 'admins'));
+        return view('admin.reports.index', compact('participants', 'admins'));
     }
 
     public function export(Request $request)
     {
         $query = Participant::with(['attendancePeriods', 'warnings', 'violationType', 'assignedAdmin']);
-
-        if ($filter = $request->input('violation_type_id')) {
-            $query->where('violation_type_id', $filter);
-        }
-
-        if ($status = $request->input('status')) {
-            $query->where('status', $status);
-        }
 
         if ($dateFrom = $request->input('date_from')) {
             $query->whereDate('created_at', '>=', $dateFrom);
@@ -91,7 +71,7 @@ class ReportController extends Controller
 
         $participants = $query->latest()->get();
 
-        return Excel::download(new ParticipantsReportExport($participants), 'laporan_peserta_' . date('Y-m-d_H-i-s') . '.xlsx');
+        return Excel::download(new ParticipantsReportExport($participants), 'laporan_peserta_'.date('Y-m-d_H-i-s').'.xlsx');
     }
 
     public function show(Participant $participant): View

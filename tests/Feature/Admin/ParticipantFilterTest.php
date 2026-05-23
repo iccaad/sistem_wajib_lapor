@@ -203,7 +203,6 @@ test('reports index combines all filters', function () {
             'date_from' => '2026-03-01',
             'date_to' => '2026-03-31',
             'admin_id' => $admin1->id,
-            'status' => 'active',
         ]));
 
     $response->assertSuccessful();

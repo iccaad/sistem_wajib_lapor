@@ -26,7 +26,7 @@ class ParticipantController extends Controller
     {
         $admins = User::where('role', 'admin')->orderBy('name')->get();
 
-        $query = Participant::with('user', 'assignedAdmin')
+        $query = Participant::with(['user', 'assignedAdmin', 'attendancePeriods'])
             ->latest();
 
         if ($search = $request->input('search')) {

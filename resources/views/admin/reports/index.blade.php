@@ -6,54 +6,10 @@
 
 @section('content')
 
-{{-- ── Filter Bar ── --}}
-@include('components.participant-filters', ['route' => 'admin.reports.index', 'admins' => $admins])
-
-{{-- ── Report-specific Filters + Print ── --}}
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 no-print">
-    <form method="GET" action="{{ route('admin.reports.index') }}"
-          class="flex flex-wrap gap-2">
-        {{-- Preserve date/admin filters --}}
-        @if(request('date_from'))
-            <input type="hidden" name="date_from" value="{{ request('date_from') }}">
-        @endif
-        @if(request('date_to'))
-            <input type="hidden" name="date_to" value="{{ request('date_to') }}">
-        @endif
-        @if(request('admin_id'))
-            <input type="hidden" name="admin_id" value="{{ request('admin_id') }}">
-        @endif
-
-        <select name="violation_type_id" class="px-4 py-2.5 text-sm border border-brand-light rounded-lg focus:ring-brand-accent focus:border-brand-accent bg-white shadow-sm transition-all duration-200 cursor-pointer">
-            <option value="">Semua Pelanggaran</option>
-            @foreach($violationTypes as $vt)
-                <option value="{{ $vt->id }}" {{ request('violation_type_id') == $vt->id ? 'selected' : '' }}>
-                    {{ $vt->name }}
-                </option>
-            @endforeach
-        </select>
-        <select name="status" class="px-4 py-2.5 text-sm border border-brand-light rounded-lg focus:ring-brand-accent focus:border-brand-accent bg-white shadow-sm transition-all duration-200 cursor-pointer">
-            <option value="">Semua Status</option>
-            <option value="active"   {{ request('status') === 'active'   ? 'selected' : '' }}>Aktif</option>
-            <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Nonaktif</option>
-        </select>
-        <button type="submit"
-                class="px-4 py-2 text-sm font-bold text-brand-secondary bg-white border border-brand-light rounded-lg hover:bg-brand-light/20 transition shadow-sm">
-            Filter
-        </button>
-        @if(request('violation_type_id') || request('status'))
-            <a href="{{ route('admin.reports.index', request()->only(['date_from', 'date_to', 'admin_id'])) }}"
-               class="px-4 py-2.5 text-sm font-bold text-brand-soft hover:text-red-600 border border-brand-light rounded-lg hover:bg-red-50 transition-all duration-200 flex items-center gap-1">
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                Reset
-            </a>
-        @endif
-    </form>
-
+{{-- ── Cetak Excel ── --}}
+<div class="flex justify-end mb-5 no-print">
     <a href="{{ route('admin.reports.export', request()->all()) }}"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg shadow-lg shadow-black/10 transition transform active:scale-95">
+       class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg shadow-lg shadow-black/10 transition transform active:scale-95">
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
         </svg>
@@ -61,87 +17,19 @@
     </a>
 </div>
 
+{{-- ── Filter Bar ── --}}
+@include('components.participant-filters', ['route' => 'admin.reports.index', 'admins' => $admins])
+
 {{-- Print header (hidden on screen) --}}
 <div class="print-only hidden mb-6">
     <h1 class="text-xl font-bold text-center">LAPORAN KEPATUHAN PESERTA WAJIB LAPOR</h1>
     <p class="text-center text-sm mt-1">Polrestabes Semarang — Dicetak {{ now()->translatedFormat('d M Y, H:i') }} WIB</p>
 </div>
 
-<div class="bg-white rounded-2xl border border-brand-light shadow-sm overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-100">
-            <thead class="bg-brand-light/10">
-                <tr>
-                    <th class="px-5 py-4 text-left text-xs font-bold text-brand-secondary uppercase tracking-wider">#</th>
-                    <th class="px-5 py-4 text-left text-xs font-bold text-brand-secondary uppercase tracking-wider">Nama</th>
-                    <th class="px-5 py-4 text-left text-xs font-bold text-brand-secondary uppercase tracking-wider hidden sm:table-cell">NIK</th>
-                    <th class="px-5 py-4 text-left text-xs font-bold text-brand-secondary uppercase tracking-wider hidden md:table-cell">Tipe Kuota</th>
-                    <th class="px-5 py-4 text-left text-xs font-bold text-brand-secondary uppercase tracking-wider">Status</th>
-                    <th class="px-5 py-4 text-center text-xs font-bold text-brand-secondary uppercase tracking-wider">Periode</th>
-                    <th class="px-5 py-4 text-center text-xs font-bold text-brand-secondary uppercase tracking-wider">Total Hadir</th>
-                    <th class="px-5 py-4 text-center text-xs font-bold text-brand-secondary uppercase tracking-wider">Target</th>
-                    <th class="px-5 py-4 text-center text-xs font-bold text-brand-secondary uppercase tracking-wider">Kepatuhan</th>
-                    <th class="px-5 py-4 text-right text-xs font-bold text-brand-secondary uppercase tracking-wider no-print">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                @forelse ($participants as $p)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-5 py-4 text-xs font-medium text-gray-400">
-                            {{ $loop->iteration + $participants->firstItem() - 1 }}
-                        </td>
-                        <td class="px-5 py-4 text-sm font-medium text-gray-900">{{ $p->full_name }}</td>
-                        <td class="px-5 py-4 text-xs text-gray-500 font-mono hidden sm:table-cell">{{ $p->nik }}</td>
-                        <td class="px-5 py-4 text-sm text-gray-600 hidden md:table-cell">{{ $p->quota_amount }}×/{{ $p->quota_type === 'weekly' ? 'minggu' : 'bulan' }}</td>
-                        <td class="px-5 py-4">
-                            @if ($p->status === 'active')
-                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Aktif</span>
-                            @else
-                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">Selesai</span>
-                            @endif
-                        </td>
-                        <td class="px-5 py-4 text-center text-sm text-gray-700">{{ $p->total_periods }}</td>
-                        <td class="px-5 py-4 text-center text-sm font-semibold {{ $p->total_attended >= $p->total_target ? 'text-emerald-600' : 'text-gray-700' }}">
-                            {{ $p->total_attended }}
-                        </td>
-                        <td class="px-5 py-4 text-center text-sm text-gray-700">{{ $p->total_target }}</td>
-                        <td class="px-5 py-4 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <div class="w-16 bg-gray-200 rounded-full h-1.5">
-                                    <div class="h-1.5 rounded-full {{ $p->compliance_percent >= 80 ? 'bg-emerald-500' : ($p->compliance_percent >= 50 ? 'bg-amber-500' : 'bg-red-500') }}"
-                                         style="width: {{ min(100, $p->compliance_percent) }}%"></div>
-                                </div>
-                                <span class="text-xs font-semibold {{ $p->compliance_percent >= 80 ? 'text-emerald-600' : ($p->compliance_percent >= 50 ? 'text-amber-600' : 'text-red-600') }}">
-                                    {{ $p->compliance_percent }}%
-                                </span>
-                            </div>
-                        </td>
-                        <td class="px-5 py-4 text-right no-print">
-                            <a href="{{ route('admin.reports.show', $p) }}"
-                               class="inline-flex p-2 rounded-lg text-brand-accent hover:bg-brand-accent/10 transition-all duration-200"
-                               title="Lihat Detail Laporan">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                </svg>
-                            </a>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="10" class="px-6 py-12 text-center text-sm text-gray-400">Tidak ada data.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    @if ($participants->hasPages())
-        <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 no-print">
-            {{ $participants->links() }}
-        </div>
-    @endif
-</div>
+@include('components.participant-table', [
+    'participants' => $participants,
+    'emptyText' => 'Tidak ada data.'
+])
 
 @endsection
 

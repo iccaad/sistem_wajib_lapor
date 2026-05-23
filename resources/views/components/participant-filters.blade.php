@@ -42,14 +42,14 @@
 
                 {{-- Date From --}}
                 <div class="min-w-0 sm:w-44">
-                    <label for="filter-date-from" class="block text-xs font-medium text-gray-500 mb-1">Dari Tanggal</label>
+                    <label for="filter-date-from" class="block text-xs font-medium text-gray-500 mb-1">Dari Tanggal Dibuat</label>
                     <input type="date" name="date_from" id="filter-date-from" value="{{ request('date_from') }}"
                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent transition-all duration-200 cursor-pointer">
                 </div>
 
                 {{-- Date To --}}
                 <div class="min-w-0 sm:w-44">
-                    <label for="filter-date-to" class="block text-xs font-medium text-gray-500 mb-1">Sampai Tanggal</label>
+                    <label for="filter-date-to" class="block text-xs font-medium text-gray-500 mb-1">Sampai Tanggal Dibuat</label>
                     <input type="date" name="date_to" id="filter-date-to" value="{{ request('date_to') }}"
                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent transition-all duration-200 cursor-pointer">
                 </div>
@@ -99,7 +99,7 @@
                             <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5" />
                             </svg>
-                            Dari: {{ request('date_from') }}
+                            Dibuat Dari: {{ request('date_from') }}
                         </span>
                     @endif
                     @if(request('date_to'))
@@ -107,7 +107,7 @@
                             <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5" />
                             </svg>
-                            Sampai: {{ request('date_to') }}
+                            Dibuat Sampai: {{ request('date_to') }}
                         </span>
                     @endif
                     @if(request('admin_id'))

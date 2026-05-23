@@ -6,8 +6,7 @@
 
 @section('content')
 
-{{-- ── Filter Bar ── --}}
-@include('components.participant-filters', ['route' => 'admin.dashboard', 'admins' => $admins])
+
 
 {{-- ── Stat Cards ── --}}
 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
@@ -92,100 +91,13 @@
 {{-- ── Recent Participants Table ── --}}
 @include('components.per-page-dropdown', ['route' => 'admin.dashboard', 'current' => $recentParticipants->perPage()])
 
-<div class="bg-white rounded-2xl border border-brand-light shadow-sm overflow-hidden">
-    <div class="flex items-center justify-between px-6 py-5 border-b border-brand-light/50 bg-brand-light/5">
-        <h2 class="text-sm font-bold text-brand-primary uppercase tracking-wider">Peserta Terbaru</h2>
-        <a href="{{ route('admin.participants.index') }}"
-           class="text-xs text-brand-accent hover:text-brand-secondary font-bold transition">
-            Lihat Semua →
-        </a>
-    </div>
+{{-- ── Filter Bar ── --}}
+@include('components.participant-filters', ['route' => 'admin.dashboard', 'admins' => $admins])
 
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-100">
-            <thead class="bg-brand-light/10">
-                <tr>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-brand-secondary uppercase tracking-wider">Nama</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-brand-secondary uppercase tracking-wider hidden sm:table-cell">NIK</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-brand-secondary uppercase tracking-wider hidden md:table-cell">Pelanggaran</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-brand-secondary uppercase tracking-wider hidden lg:table-cell">Masa Pengawasan</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-brand-secondary uppercase tracking-wider">Periode Ini</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-brand-secondary uppercase tracking-wider">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                @forelse ($recentParticipants as $p)
-                    @php
-                        $currentPeriod = $p->attendancePeriods
-                            ->first(fn($per) => today()->between($per->period_start, $per->period_end))
-                            ?? $p->attendancePeriods->where('period_start', '<=', today())->sortByDesc('period_start')->first()
-                            ?? $p->attendancePeriods->first();
-                    @endphp
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
-                                            {{ $p->status === 'active' ? 'bg-brand-light text-brand-secondary' : 'bg-brand-light/30 text-brand-soft' }}
-                                            text-xs font-bold uppercase">
-                                    {{ substr($p->full_name, 0, 1) }}
-                                </div>
-                                <div class="text-sm font-medium {{ $p->hasCompletedAllPeriods() ? 'text-green-600' : 'text-gray-900' }}">{{ $p->full_name }}</div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 hidden sm:table-cell">
-                            <span class="text-xl font-bold text-gray-900 font-mono tracking-widest">{{ $p->nik }}</span>
-                        </td>
-                        <td class="px-6 py-4 hidden md:table-cell">
-                            <span class="text-sm text-gray-600">{{ Str::limit($p->violationType->name ?? '—', 22) }}</span>
-                        </td>
-                        <td class="px-6 py-4 hidden lg:table-cell">
-                            <div class="text-xs text-gray-500">
-                                {{ $p->supervision_start->format('d/m/Y') }} –
-                                {{ $p->supervision_end->format('d/m/Y') }}
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            @if ($currentPeriod)
-                                <div class="flex items-center gap-2">
-                                    <div class="flex-1 bg-brand-light rounded-full h-1.5 min-w-[60px]">
-                                        <div class="h-1.5 rounded-full {{ $currentPeriod->isFulfilled() ? 'bg-emerald-500' : 'bg-brand-accent' }}"
-                                             style="width: {{ min(100, round($currentPeriod->attended_count / max(1, $currentPeriod->target_count) * 100)) }}%"></div>
-                                    </div>
-                                    <span class="text-xs font-medium {{ $currentPeriod->isFulfilled() ? 'text-emerald-600' : 'text-gray-600' }} whitespace-nowrap">
-                                        {{ $currentPeriod->attended_count }}/{{ $currentPeriod->target_count }}
-                                    </span>
-                                </div>
-                            @else
-                                <span class="text-xs text-gray-400">—</span>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <a href="{{ route('admin.participants.show', $p) }}"
-                               class="inline-flex p-2 rounded-lg text-brand-accent hover:bg-brand-accent/10 transition-all duration-200"
-                               title="Lihat Detail">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                </svg>
-                            </a>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-400">
-                            Belum ada peserta terdaftar.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    @if ($recentParticipants->hasPages())
-        <div class="px-6 py-4 border-t border-brand-light/50">
-            {{ $recentParticipants->withQueryString()->links() }}
-        </div>
-    @endif
-</div>
+@include('components.participant-table', [
+    'participants' => $recentParticipants,
+    'title' => 'Peserta Terbaru',
+    'headerAction' => '<a href="' . route('admin.participants.index') . '" class="text-xs text-brand-accent hover:text-brand-secondary font-bold transition">Lihat Semua →</a>'
+])
 
 @endsection

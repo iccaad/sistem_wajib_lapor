@@ -2,14 +2,13 @@
 
 namespace App\Exports;
 
-use App\Models\Participant;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Illuminate\Support\Collection;
 
-class ParticipantsReportExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
+class ParticipantsReportExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping
 {
     protected $participants;
 
@@ -20,25 +19,7 @@ class ParticipantsReportExport implements FromCollection, WithHeadings, WithMapp
 
     public function collection()
     {
-        $rows = collect([]);
-
-        foreach ($this->participants as $participant) {
-            if ($participant->attendancePeriods->isEmpty()) {
-                $rows->push((object)[
-                    'participant' => $participant,
-                    'period' => null
-                ]);
-            } else {
-                foreach ($participant->attendancePeriods as $period) {
-                    $rows->push((object)[
-                        'participant' => $participant,
-                        'period' => $period
-                    ]);
-                }
-            }
-        }
-
-        return $rows;
+        return $this->participants;
     }
 
     public function headings(): array
@@ -46,31 +27,37 @@ class ParticipantsReportExport implements FromCollection, WithHeadings, WithMapp
         return [
             'Nama',
             'NIK',
-            'Polsek/Satuan yang Bertanggung Jawab',
+            'Polsek/Satuan yang bertanggung jawab',
             'Tanggal Mulai',
             'Tanggal Selesai',
             'Jumlah Periode',
             'Kuota per Periode',
-            'Rentang Periode',
-            'Total Absen pada Tiap Periode'
+            'Total Absen pada Tiap Periode',
         ];
     }
 
-    public function map($row): array
+    public function map($participant): array
     {
-        $p = $row->participant;
-        $period = $row->period;
+        $attendanceStrings = [];
+
+        foreach ($participant->attendancePeriods as $period) {
+            $attendanceStrings[] = $period->attended_count.'/Minggu';
+        }
+
+        $totalAbsen = implode(', ', $attendanceStrings);
+        if (empty($totalAbsen)) {
+            $totalAbsen = '—';
+        }
 
         return [
-            $p->full_name,
-            "'" . $p->nik, // Prefix with apostrophe to prevent excel from treating NIK as number
-            $p->assignedAdmin ? $p->assignedAdmin->name : '—',
-            $p->supervision_start->format('d/m/Y'),
-            $p->supervision_end->format('d/m/Y'),
-            $p->attendancePeriods->count(),
-            $p->quota_amount . '×/' . ($p->quota_type === 'weekly' ? 'minggu' : 'bulan'),
-            $period ? $period->period_start->format('d/m/Y') . ' - ' . $period->period_end->format('d/m/Y') : '—',
-            $period ? $period->attended_count : '0',
+            $participant->full_name,
+            "'".$participant->nik, // Prefix with apostrophe to prevent excel from treating NIK as number
+            $participant->assignedAdmin ? $participant->assignedAdmin->name : '—',
+            $participant->supervision_start->format('d/m/Y'),
+            $participant->supervision_end->format('d/m/Y'),
+            $participant->attendancePeriods->count(),
+            $participant->quota_amount.'×/'.($participant->quota_type === 'weekly' ? 'minggu' : 'bulan'),
+            $totalAbsen,
         ];
     }
 }
