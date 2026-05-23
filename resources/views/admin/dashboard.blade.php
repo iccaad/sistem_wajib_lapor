@@ -133,7 +133,7 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 hidden sm:table-cell">
-                            <span class="text-sm text-gray-500 font-mono">{{ $p->nik }}</span>
+                            <span class="text-xl font-bold text-gray-900 font-mono tracking-widest">{{ $p->nik }}</span>
                         </td>
                         <td class="px-6 py-4 hidden md:table-cell">
                             <span class="text-sm text-gray-600">{{ Str::limit($p->violationType->name ?? '—', 22) }}</span>

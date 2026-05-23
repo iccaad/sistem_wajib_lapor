@@ -248,20 +248,22 @@
     </div>
 
     {{-- Single Location Selector --}}
-    <div class="md:col-span-2">
-        <label for="location_id" class="block text-sm font-medium text-gray-700 mb-1">
+    <div class="md:col-span-2 flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+        <label for="location_id" class="text-sm font-medium text-gray-700 md:w-1/4 whitespace-nowrap">
             Lokasi Wajib Lapor <span class="text-red-500">*</span>
         </label>
-        <select name="location_id" id="location_id" required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('location_id') border-red-400 @enderror">
-            <option value="">-- Pilih Lokasi --</option>
-            @foreach ($locations as $loc)
-                <option value="{{ $loc->id }}" {{ old('location_id', $participant->location_id ?? '') == $loc->id ? 'selected' : '' }}>
-                    {{ $loc->name }} — {{ $loc->address ? Str::limit($loc->address, 40) : 'Tidak ada alamat' }} (±{{ $loc->radius_meters }}m)
-                </option>
-            @endforeach
-        </select>
-        @error('location_id') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+        <div class="flex-1">
+            <select name="location_id" id="location_id" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('location_id') border-red-400 @enderror">
+                <option value="">-- Pilih Lokasi --</option>
+                @foreach ($locations as $loc)
+                    <option value="{{ $loc->id }}" {{ old('location_id', $participant->location_id ?? '') == $loc->id ? 'selected' : '' }}>
+                        {{ $loc->name }} (±{{ $loc->radius_meters }}m)
+                    </option>
+                @endforeach
+            </select>
+            @error('location_id') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+        </div>
     </div>
 
     {{-- Status --}}

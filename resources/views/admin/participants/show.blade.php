@@ -35,7 +35,7 @@
                             <span class="text-xs font-semibold bg-amber-500/20 text-amber-100 border border-amber-400/30 px-2 py-0.5 rounded-full">In Progress</span>
                         @endif
                     </h3>
-                    <p class="text-indigo-200 text-sm font-mono mt-0.5">NIK: {{ $participant->nik }}</p>
+                    <p class="text-indigo-100 text-xl font-bold font-mono tracking-widest mt-1">NIK: {{ $participant->nik }}</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <a href="{{ route('admin.participants.edit', $participant) }}"
