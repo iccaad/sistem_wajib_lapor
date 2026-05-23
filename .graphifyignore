@@ -1,5 +1,9 @@
 # .graphifyignore
+# Jangan biarkan Graphify menganalisis folder instalan sistem asisten AI
+.agents/
+graphify-out/
+
+# Jangan menganalisis folder pustaka berat (khusus Laravel)
 vendor/
 node_modules/
-dist/
 storage/

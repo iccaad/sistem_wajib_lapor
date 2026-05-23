@@ -1,6 +1,8 @@
 {
     "agents": [
-        "claude_code"
+        "gemini",
+        "kiro",
+        "opencode"
     ],
     "guidelines": true,
     "mcp": true,
