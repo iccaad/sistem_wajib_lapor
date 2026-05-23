@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\ParticipantController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ViolationTypeController;
 use App\Http\Controllers\Peserta\AbsenceController;
@@ -95,6 +96,10 @@ Route::middleware(['auth', 'admin', 'log.activity'])->prefix('admin')->name('adm
     Route::middleware('super.admin')->group(function () {
         Route::resource('accounts', AdminAccountController::class)->except(['show']);
     });
+
+    // Profile Edit & Update
+    Route::get('profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('profile', [AdminProfileController::class, 'update'])->name('profile.update');
 });
 
 // -------------------------------------------------------

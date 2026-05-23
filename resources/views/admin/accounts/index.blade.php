@@ -43,7 +43,7 @@
                                 </div>
                                 <div>
                                     <span class="text-sm font-medium text-gray-900">{{ $admin->name }}</span>
-                                    @if($admin->email === 'pccpolrestabessemarang@gmail.com')
+                                    @if($admin->is_root_super_admin)
                                         <span class="ml-1.5 inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700">SUPER ADMIN</span>
                                     @endif
                                 </div>
@@ -63,7 +63,7 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 text-right">
-                            @if($admin->email !== 'pccpolrestabessemarang@gmail.com')
+                            @if(!$admin->is_root_super_admin)
                                 <div class="flex items-center justify-end gap-1">
                                     <a href="{{ route('admin.accounts.edit', $admin) }}"
                                        class="p-2 rounded-lg text-orange-500 hover:bg-orange-50 transition-all duration-200"

@@ -23,13 +23,7 @@ class AdminUserSeeder extends Seeder
                 'email' => 'pccpolrestabessemarang@gmail.com',
                 'password' => Hash::make('presisi110'),
                 'role' => 'admin',
-                'is_active' => true,
-            ],
-            [
-                'name' => 'AKBP Budi Santoso',
-                'email' => 'budi.santoso@gmail.com',
-                'password' => Hash::make('admin123'),
-                'role' => 'admin',
+                'is_root_super_admin' => true,
                 'is_active' => true,
             ],
         ];

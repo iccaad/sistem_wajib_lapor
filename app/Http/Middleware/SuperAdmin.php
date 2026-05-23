@@ -14,7 +14,7 @@ class SuperAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() || $request->user()->email !== 'pccpolrestabessemarang@gmail.com') {
+        if (! $request->user() || ! ($request->user()->is_root_super_admin || $request->user()->role === 'super_admin')) {
             abort(403, 'Hanya akun utama yang dapat mengakses fitur ini.');
         }
 

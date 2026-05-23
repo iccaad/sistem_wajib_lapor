@@ -27,7 +27,6 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             LocationSeeder::class,
             ViolationTypeSeeder::class,
-            ParticipantUserSeeder::class,
             AttendancePeriodSeeder::class,
             AttendanceLogSeeder::class,
             WarningSeeder::class,
