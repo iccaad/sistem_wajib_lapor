@@ -47,7 +47,7 @@ Aplikasi SIWALDI dibangun menggunakan arsitektur web modern yang andal, aman, da
 1.  **Jalur Admin (Petugas Kepolisian):**
     *   Mengakses URL `/admin/login`.
     *   Autentikasi standar menggunakan **Email dan Password** via Laravel Breeze.
-    *   Terdapat peran tambahan: **Super Admin** yang memiliki hak mengelola akun admin petugas lainnya.
+    *   Terdapat status khusus: **Super Admin** (ditandai dengan flag `is_root_super_admin` di database). Peran ini memiliki hak eksklusif untuk mengelola akun admin petugas lainnya (CRUD Akun Admin) dan dilindungi secara ketat agar tidak dapat diedit atau dihapus oleh admin biasa.
 2.  **Jalur Peserta (Wajib Lapor):**
     *   Mengakses URL `/login`.
     *   Autentikasi ultra-praktis hanya menggunakan **NIK (Nomor Induk Kependudukan) 16 digit** tanpa memerlukan kata sandi (mengurangi kendala lupa sandi bagi peserta remaja).
@@ -109,6 +109,9 @@ Setiap periode berakhir, sistem scheduler secara otomatis mengevaluasi kehadiran
     *   Tabel Ringkasan: Kehadiran hari ini, peserta yang baru ditambahkan, dan peringatan level tinggi terbaru.
 3.  **Manajemen Peserta (`/admin/participants`):**
     *   Daftar Peserta dengan pagination (10 data per halaman).
+    *   **Komponen Tabel Peserta Reusable:** Menggunakan komponen Blade terpadu (`x-participant-table`) yang konsisten di Dashboard, Index Peserta, dan Laporan.
+        *   *Desktop View (md+):* Kolom Nama & NIK (bold & subtext), Admin (header 'Admin'), Masa Pengawasan, Jumlah Periode, Kuota per Periode, Periode Ini (Visual Progress Bar kehadiran), dan Aksi (Ikon Detail dan Edit saja).
+        *   *Mobile View (<md):* Tampilan ringkas hanya memuat kolom Nama & NIK, Periode Ini (Visual Progress Bar), dan Aksi (Ikon Detail/Edit) agar responsif dan tidak menumpuk di layar kecil.
     *   Form Tambah/Edit Peserta: Input biodata lengkap, NIK, jenis pelanggaran, durasi masa pengawasan, pilihan tipe kuota (mingguan/bulanan), nominal kuota kehadiran, pilihan admin pengawas, serta alokasi lokasi wajib lapor yang disesuaikan secara dinamis.
     *   Aksi Deaktivasi (Soft-deactivate) atau Penghapusan Permanen (Force Delete).
 4.  **Manajemen Lokasi (`/admin/locations`):**
@@ -119,9 +122,14 @@ Setiap periode berakhir, sistem scheduler secara otomatis mengevaluasi kehadiran
     *   CRUD sederhana untuk mengelola daftar pelanggaran (balap liar, tawuran, dll.) guna pengelompokan statistik peserta.
 6.  **Laporan Kepatuhan (`/admin/reports`):**
     *   Laporan rekapitulasi kepatuhan kehadiran mingguan/bulanan seluruh peserta secara komprehensif.
+    *   Filter pada halaman ini hanya menyisakan penyaringan berdasarkan tanggal pembuatan akun peserta (**Dari/Sampai Tanggal Dibuat**) tanpa filter status atau jenis pelanggaran demi efisiensi visual antarmuka.
     *   Halaman Detail Kepatuhan Peserta (`/admin/reports/{participant}`): Menampilkan timeline absensi lengkap, riwayat percobaan gagal (`attendance_attempts`), dan riwayat penerbitan surat peringatan (`warnings`).
 7.  **Manajemen Akun Admin (`/admin/accounts`):**
-    *   *Khusus Super Admin:* CRUD untuk mendaftarkan akun petugas kepolisian baru atau menonaktifkan akun admin lainnya.
+    *   *Khusus Super Admin:* CRUD untuk mendaftarkan akun petugas kepolisian baru atau menonaktifkan akun admin lainnya. Halaman ini dilindungi middleware `super.admin` yang mengecek status `is_root_super_admin`.
+8.  **Edit Profil Admin (`/admin/profile/edit`):**
+    *   Halaman dengan layout kartu terpusat (`max-w-2xl`) yang clean dan modern menggunakan Tailwind CSS.
+    *   Memungkinkan setiap petugas (Admin dan Super Admin) memperbarui Nama Lengkap, Email, dan Password Baru (opsional) mereka sendiri.
+    *   *Keamanan Khusus:* Standard user/admin dibatasi agar tidak dapat mengubah perannya. Untuk akun utama (Super Admin), sistem memastikan status flag `is_root_super_admin` tetap bernilai `true` meskipun emailnya diganti, sehingga hak akses utama tidak akan pernah hilang.
 
 ---
 
@@ -155,7 +163,8 @@ Menyimpan kredensial autentikasi utama baik untuk Admin (Petugas) maupun Peserta
 *   `name` (String, 255)
 *   `email` (String, 255, Unique, Nullable untuk peserta)
 *   `password` (String, 255, Nullable untuk peserta)
-*   `role` (String, 10, Default: `'peserta'`) - Pilihan: `'admin'`, `'super_admin'`, `'peserta'`
+*   `role` (String, 10, Default: `'peserta'`) - Pilihan: `'admin'`, `'peserta'` (Catatan: Hak Super Admin dipisahkan melalui flag boolean khusus, bukan string role).
+*   `is_root_super_admin` (Boolean, Default: `false`) - Penanda akun utama Super Admin/Root yang memiliki hak mutlak mengelola admin lain dan kebal modifikasi/deaktivasi dari luar.
 *   `nik` (Char, 16, Unique, Nullable untuk admin) - NIK 16 digit peserta untuk autentikasi login
 *   `is_active` (Boolean, Default: `true`)
 *   `remember_token` (String, 100, Nullable)
