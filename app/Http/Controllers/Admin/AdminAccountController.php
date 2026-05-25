@@ -70,7 +70,7 @@ class AdminAccountController extends Controller
     public function edit(User $account): View
     {
         // Prevent editing the super admin account
-        if ($account->email === 'pccpolrestabessemarang@gmail.com') {
+        if ($account->is_root_super_admin || $account->role === 'super_admin') {
             abort(403, 'Akun utama tidak dapat diedit dari sini.');
         }
 
@@ -82,13 +82,13 @@ class AdminAccountController extends Controller
      */
     public function update(Request $request, User $account): RedirectResponse
     {
-        if ($account->email === 'pccpolrestabessemarang@gmail.com') {
+        if ($account->is_root_super_admin || $account->role === 'super_admin') {
             abort(403, 'Akun utama tidak dapat diedit dari sini.');
         }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $account->id,
+            'email' => 'required|email|max:255|unique:users,email,'.$account->id,
             'password' => ['nullable', 'confirmed', Password::min(6)],
         ], [
             'name.required' => 'Nama wajib diisi.',
@@ -104,7 +104,7 @@ class AdminAccountController extends Controller
             'email' => $validated['email'],
         ]);
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $account->update(['password' => Hash::make($validated['password'])]);
         }
 
@@ -117,7 +117,7 @@ class AdminAccountController extends Controller
      */
     public function destroy(User $account): RedirectResponse
     {
-        if ($account->email === 'pccpolrestabessemarang@gmail.com') {
+        if ($account->is_root_super_admin || $account->role === 'super_admin') {
             return redirect()->route('admin.accounts.index')
                 ->with('error', 'Akun utama tidak dapat dihapus.');
         }

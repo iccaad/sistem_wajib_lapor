@@ -2,24 +2,32 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\ParticipantsReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Participant;
-use App\Models\ViolationType;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Participant::with(['attendancePeriods', 'warnings', 'violationType']);
+        $admins = User::where('role', 'admin')->orderBy('name')->get();
 
-        if ($filter = $request->input('violation_type_id')) {
-            $query->where('violation_type_id', $filter);
+        $query = Participant::with(['attendancePeriods', 'warnings', 'violationType', 'assignedAdmin']);
+
+        if ($dateFrom = $request->input('date_from')) {
+            $query->whereDate('created_at', '>=', $dateFrom);
         }
 
-        if ($status = $request->input('status')) {
-            $query->where('status', $status);
+        if ($dateTo = $request->input('date_to')) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
+        if ($adminId = $request->input('admin_id')) {
+            $query->where('assigned_admin_id', $adminId);
         }
 
         $paginated = $query->latest()->paginate(10)->withQueryString();
@@ -42,9 +50,28 @@ class ReportController extends Controller
 
         $participants = $paginated;
 
-        $violationTypes = ViolationType::all();
+        return view('admin.reports.index', compact('participants', 'admins'));
+    }
 
-        return view('admin.reports.index', compact('participants', 'violationTypes'));
+    public function export(Request $request)
+    {
+        $query = Participant::with(['attendancePeriods', 'warnings', 'violationType', 'assignedAdmin']);
+
+        if ($dateFrom = $request->input('date_from')) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo = $request->input('date_to')) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
+        if ($adminId = $request->input('admin_id')) {
+            $query->where('assigned_admin_id', $adminId);
+        }
+
+        $participants = $query->latest()->get();
+
+        return Excel::download(new ParticipantsReportExport($participants), 'laporan_peserta_'.date('Y-m-d_H-i-s').'.xlsx');
     }
 
     public function show(Participant $participant): View
