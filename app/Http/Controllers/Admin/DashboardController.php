@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\FiltersParticipants;
 use App\Http\Controllers\Controller;
 use App\Models\Participant;
 use App\Models\User;
@@ -10,6 +11,8 @@ use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
+    use FiltersParticipants;
+
     public function index(Request $request): View
     {
         $admins = User::where('role', 'admin')->orderBy('name')->get();
@@ -73,10 +76,14 @@ class DashboardController extends Controller
             ->count();
 
         $perPage = $this->getPerPage($request, 'dashboard_per_page', 5);
-        $recentParticipants = Participant::with(['user', 'assignedAdmin', 'attendancePeriods'])
+        $recentQuery = Participant::with(['user', 'assignedAdmin', 'attendancePeriods'])
             ->tap($applyFilters)
-            ->latest()
-            ->paginate($perPage)
+            ->latest();
+
+        // Apply the 3 dynamic stat filters to the table
+        $this->applyParticipantFilters($recentQuery, $request);
+
+        $recentParticipants = $recentQuery->paginate($perPage)
             ->withQueryString();
 
         return view('admin.dashboard', compact(
