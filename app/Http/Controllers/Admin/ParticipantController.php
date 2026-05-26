@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\FiltersParticipants;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreParticipantRequest;
 use App\Http\Requests\Admin\UpdateParticipantRequest;
@@ -18,6 +19,8 @@ use Illuminate\View\View;
 
 class ParticipantController extends Controller
 {
+    use FiltersParticipants;
+
     /**
      * Display a listing of participants.
      * Supports search by name/NIK and pagination.
@@ -47,6 +50,9 @@ class ParticipantController extends Controller
         if ($adminId = $request->input('admin_id')) {
             $query->where('assigned_admin_id', $adminId);
         }
+
+        // Apply the 3 dynamic stat filters
+        $this->applyParticipantFilters($query, $request);
 
         $perPage = $this->getPerPage($request, 'participants_per_page', 5);
         $participants = $query->paginate($perPage)->withQueryString();

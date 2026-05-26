@@ -9,7 +9,7 @@
 
 
 {{-- ── Stat Cards ── --}}
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
 
     {{-- Total Aktif --}}
     <div class="col-span-1 bg-white rounded-2xl border border-brand-light/50 shadow-sm p-5 hover:shadow-md transition-shadow">
@@ -75,13 +75,28 @@
     <div class="col-span-1 bg-white rounded-2xl border border-brand-light/30 shadow-sm p-5 hover:shadow-md transition-shadow">
         <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-light/10">
-                <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <svg class="h-5 w-5 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5" />
                 </svg>
             </div>
             <div>
                 <p class="text-3xl font-black text-brand-primary leading-none">{{ $endingSoon }}</p>
                 <p class="text-[10px] uppercase tracking-[0.1em] font-black text-brand-secondary mt-1.5">Selesai Segera</p>
+            </div>
+        </div>
+    </div>
+
+    {{-- Selesai --}}
+    <div class="col-span-1 bg-white rounded-2xl border border-gray-200 shadow-sm p-5 hover:shadow-md transition-shadow">
+        <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100">
+                <svg class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-3xl font-black text-gray-800 leading-none">{{ $completed }}</p>
+                <p class="text-[10px] uppercase tracking-[0.1em] font-black text-gray-500 mt-1.5">Selesai</p>
             </div>
         </div>
     </div>

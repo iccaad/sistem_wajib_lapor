@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\ParticipantsReportExport;
+use App\Http\Controllers\Admin\Concerns\FiltersParticipants;
 use App\Http\Controllers\Controller;
 use App\Models\Participant;
 use App\Models\User;
@@ -12,6 +13,8 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
+    use FiltersParticipants;
+
     public function index(Request $request): View
     {
         $admins = User::where('role', 'admin')->orderBy('name')->get();
@@ -29,6 +32,9 @@ class ReportController extends Controller
         if ($adminId = $request->input('admin_id')) {
             $query->where('assigned_admin_id', $adminId);
         }
+
+        // Apply the 3 dynamic stat filters
+        $this->applyParticipantFilters($query, $request);
 
         $paginated = $query->latest()->paginate(10)->withQueryString();
 
@@ -68,6 +74,9 @@ class ReportController extends Controller
         if ($adminId = $request->input('admin_id')) {
             $query->where('assigned_admin_id', $adminId);
         }
+
+        // Apply the 3 dynamic stat filters
+        $this->applyParticipantFilters($query, $request);
 
         $participants = $query->latest()->get();
 
