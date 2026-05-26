@@ -32,46 +32,38 @@ class DashboardController extends Controller
             }
         };
 
-        // Total peserta yang masih dalam masa pengawasan
+        // Total peserta aktif
         $totalActive = Participant::where('status', 'active')
-            ->where('supervision_end', '>=', today())
             ->tap($applyFilters)
             ->count();
 
-        // Peserta yang periode aktifnya sudah fulfilled
+        // Peserta patuh: tidak ada warning aktif sama sekali
         $totalCompliant = Participant::where('status', 'active')
-            ->where('supervision_end', '>=', today())
-            ->whereHas('attendancePeriods', function ($q) {
-                $q->where('status', 'active')
-                    ->where('period_start', '<=', today())
-                    ->where('period_end', '>=', today())
-                    ->whereColumn('attended_count', '>=', 'target_count');
-            })
+            ->whereDoesntHave('warnings', fn ($q) => $q->where('status', 'active'))
             ->tap($applyFilters)
             ->count();
 
-        // Peserta berisiko: periode aktif hampir habis (≤ 3 hari) dan belum terpenuhi
+        // Peserta berisiko: ada warning level_1 yang masih aktif
         $totalAtRisk = Participant::where('status', 'active')
-            ->where('supervision_end', '>=', today())
-            ->whereHas('attendancePeriods', function ($q) {
-                $q->where('status', 'active')
-                    ->where('period_start', '<=', today())
-                    ->where('period_end', '>=', today())
-                    ->where('period_end', '<=', today()->addDays(3))
-                    ->whereColumn('attended_count', '<', 'target_count');
-            })
+            ->whereHas('warnings', fn ($q) => $q->where('status', 'active')->where('level', 'level_1'))
             ->tap($applyFilters)
             ->count();
 
-        // Peserta mangkir: ada warning level_2 yang masih aktif
+        // Peserta mangkir: ada warning level_2 atau level_3 yang masih aktif
         $totalAbsent = Participant::where('status', 'active')
-            ->whereHas('warnings', fn ($q) => $q->where('level', 'level_2')->where('status', 'active'))
+            ->whereHas('warnings', fn ($q) => $q->where('status', 'active')->whereIn('level', ['level_2', 'level_3']))
             ->tap($applyFilters)
             ->count();
 
         // Selesai masa pengawasan dalam 7 hari ke depan
         $endingSoon = Participant::where('status', 'active')
             ->whereBetween('supervision_end', [today(), today()->addDays(7)])
+            ->tap($applyFilters)
+            ->count();
+
+        // Telah selesai masa pengawasan
+        $completed = Participant::where('status', 'active')
+            ->where('supervision_end', '<', today())
             ->tap($applyFilters)
             ->count();
 
@@ -92,6 +84,7 @@ class DashboardController extends Controller
             'totalAtRisk',
             'totalAbsent',
             'endingSoon',
+            'completed',
             'recentParticipants',
             'admins'
         ));
