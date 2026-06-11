@@ -26,7 +26,7 @@
                     <th class="px-6 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em]">Nama</th>
                     <th class="px-6 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em]">Email</th>
                     <th class="px-6 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em] hidden md:table-cell">Dibuat</th>
-                    <th class="px-6 py-4 text-left text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em]">Status</th>
+                    <th class="px-6 py-4 text-center text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em]">Peserta</th>
                     <th class="px-6 py-4 text-right text-[10px] font-black text-brand-secondary uppercase tracking-[0.1em]">Aksi</th>
                 </tr>
             </thead>
@@ -55,11 +55,13 @@
                         <td class="px-6 py-4 hidden md:table-cell">
                             <span class="text-xs text-gray-500">{{ $admin->created_at->translatedFormat('d M Y') }}</span>
                         </td>
-                        <td class="px-6 py-4">
-                            @if ($admin->is_active)
-                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Aktif</span>
+                        <td class="px-6 py-4 text-center">
+                            @if ($admin->participants_count > 0)
+                                <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-bold bg-brand-light/30 text-brand-secondary min-w-[2rem]">
+                                    {{ $admin->participants_count }}
+                                </span>
                             @else
-                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">Nonaktif</span>
+                                <span class="text-xs text-gray-400 font-medium">—</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 text-right">

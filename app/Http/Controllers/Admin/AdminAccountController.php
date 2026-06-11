@@ -19,6 +19,7 @@ class AdminAccountController extends Controller
     {
         $perPage = $this->getPerPage($request, 'admin_accounts_per_page', 5);
         $admins = User::where('role', 'admin')
+            ->withCount('assignedParticipants as participants_count')
             ->orderByDesc('created_at')
             ->paginate($perPage);
 
