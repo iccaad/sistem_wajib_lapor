@@ -24,8 +24,8 @@ class ParticipantUserSeeder extends Seeder
     public function run(): void
     {
         // Fetch admin users to assign as supervisors
-        $admin1 = User::where('email', 'budi.santoso@polrestabes-smg.test')->first();
-        $admin2 = User::where('email', 'siti.rahayu@polrestabes-smg.test')->first();
+        $admin1 = User::where('email', 'pccpolrestabessemarang@gmail.com')->first();
+        $admin2 = User::where('email', 'pccpolrestabessemarang@gmail.com')->first();
 
         // Fetch location IDs for assignment
         $locGor = Location::where('name', 'GOR Jatidiri Semarang')->first();
@@ -165,7 +165,88 @@ class ParticipantUserSeeder extends Seeder
                     'location_id' => $locPolres?->id,
                 ],
             ],
+            [
+                'user' => [
+                    'name' => 'Satrio Wibowo',
+                    'nik' => '3374012201060006',
+                    'role' => 'peserta',
+                    'is_active' => true,
+                    'email' => null,
+                    'password' => null,
+                ],
+                'profile' => [
+                    'assigned_admin_id' => $admin1->id,
+                    'full_name' => 'Satrio Wibowo',
+                    'nik' => '3374012201060006',
+                    'address' => 'Jl. Pahlawan No. 1, Pleburan',
+                    'phone' => '089012345606',
+                    'violation_type_id' => $vtBalap?->id,
+                    'case_notes' => 'Masa pengawasan sudah selesai dengan baik.',
+                    'supervision_start' => '2026-01-01',
+                    'supervision_end' => '2026-03-31',
+                    'quota_type' => 'weekly',
+                    'quota_amount' => 1,
+                    'status' => 'active',
+                    'location_id' => $locPolres?->id,
+                ],
+            ],
         ];
+
+        $polseks = [
+            'semarangtengah@libas.id',
+            'semarangutara@libas.id',
+            'semarangselatan@libas.id',
+            'semarangbarat@libas.id',
+            'semarangtimur@libas.id',
+            'gajahmungkur@libas.id',
+            'candisari@libas.id',
+        ];
+
+        $faker = \Faker\Factory::create('id_ID');
+        $locations = array_filter([$locGor, $locPolres, $locBalai, $locTaman]);
+        $violationTypes = array_filter([$vtBalap, $vtRusuh, $vtKelahi, $vtVandal, $vtNarkoba]);
+
+        foreach ($polseks as $email) {
+            $admin = User::where('email', $email)->first();
+            if (!$admin) continue;
+
+            // Generate 4 random participants per Polsek
+            for ($i = 0; $i < 4; $i++) {
+                $nik = '33740' . $faker->unique()->numerify('###########');
+                $name = $faker->name;
+                $loc = $locations[array_rand($locations)];
+                $vt = $violationTypes[array_rand($violationTypes)];
+                
+                $startDays = rand(10, 60);
+                $endDays = rand(10, 60);
+
+                $participants[] = [
+                    'user' => [
+                        'name' => $name,
+                        'nik' => $nik,
+                        'role' => 'peserta',
+                        'is_active' => true,
+                        'email' => null,
+                        'password' => null,
+                    ],
+                    'profile' => [
+                        'assigned_admin_id' => $admin->id,
+                        'full_name' => $name,
+                        'nik' => $nik,
+                        'address' => $faker->address,
+                        'phone' => '08' . rand(1000000000, 9999999999),
+                        'violation_type_id' => $vt->id,
+                        'case_notes' => 'Kasus ditangani oleh ' . $admin->name,
+                        'supervision_start' => now()->subDays($startDays)->format('Y-m-d'),
+                        'supervision_end' => now()->addDays($endDays)->format('Y-m-d'),
+                        'quota_type' => ['weekly', 'monthly'][rand(0, 1)],
+                        'quota_amount' => rand(1, 4),
+                        'status' => 'active',
+                        'location_id' => $loc->id,
+                    ],
+                ];
+            }
+        }
 
         foreach ($participants as $data) {
             $user = User::updateOrCreate(

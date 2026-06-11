@@ -7,12 +7,12 @@
 @section('content')
 
 
-
 {{-- ── Stat Cards ── --}}
+<div x-data="dashboardModal()" class="relative">
 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
 
     {{-- Total Aktif --}}
-    <div class="col-span-1 bg-white rounded-2xl border border-brand-light/50 shadow-sm p-5 hover:shadow-md transition-shadow">
+    <div @click="openModal('aktif', 'Peserta Aktif')" role="button" class="col-span-1 bg-white rounded-2xl border border-brand-light/50 shadow-sm p-5 hover:shadow-md hover:bg-gray-50 transition-all cursor-pointer">
         <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-light/20">
                 <svg class="h-5 w-5 text-brand-accent" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -27,7 +27,7 @@
     </div>
 
     {{-- Patuh --}}
-    <div class="col-span-1 bg-white rounded-2xl border border-emerald-100 shadow-sm p-5 hover:shadow-md transition-shadow">
+    <div @click="openModal('patuh', 'Peserta Patuh')" role="button" class="col-span-1 bg-white rounded-2xl border border-emerald-100 shadow-sm p-5 hover:shadow-md hover:bg-gray-50 transition-all cursor-pointer">
         <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
                 <svg class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -42,7 +42,7 @@
     </div>
 
     {{-- Berisiko --}}
-    <div class="col-span-1 bg-white rounded-2xl border border-amber-100 shadow-sm p-5 hover:shadow-md transition-shadow">
+    <div @click="openModal('berisiko', 'Peserta Berisiko')" role="button" class="col-span-1 bg-white rounded-2xl border border-amber-100 shadow-sm p-5 hover:shadow-md hover:bg-gray-50 transition-all cursor-pointer">
         <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50">
                 <svg class="h-5 w-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -57,7 +57,7 @@
     </div>
 
     {{-- Mangkir --}}
-    <div class="col-span-1 bg-white rounded-2xl border border-red-100 shadow-sm p-5 hover:shadow-md transition-shadow">
+    <div @click="openModal('mangkir', 'Peserta Mangkir')" role="button" class="col-span-1 bg-white rounded-2xl border border-red-100 shadow-sm p-5 hover:shadow-md hover:bg-gray-50 transition-all cursor-pointer">
         <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50">
                 <svg class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -72,7 +72,7 @@
     </div>
 
     {{-- Selesai Segera --}}
-    <div class="col-span-1 bg-white rounded-2xl border border-brand-light/30 shadow-sm p-5 hover:shadow-md transition-shadow">
+    <div @click="openModal('segera_selesai', 'Selesai Segera')" role="button" class="col-span-1 bg-white rounded-2xl border border-brand-light/30 shadow-sm p-5 hover:shadow-md hover:bg-gray-50 transition-all cursor-pointer">
         <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-light/10">
                 <svg class="h-5 w-5 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -87,7 +87,7 @@
     </div>
 
     {{-- Selesai --}}
-    <div class="col-span-1 bg-white rounded-2xl border border-gray-200 shadow-sm p-5 hover:shadow-md transition-shadow">
+    <div @click="openModal('selesai', 'Telah Selesai')" role="button" class="col-span-1 bg-white rounded-2xl border border-gray-200 shadow-sm p-5 hover:shadow-md hover:bg-gray-50 transition-all cursor-pointer">
         <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100">
                 <svg class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -109,10 +109,120 @@
 {{-- ── Filter Bar ── --}}
 @include('components.participant-filters', ['route' => 'admin.dashboard', 'admins' => $admins])
 
-@include('components.participant-table', [
-    'participants' => $recentParticipants,
-    'title' => 'Peserta Terbaru',
-    'headerAction' => '<a href="' . route('admin.participants.index') . '" class="text-xs text-brand-accent hover:text-brand-secondary font-bold transition">Lihat Semua →</a>'
-])
+    @include('components.participant-table', [
+        'participants' => $recentParticipants,
+        'title' => 'Peserta Terbaru',
+        'headerAction' => '<a href="' . route('admin.participants.index') . '" class="text-xs text-brand-accent hover:text-brand-secondary font-bold transition">Lihat Semua →</a>'
+    ])
 
+    {{-- Modal Alpine.js --}}
+    <div x-show="modalOpen" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        
+        {{-- Backdrop --}}
+        <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" @click="closeModal()"></div>
+
+        {{-- Modal Dialog --}}
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div x-show="modalOpen" class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-5xl"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 @click.stop>
+                
+                {{-- Header --}}
+                <div class="bg-gray-50 px-4 py-4 sm:px-6 flex items-center justify-between border-b border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-900" x-text="modalTitle"></h3>
+                    <div class="flex items-center gap-3">
+                        {{-- Export Button --}}
+                        <a :href="exportUrl" class="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-600 hover:bg-emerald-100 transition-colors">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m6.75 12-3-3m0 0-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                            </svg>
+                            Ekspor Excel
+                        </a>
+                        <button type="button" @click="closeModal()" class="text-gray-400 hover:text-gray-500">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Body --}}
+                <div class="p-4 sm:p-6 bg-white overflow-x-auto">
+                    <div x-show="loading" class="flex justify-center items-center py-12">
+                        <svg class="animate-spin h-8 w-8 text-brand-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                    <div x-show="!loading" x-html="modalContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function dashboardModal() {
+        return {
+            modalOpen: false,
+            modalType: '',
+            modalTitle: '',
+            modalContent: '',
+            loading: false,
+            exportUrl: '#',
+            
+            openModal(type, title) {
+                this.modalType = type;
+                this.modalTitle = title;
+                this.modalOpen = true;
+                this.loading = true;
+                this.modalContent = '';
+                
+                // Determine Export URL parameters based on type
+                let params = new URLSearchParams();
+                if (type === 'aktif') {
+                    params.append('status_akun', 'aktif');
+                } else if (['patuh', 'berisiko', 'mangkir'].includes(type)) {
+                    params.append('status_akun', 'aktif');
+                    params.append('tingkat_kepatuhan', type);
+                } else if (['segera_selesai', 'selesai'].includes(type)) {
+                    params.append('status_akun', 'aktif');
+                    params.append('progress_pengawasan', type);
+                }
+                
+                this.exportUrl = `{{ route('admin.reports.export') }}?${params.toString()}`;
+
+                // Fetch HTML content
+                fetch(`{{ route('admin.dashboard.participants-modal') }}?filter_type=${type}`)
+                    .then(res => res.text())
+                    .then(html => {
+                        this.modalContent = html;
+                        this.loading = false;
+                    })
+                    .catch(err => {
+                        this.modalContent = '<div class="p-4 text-red-500 text-center font-bold">Gagal memuat data.</div>';
+                        this.loading = false;
+                    });
+            },
+            
+            closeModal() {
+                this.modalOpen = false;
+                setTimeout(() => {
+                    this.modalContent = '';
+                }, 300);
+            }
+        }
+    }
+</script>
 @endsection

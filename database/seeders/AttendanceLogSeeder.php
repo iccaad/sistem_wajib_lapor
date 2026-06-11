@@ -48,6 +48,7 @@ class AttendanceLogSeeder extends Seeder
             '3374024703050003' => 0.90,  // Dewi - very good
             '3374011509020004' => 0.20,  // Fajar - poor
             '3374012201060005' => 0.60,  // Yoga - moderate
+            '3374012201060006' => 1.00,  // Satrio - perfect
         ];
 
         $compliance = $complianceMap[$participant->nik] ?? 0.50;

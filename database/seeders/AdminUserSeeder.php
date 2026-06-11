@@ -28,6 +28,27 @@ class AdminUserSeeder extends Seeder
             ],
         ];
 
+        $polseks = [
+            'Polsek Semarang Tengah' => 'semarangtengah@libas.id',
+            'Polsek Semarang Utara' => 'semarangutara@libas.id',
+            'Polsek Semarang Selatan' => 'semarangselatan@libas.id',
+            'Polsek Semarang Barat' => 'semarangbarat@libas.id',
+            'Polsek Semarang Timur' => 'semarangtimur@libas.id',
+            'Polsek Gajahmungkur' => 'gajahmungkur@libas.id',
+            'Polsek Candisari' => 'candisari@libas.id',
+        ];
+
+        foreach ($polseks as $name => $email) {
+            $admins[] = [
+                'name' => $name,
+                'email' => $email,
+                'password' => Hash::make('11223344'),
+                'role' => 'admin',
+                'is_root_super_admin' => false,
+                'is_active' => true,
+            ];
+        }
+
         foreach ($admins as $admin) {
             User::updateOrCreate(
                 ['email' => $admin['email']],

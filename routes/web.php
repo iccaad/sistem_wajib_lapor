@@ -67,6 +67,7 @@ Route::middleware(['auth', 'admin', 'log.activity'])->prefix('admin')->name('adm
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/participants-modal', [DashboardController::class, 'participantsModal'])->name('dashboard.participants-modal');
 
     // Participants CRUD
     Route::resource('participants', ParticipantController::class);

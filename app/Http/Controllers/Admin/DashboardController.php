@@ -99,4 +99,55 @@ class DashboardController extends Controller
 
         return $perPage;
     }
+
+    public function participantsModal(Request $request)
+    {
+        $filterType = $request->query('filter_type');
+        
+        switch ($filterType) {
+            case 'aktif':
+                $request->merge(['status_akun' => 'aktif']);
+                break;
+            case 'patuh':
+                $request->merge(['status_akun' => 'aktif', 'tingkat_kepatuhan' => 'patuh']);
+                break;
+            case 'berisiko':
+                $request->merge(['status_akun' => 'aktif', 'tingkat_kepatuhan' => 'berisiko']);
+                break;
+            case 'mangkir':
+                $request->merge(['status_akun' => 'aktif', 'tingkat_kepatuhan' => 'mangkir']);
+                break;
+            case 'segera_selesai':
+                $request->merge(['status_akun' => 'aktif', 'progress_pengawasan' => 'segera_selesai']);
+                break;
+            case 'selesai':
+                $request->merge(['status_akun' => 'aktif', 'progress_pengawasan' => 'selesai']);
+                break;
+        }
+
+        $applyFilters = function ($query) use ($request) {
+            if ($dateFrom = $request->input('date_from')) {
+                $query->whereDate('participants.created_at', '>=', $dateFrom);
+            }
+
+            if ($dateTo = $request->input('date_to')) {
+                $query->whereDate('participants.created_at', '<=', $dateTo);
+            }
+
+            if ($adminId = $request->input('admin_id')) {
+                $query->where('participants.assigned_admin_id', $adminId);
+            }
+        };
+
+        $query = Participant::with(['user', 'assignedAdmin', 'attendancePeriods'])
+            ->tap($applyFilters)
+            ->latest();
+
+        $this->applyParticipantFilters($query, $request);
+
+        // Fetch without pagination to keep the modal simple and straightforward
+        $participants = $query->take(100)->get();
+
+        return view('admin.partials.dashboard-modal-table', compact('participants'))->render();
+    }
 }

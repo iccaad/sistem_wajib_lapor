@@ -20,8 +20,8 @@ class ActivityLogSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin1 = User::where('email', 'budi.santoso@polrestabes-smg.test')->first();
-        $admin2 = User::where('email', 'siti.rahayu@polrestabes-smg.test')->first();
+        $admin1 = User::where('email', 'pccpolrestabessemarang@gmail.com')->first();
+        $admin2 = User::where('email', 'pccpolrestabessemarang@gmail.com')->first();
 
         $participants = Participant::all();
 
@@ -29,10 +29,10 @@ class ActivityLogSeeder extends Seeder
 
         // Log participant creation by admins
         foreach ($participants as $participant) {
-            $creator = $participant->assigned_admin_id === $admin1->id ? $admin1 : $admin2;
+            $creator_id = $participant->assigned_admin_id ?? $admin1->id;
 
             $logs[] = [
-                'user_id' => $creator->id,
+                'user_id' => $creator_id,
                 'action' => 'created_participant',
                 'target_type' => 'participant',
                 'target_id' => $participant->id,
