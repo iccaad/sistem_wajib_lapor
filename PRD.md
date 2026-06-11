@@ -75,7 +75,21 @@ Setiap periode berakhir, sistem scheduler secara otomatis mengevaluasi kehadiran
 *   **Peringatan Level 2 (Pelanggaran Berulang):** Diterbitkan jika peserta mendapat Peringatan Level 1 berturut-turut pada periode berikutnya. Sistem otomatis mengirimkan email notifikasi kepada **Admin yang ditunjuk** sebagai pengawas peserta tersebut.
 *   **Peringatan Level 3 (Pelanggaran Berat):** Diterbitkan jika kelalaian berlanjut ke periode ketiga. Sistem otomatis mengirimkan email notifikasi darurat kepada **Seluruh Admin** di kepolisian untuk tindakan hukum/penjemputan fisik lebih lanjut.
 
-### 3.6. Override Manual & Riwayat Detail
+### 3.6. Klasifikasi Status Kepatuhan Peserta
+Sistem SIWALDI secara cerdas mengategorikan tingkat kepatuhan peserta yang masih aktif berdasarkan rekam jejak surat peringatan (*warnings*) yang mereka terima. Berikut adalah mekanisme penentuannya:
+
+*   **Status "Patuh":** 
+    Peserta aktif yang **sama sekali tidak memiliki surat peringatan aktif**. Artinya, peserta tersebut selalu rutin absen memenuhi kuota di setiap periode sebelumnya.
+*   **Status "Berisiko":** 
+    Peserta aktif yang saat ini memiliki **minimal satu surat Peringatan Level 1 aktif** (belum di-*resolve*). Peserta mulai mangkir pada periode terakhir dan berpotensi mendapatkan eskalasi peringatan jika mangkir lagi.
+*   **Status "Mangkir":** 
+    Peserta aktif yang saat ini memiliki **Peringatan Level 2 atau Level 3 aktif**. Peserta ini telah mengabaikan wajib lapor selama beberapa periode berturut-turut dan membutuhkan tindakan/intervensi fisik segera dari pihak kepolisian.
+
+Untuk status *progress* masa pengawasan, berlaku filter berikut:
+*   **Segera Selesai:** Peserta aktif yang masa pengawasannya (`supervision_end`) akan berakhir dalam waktu 7 hari ke depan (H sampai H+7).
+*   **Selesai:** Peserta aktif yang tanggal akhir masa pengawasannya (`supervision_end`) telah berlalu dari hari ini (telah lulus masa pembinaan).
+
+### 3.7. Override Manual & Riwayat Detail
 *   Jika peserta mengalami kendala teknis darurat (misal: GPS perangkat mati total), Admin memiliki otoritas penuh untuk mencatatkan kehadiran secara manual (override) melalui tombol khusus di panel Admin.
 *   Tindakan override ini mencatat status khusus (`manual_override`) beserta alasan manual dari petugas admin untuk keperluan audit.
 
@@ -105,8 +119,9 @@ Setiap periode berakhir, sistem scheduler secara otomatis mengevaluasi kehadiran
 1.  **Halaman Login Admin (`/admin/login`):**
     *   Form input email dan password yang dikelola oleh Laravel Breeze.
 2.  **Dashboard Admin (`/admin/dashboard`):**
-    *   Statistik Utama (Widget Card): Total peserta aktif, total lokasi aktif, jumlah peringatan aktif, dan persentase tingkat kepatuhan keseluruhan.
-    *   Tabel Ringkasan: Kehadiran hari ini, peserta yang baru ditambahkan, dan peringatan level tinggi terbaru.
+    *   **Statistik Interaktif (Drill-Down Modal):** Terdapat 6 kartu statistik utama (Total Aktif, Patuh, Berisiko, Mangkir, Segera Selesai, dan Selesai). Mengklik salah satu kartu akan memunculkan *pop-up modal* Alpine.js berisi tabel data peserta yang tersaring tanpa memuat ulang halaman.
+    *   **Ekspor Otomatis:** Modal drill-down terintegrasi langsung dengan tombol **Ekspor Excel** yang mendownload rekap spesifik sesuai filter kartu statistik tersebut.
+    *   Tabel Ringkasan: Kehadiran terbaru dan peringatan level tinggi terbaru.
 3.  **Manajemen Peserta (`/admin/participants`):**
     *   Daftar Peserta dengan pagination (10 data per halaman).
     *   **Komponen Tabel Peserta Reusable:** Menggunakan komponen Blade terpadu (`x-participant-table`) yang konsisten di Dashboard, Index Peserta, dan Laporan.
@@ -125,7 +140,8 @@ Setiap periode berakhir, sistem scheduler secara otomatis mengevaluasi kehadiran
     *   Filter pada halaman ini hanya menyisakan penyaringan berdasarkan tanggal pembuatan akun peserta (**Dari/Sampai Tanggal Dibuat**) tanpa filter status atau jenis pelanggaran demi efisiensi visual antarmuka.
     *   Halaman Detail Kepatuhan Peserta (`/admin/reports/{participant}`): Menampilkan timeline absensi lengkap, riwayat percobaan gagal (`attendance_attempts`), dan riwayat penerbitan surat peringatan (`warnings`).
 7.  **Manajemen Akun Admin (`/admin/accounts`):**
-    *   *Khusus Super Admin:* CRUD untuk mendaftarkan akun petugas kepolisian baru atau menonaktifkan akun admin lainnya. Halaman ini dilindungi middleware `super.admin` yang mengecek status `is_root_super_admin`.
+    *   *Khusus Super Admin:* CRUD untuk mendaftarkan akun petugas kepolisian baru atau menghapus akun admin lainnya. Halaman ini dilindungi middleware `super.admin` yang mengecek status `is_root_super_admin`.
+    *   Menampilkan metrik **Peserta** (angka yang diambil secara dinamis via sub-query `withCount` dari relasi `assignedParticipants`) untuk menunjukkan beban pengawasan dari masing-masing admin secara sekilas.
 8.  **Edit Profil Admin (`/admin/profile/edit`):**
     *   Halaman dengan layout kartu terpusat (`max-w-2xl`) yang clean dan modern menggunakan Tailwind CSS.
     *   Memungkinkan setiap petugas (Admin dan Super Admin) memperbarui Nama Lengkap, Email, dan Password Baru (opsional) mereka sendiri.
