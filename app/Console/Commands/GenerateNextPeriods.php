@@ -28,12 +28,12 @@ class GenerateNextPeriods extends Command
     {
         $this->info('['.now()->format('Y-m-d H:i:s').'] periods:generate-next — Mulai...');
 
-        $generated = $periodService->generatePeriodsForAllActive();
+        $updated = $periodService->updateExpiredPeriodsStatus();
 
-        if ($generated === 0) {
-            $this->line('  → Tidak ada periode baru yang perlu dibuat.');
+        if ($updated === 0) {
+            $this->line('  → Tidak ada periode kedaluwarsa yang perlu diperbarui.');
         } else {
-            $this->info("  → Generated {$generated} new period(s).");
+            $this->info("  → Diperbarui {$updated} periode yang kedaluwarsa.");
         }
 
         $this->info('Selesai.');

@@ -107,44 +107,46 @@ class WarningService
      */
     private function checkLevel2(Participant $participant): int
     {
-        $recentEndedPeriod = $participant->attendancePeriods()
-            ->where('period_end', today()->subDay()->toDateString())
-            ->first();
+        $endedPeriods = $participant->attendancePeriods()
+            ->where('period_end', '<', today()->toDateString())
+            ->get();
 
-        if (! $recentEndedPeriod) {
-            return 0;
+        $created = 0;
+
+        foreach ($endedPeriods as $endedPeriod) {
+            // If quota was fulfilled, no warning needed
+            if ($endedPeriod->isFulfilled()) {
+                continue;
+            }
+
+            // Only one level_2 warning per period (no unique constraint bypass)
+            $alreadyExists = Warning::where('participant_id', $participant->id)
+                ->where('attendance_period_id', $endedPeriod->id)
+                ->where('level', 'level_2')
+                ->exists();
+
+            if ($alreadyExists) {
+                continue;
+            }
+
+            $missing = $endedPeriod->getRemainingCount();
+
+            Warning::create([
+                'participant_id' => $participant->id,
+                'attendance_period_id' => $endedPeriod->id,
+                'level' => 'level_2',
+                'reason' => "Periode wajib lapor telah berakhir dengan {$missing} kehadiran yang tidak terpenuhi.",
+                'issued_at' => now(),
+                'status' => 'active',
+            ]);
+
+            // Send email to assigned admin
+            $this->sendWarningEmail($participant, 2);
+
+            $created++;
         }
 
-        // If quota was fulfilled, no warning needed
-        if ($recentEndedPeriod->isFulfilled()) {
-            return 0;
-        }
-
-        // Only one level_2 warning per period (no unique constraint bypass)
-        $alreadyExists = Warning::where('participant_id', $participant->id)
-            ->where('attendance_period_id', $recentEndedPeriod->id)
-            ->where('level', 'level_2')
-            ->exists();
-
-        if ($alreadyExists) {
-            return 0;
-        }
-
-        $missing = $recentEndedPeriod->getRemainingCount();
-
-        Warning::create([
-            'participant_id' => $participant->id,
-            'attendance_period_id' => $recentEndedPeriod->id,
-            'level' => 'level_2',
-            'reason' => "Periode wajib lapor telah berakhir dengan {$missing} kehadiran yang tidak terpenuhi.",
-            'issued_at' => now(),
-            'status' => 'active',
-        ]);
-
-        // Send email to assigned admin
-        $this->sendWarningEmail($participant, 2);
-
-        return 1;
+        return $created;
     }
 
     /**
